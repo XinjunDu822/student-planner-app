@@ -1,7 +1,8 @@
 import logo from './logo.png';
 import './App.css';
+import Popup from 'reactjs-popup';
 import { useState } from 'react';
-
+import 'reactjs-popup/dist/index.css';
 
 function Task({name})
 {
@@ -82,8 +83,36 @@ export default function App() {
 
           <h2>My Dashboard</h2>
 
-          <div>
-            <button>Add Task</button>
+          <div >
+            {/* pop up window */}
+            <Popup className="task-popup"
+                trigger= {<button> Add Task </button>}
+                modal>
+                {
+                    close => (
+                        <div className='modal'>
+                            <div className='content'>
+                                Enter task details
+                            </div>
+                            <div className="task-popup-content">
+                                <input className="task-popup-content" type="text" id="myTextInput" placeholder="Enter task name"/>
+                            </div >
+                            <div className="task-popup-content">
+                                <input className="task-popup-content" type="text" id="myTextInput" placeholder="Enter task description"/>
+                            </div>
+                            <div className="task-popup-content">
+                                <input className="task-popup-content" type="text" id="myTextInput" placeholder="Enter due date"/>
+                            </div>
+                            <div>
+                                <button onClick=
+                                    {() => console.log("save task")}>
+                                        Save task
+                                </button>
+                            </div>
+                        </div>
+                    )
+                }
+            </Popup>
           </div>
 
           <h3>Late</h3>
