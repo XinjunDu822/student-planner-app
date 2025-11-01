@@ -1,82 +1,94 @@
 import logo from './logo.png';
 import './App.css';
 import Popup from 'reactjs-popup';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import 'reactjs-popup/dist/index.css';
+import { InputField } from './Utils';
+import { LoginPage } from './Login';
+import { AddTaskPopup, DisplayTasks, DisplayLateTasks } from './Tasks';
 
-function Task({name})
+
+function GenericTask(name)
 {
-  return (
-    <div className = "task" style={{ display: 'flex', gap: '20px', margin: '15px', textAlign: 'left'}}>
-
-      <div style={{ flex: 2, maxWidth: '200px'}}>
-        {name} Name
-      </div>
-
-      <div style={{ flex: 1, maxWidth: '100px'}}>
-        {name} Date  
-      </div>
-
-      <div style={{ flex: 3}}>
-        {name} Description  
-      </div>
-
-      <div>
-        <button>Mark Complete</button>
-      </div>
-
-      <div>
-        <button>Edit</button>
-      </div>
-
-      <div>
-        <button>Delete</button>
-      </div>       
-
-    </div>
-  );
-}
-
+  return {name: name, 
+          desc: name + " description", 
+          date: "00-00-00", 
+          time: "00:00 AM"};
+};
 
 export default function App() {
 
+  const [numLateTasks, setNumLateTasks] = useState(2);
+  
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [tasks, setTasks] = useState([]);
-  function login()
+  const [tasks, setTasks] = useState([GenericTask("Late Task 1"),
+                                      GenericTask("Late Task 2"),
+                                      GenericTask("Generic Task 1"),
+                                      GenericTask("Generic Task 2")]);
+
+
+  function login(username, password)
   {
     setIsLoggedIn(true);
+  };
+
+  function addTask(name, desc, date, time)
+  {
+    if(/^\s*$/.test(name) ||
+       /^\s*$/.test(desc) ||
+       /^\s*$/.test(date) ||
+       /^\s*$/.test(time))
+      return 1;
+
+    let updatedTasks = [...tasks];
+
+    updatedTasks.push({name: name, 
+                       desc: desc, 
+                       date: date, 
+                       time: time})
+
+    setTasks(updatedTasks);
+  };
+
+  function editTask(i, name, desc, date, time)
+  {
+    if(/^\s*$/.test(name) ||
+       /^\s*$/.test(desc) ||
+       /^\s*$/.test(date) ||
+       /^\s*$/.test(time))
+      return 1;
+
+    let updatedTasks = [...tasks];
+
+    updatedTasks[i] = ({name: name, 
+                        desc: desc, 
+                        date: date, 
+                        time: time})
+
+    setTasks(updatedTasks);
   }
 
-  function addTask()
+  function deleteTask(i)
   {
-    setTasks([...tasks, <Task name="Late Task 1"/>]);
+    let updatedTasks = [...tasks];
+
+    updatedTasks.splice(i, 1);
+
+    if(i < numLateTasks)
+    {
+      setNumLateTasks(numLateTasks-1);
+    }
+
+    setTasks(updatedTasks);
   }
+
+
+  
+
 
   if(!isLoggedIn)
 
-    return (
-      <>
-        <div className="App">
-          <header>
-            <h1>Class Planner App</h1>
-            <hr></hr>
-          </header>        
-        </div>
-
-        <div style={{textAlign: 'center'}}>
-
-          <div>
-            <button onClick={login}>Login</button>
-          </div>
-
-          <div>
-            <button>Create Account</button>
-          </div>
-
-        </div>
-
-      </>
-    );
+    return <LoginPage login={login}/>;
 
   return (
       <>
@@ -88,56 +100,12 @@ export default function App() {
 
           <h2>My Dashboard</h2>
 
-          <div >
-            {/* pop up window */}
-            <Popup className="task-popup"
-                trigger= {<button> Add Task </button>}
-                modal>
-                {
-                    close => (
-                        <div className='modal'>
-                            <div className='content'>
-                                Enter task details
-                            </div>
-                            <div className="task-popup-content">
-                                <input className="task-popup-content" type="text" id="myTextInput" placeholder="Enter task name"/>
-                            </div >
-                            <div className="task-popup-content">
-                                <input className="task-popup-content" type="text" id="myTextInput" placeholder="Enter task description"/>
-                            </div>
-                            <div className="task-popup-content">
-                                <input className="task-popup-content" type="text" id="myTextInput" placeholder="Enter due date"/>
-                            </div>
-                            <div>
-                                <button onClick=
-                                    {() => {addTask(); close();}}>
-                                        Save task
-                                </button>
-                            </div>
-                        </div>
-                    )
-                }
-            </Popup>
-          </div>
+          <AddTaskPopup addTask = {addTask}/>
 
-          <h3>Late</h3>
+          <DisplayLateTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask}/>
 
-            <Task name="Late Task 1"/>
+          <DisplayTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask}/>
 
-            <Task name="Late Task 2"/>
-
-          <h3>To Do</h3>
-
-          <div id="TasksList">
-            {tasks}
-{/* 
-            <Task name="Task 1"/>
-
-            <Task name="Task 2"/>
-
-            <Task name="Task 3"/> */}
-
-          </div>        
         </div>
       </>
     );
