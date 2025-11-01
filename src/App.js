@@ -41,10 +41,15 @@ function Task({name})
 export default function App() {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+  const [tasks, setTasks] = useState([]);
   function login()
   {
     setIsLoggedIn(true);
+  }
+
+  function addTask()
+  {
+    setTasks([...tasks, <Task name="Late Task 1"/>]);
   }
 
   if(!isLoggedIn)
@@ -105,7 +110,7 @@ export default function App() {
                             </div>
                             <div>
                                 <button onClick=
-                                    {() => console.log("save task")}>
+                                    {() => {addTask(); close();}}>
                                         Save task
                                 </button>
                             </div>
@@ -124,12 +129,13 @@ export default function App() {
           <h3>To Do</h3>
 
           <div id="TasksList">
-
+            {tasks}
+{/* 
             <Task name="Task 1"/>
 
             <Task name="Task 2"/>
 
-            <Task name="Task 3"/>
+            <Task name="Task 3"/> */}
 
           </div>        
         </div>
@@ -138,21 +144,3 @@ export default function App() {
 }
 
 
-/* <>
-      <div className="status">{status}</div>
-      <div className="board-row">
-        <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-        <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-        <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
-      </div>
-      <div className="board-row">
-        <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-        <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-        <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
-      </div>
-      <div className="board-row">
-        <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-        <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-        <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
-      </div>
-    </> */
