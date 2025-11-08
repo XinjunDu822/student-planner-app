@@ -1,7 +1,7 @@
 import logo from './logo.png';
 import './App.css';
 import Popup from 'reactjs-popup';
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import 'reactjs-popup/dist/index.css';
 import { InputField } from './Utils';
 import { LoginPage } from './Login';
@@ -26,6 +26,8 @@ export default function App() {
                                       GenericTask("Generic Task 1"),
                                       GenericTask("Generic Task 2")]);
 
+  const [sortOption, setSortOption] = useState("dateAsc");
+  const [filterOption, setFilterOption] = useState("all");
 
   function login(username, password)
   {
@@ -83,7 +85,24 @@ export default function App() {
   }
 
 
-  
+  const filteredTasks = useMemo(() => {
+    let temp = tasks.filter((task, index) => {
+      if (filterOption === "all") return true;
+      if (filterOption === "late") return index < numLateTasks;
+      if (filterOption === "completed") return index >= numLateTasks;
+    });
+
+    temp.sort((a, b) => {
+      if (sortOption === "nameAsc") return a.name.localeCompare(b.name);
+      if (sortOption === "nameDesc") return b.name.localeCompare(a.name);
+      if (sortOption === "dateAsc") return a.date.localeCompare(b.date);
+      if (sortOption === "dateDesc") return b.date.localeCompare(a.date);
+      return 0;
+    });
+
+    return temp;
+  }, [tasks, sortOption, filterOption, numLateTasks]);
+
 
 
   if(!isLoggedIn)
@@ -102,9 +121,31 @@ export default function App() {
 
           <AddTaskPopup addTask = {addTask}/>
 
+          {/* Sorting & Filtering Controls */}
+          <div className="controls">
+            <label>
+              Filter:
+              <select value={filterOption} onChange={e => setFilterOption(e.target.value)}>
+                <option value="all">All</option>
+                <option value="late">Late</option>
+                <option value="completed">Completed</option>
+              </select>
+            </label>
+
+            <label>
+              Sort:
+              <select value={sortOption} onChange={e => setSortOption(e.target.value)}>
+                <option value="nameAsc">Name ↑</option>
+                <option value="nameDesc">Name ↓</option>
+                <option value="dateAsc">Date ↑</option>
+                <option value="dateDesc">Date ↓</option>
+              </select>
+            </label>
+          </div>
+
           <DisplayLateTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask}/>
 
-          <DisplayTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask}/>
+          <DisplayTasks tasks={filteredTasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask}/>
 
         </div>
       </>
