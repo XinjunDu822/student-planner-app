@@ -4,6 +4,8 @@ import Popup from 'reactjs-popup';
 import { useState } from 'react';
 import 'reactjs-popup/dist/index.css';
 import { InputField } from './Utils';
+import { Header } from './Header';
+
 
 function isUsernameInDataBase(username)
 {
@@ -26,7 +28,7 @@ function LoginPopup({login})
     <div >
       {/* pop up window */}
       <Popup className="task-popup"
-          trigger= {<button> Login </button>}
+          trigger= {<button className="button"> Login </button>}
           modal>
           {
               close => (
@@ -35,23 +37,27 @@ function LoginPopup({login})
                           <h3>Welcome Back</h3>
                       </div>
 
-                      <div className="task-popup-content" style={{margin:'0 auto'}}>
+                      <div className="task-popup-content">
                           <InputField placeholderText = "Username" value={user} setValue = {setUser}/>
                       </div >
 
-                      <div className="task-popup-content" style={{margin:'0 auto'}}>
+                      <div className="task-popup-content">
                           <InputField placeholderText = "Password" value={pwd} setValue = {setPwd} inputType="password"/>
                       </div >
 
-                      <div style={{ display: 'flex', gap: '10px', justifyContent:'center'}}>
-                          <button onClick=
-                              {() => {if(isLoginValid(user, pwd) && !login(user, pwd)) close();}}>
-                                  Sign In
-                          </button>
-                          <button onClick=
-                              {close}>
-                                  Back
-                          </button>
+                      <div className="button-holder">
+                        <div>
+                            <button className="button" onClick=
+                                {() => {if(isLoginValid(user, pwd) && !login(user, pwd)) close();}}>
+                                    Sign In
+                            </button>
+                        </div>
+                        <div>
+                            <button className="button" onClick=
+                                {close}>
+                                    Back
+                            </button>
+                        </div>
                       </div>
                   </div>
               )
@@ -70,7 +76,7 @@ function RegisterPopup({login})
     <div >
       {/* pop up window */}
       <Popup className="task-popup"
-          trigger= {<button> Create Account </button>}
+          trigger= {<button className="button"> Create Account </button>}
           modal>
           {
               close => (
@@ -83,23 +89,27 @@ function RegisterPopup({login})
                           Password must have at least six characters, including at least one uppercase letter, lowercase letter, and number.<br/> 
                       </div>
 
-                      <div className="task-popup-content" style={{margin:'0 auto'}}>
+                      <div className="task-popup-content">
                           <InputField placeholderText = "Username" value={user} setValue = {setUser}/>
                       </div >
 
-                      <div className="task-popup-content" style={{margin:'0 auto'}}>
+                      <div className="task-popup-content">
                           <InputField placeholderText = "Password" value={pwd} setValue = {setPwd} inputType="password"/>
                       </div >
 
-                      <div style={{ display: 'flex', gap: '10px', justifyContent:'center'}}>
-                          <button onClick=
-                              {() => {if(!isUsernameInDataBase(user, pwd) && !login(user, pwd)) close();}}>
-                                  Register
-                          </button>
-                          <button onClick=
-                              {close}>
-                                  Back
-                          </button>
+                      <div className="button-holder">
+                        <div>
+                            <button className="button" onClick=
+                                {() => {if(!isUsernameInDataBase(user, pwd) && !login(user, pwd)) close();}}>
+                                    Register
+                            </button>
+                        </div>
+                        <div>
+                            <button className="button" onClick=
+                                {close}>
+                                    Back
+                            </button>
+                        </div>
                       </div>
                   </div>
               )
@@ -133,24 +143,18 @@ export function LoginPage({login})
 
   return (
     <>
-      <div className="App">
-        <header>
-          <h1>Class Planner App</h1>
-          <hr></hr>
-        </header>        
-      </div>
+      <Header/>
 
-      <div style={{textAlign: 'center'}}>
+      <main>
 
-        <div>
+        <img className="icon" src={process.env.PUBLIC_URL + "/new_logo_transparent.png"} alt="Logo"/>
+
+        <div className="wide-button-holder">
             <LoginPopup login={login}/>
-        </div>
-
-        <div>
             <RegisterPopup login={LoginWrapper}/>
         </div>
 
-      </div>
+      </main>
     </>
   );
 };

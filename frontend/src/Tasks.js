@@ -1,33 +1,34 @@
 import logo from './logo.png';
 import './App.css';
 import Popup from 'reactjs-popup';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import 'reactjs-popup/dist/index.css';
 import { InputField } from './Utils';
+
 
 export function Task({index, name, date, time, desc, editTask, deleteTask})
 {
   return (
-    <div className = "task" style={{ display: 'flex', gap: '20px', margin: '15px', textAlign: 'left'}}>
+    <div className = "task">
 
-      <div style={{ flex: 2, maxWidth: '200px'}}>
+      <div>
         {name}
       </div>
 
-      <div style={{ flex: 1, maxWidth: '100px'}}>
+      <div>
         {date}  
       </div>
 
-      <div style={{ flex: 1, maxWidth: '100px'}}>
+      <div>
         {time}  
       </div>
 
-      <div style={{ flex: 3}}>
+      <div>
         {desc}  
       </div>
 
       <div>
-        <button>Mark Complete</button>
+        <button className="button">Mark Complete</button>
       </div>
 
       <div>
@@ -56,6 +57,7 @@ export function DisplayLateTasks({tasks, numLateTasks, editTask, deleteTask})
                 if(index < numLateTasks)
                 {
                     return <Task index={index} 
+                            key={index}
                             name={item.name} 
                             desc={item.desc} 
                             date={item.date} 
@@ -90,6 +92,7 @@ export function DisplayTasks({tasks, numLateTasks, editTask, deleteTask})
                     if(index >= numLateTasks)
                     {
                         return <Task index={index} 
+                                key={index}
                                 name={item.name} 
                                 desc={item.desc} 
                                 date={item.date} 
@@ -136,40 +139,44 @@ export function AddTaskPopup({addTask})
     <div >
       {/* pop up window */}
       <Popup className="task-popup"
-          trigger= {<button> Add Task </button>}
+          trigger= {<button className="button"> Add Task </button>}
           modal>
           {
               close => (
-                  <div className='modal'  style={{textAlign: 'center', margin: '20px'}}>
+                  <div className='modal'>
                       <div className='content'>
                           <h3>Add Task</h3>
                       </div>
 
-                      <div className="task-popup-content" style={{margin:'0 auto'}}>
+                      <div className="task-popup-content">
                           <InputField placeholderText = "Enter task name" value={name} setValue = {setName}/>
                       </div >
 
-                      <div className="task-popup-content" style={{margin:'0 auto'}}>
+                      <div className="task-popup-content">
                           <InputField placeholderText = "Enter task description" value={desc} setValue = {setDesc}/>
                       </div >
 
-                      <div className="task-popup-content" style={{margin:'0 auto'}}>
+                      <div className="task-popup-content">
                           <InputField placeholderText = "Enter task date" value={date} setValue = {setDate}/>
                       </div >
 
-                      <div className="task-popup-content" style={{margin:'0 auto'}}>
+                      <div className="task-popup-content">
                           <InputField placeholderText = "Enter task time" value={time} setValue = {setTime}/>
                       </div >
 
-                      <div style={{ display: 'flex', gap: '10px', justifyContent:'center'}}>
-                          <button onClick=
-                              {() => {if(!addTask(name, desc, date, time)){resetVars(); close();}}}>
-                                  Save
-                          </button>
-                          <button onClick=
-                              {() => {resetVars(); close();}}>
-                                  Cancel
-                          </button>
+                      <div className="button-holder">
+                        <div>
+                            <button className="button" onClick=
+                                {() => {if(!addTask(name, desc, date, time)){resetVars(); close();}}}>
+                                    Save
+                            </button>
+                        </div>
+                        <div>
+                            <button className="button" onClick=
+                                {() => {resetVars(); close();}}>
+                                    Cancel
+                            </button>
+                        </div>
                       </div>
                   </div>
               )
@@ -205,40 +212,44 @@ export function EditTaskPopup({editTask, currentName, currentDate, currentTime, 
     <div >
       {/* pop up window */}
       <Popup className="task-popup"
-          trigger= {<button>Edit</button>}
+          trigger= {<button className="button">Edit</button>}
           modal>
           {
               close => (
-                  <div className='modal'  style={{textAlign: 'center', margin: '20px'}}>
+                  <div className='modal'>
                       <div className='content'>
                           <h3>Editing {currentName}</h3>
                       </div>
 
-                      <div className="task-popup-content" style={{margin:'0 auto'}}>
+                      <div className="task-popup-content">
                           <InputField placeholderText = "Enter task name" value={name} setValue = {setName}/>
                       </div >
 
-                      <div className="task-popup-content" style={{margin:'0 auto'}}>
+                      <div className="task-popup-content">
                           <InputField placeholderText = "Enter task description" value={desc} setValue = {setDesc}/>
                       </div >
 
-                      <div className="task-popup-content" style={{margin:'0 auto'}}>
+                      <div className="task-popup-content">
                           <InputField placeholderText = "Enter task date" value={date} setValue = {setDate}/>
                       </div >
 
-                      <div className="task-popup-content" style={{margin:'0 auto'}}>
+                      <div className="task-popup-content">
                           <InputField placeholderText = "Enter task time" value={time} setValue = {setTime}/>
                       </div >
 
-                      <div style={{ display: 'flex', gap: '10px', justifyContent:'center'}}>
-                          <button onClick=
-                            {() => {if(!editTask(index, name, desc, date, time)) close();}}>
-                                Save
-                          </button>
-                          <button onClick=
-                              {() => {resetVars(); close();}}>
-                                Cancel
-                          </button>
+                      <div className="button-holder">
+                        <div>
+                            <button className="button" onClick=
+                              {() => {if(!editTask(index, name, desc, date, time)) close();}}>
+                                  Save
+                            </button>
+                        </div>
+                        <div>
+                            <button className="button" onClick=
+                                {() => {resetVars(); close();}}>
+                                  Cancel
+                            </button>
+                        </div>
                       </div>
                   </div>
               )
@@ -256,24 +267,28 @@ export function DeleteTaskPopup({deleteTask})
     <div >
       {/* pop up window */}
       <Popup className="task-popup"
-          trigger= {<button>Delete</button>}
+          trigger= {<button className="button">Delete</button>}
           modal>
           {
               close => (
-                  <div className='modal'  style={{textAlign: 'center', margin: '20px'}}>
+                  <div className='modal'>
                       <div className='content'>
                           <h3>Are you sure you want to delete this task?</h3>
                       </div>
 
-                      <div style={{ display: 'flex', gap: '10px', justifyContent:'center'}}>
-                          <button onClick=
-                            {() => {deleteTask(); close();}}>
-                                Yes
-                          </button>
-                          <button onClick=
-                              {() => {close();}}>
-                                No
-                          </button>
+                      <div className="button-holder">
+                        <div>
+                            <button className="button" onClick=
+                              {() => {deleteTask(); close();}}>
+                                  Yes
+                            </button>
+                        </div>
+                        <div>
+                            <button className="button" onClick=
+                                {() => {close();}}>
+                                  No
+                            </button>
+                        </div>
                       </div>
                   </div>
               )
