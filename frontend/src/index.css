@@ -25,7 +25,7 @@ code {
     monospace;
 }
 
-.button {
+button {
   background-color: #276c92;
   border: none;
   font-family: "Roboto Condensed", sans-serif;
@@ -38,6 +38,12 @@ code {
   font-size: 18px;
   cursor: pointer;
   border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  margin: 10px auto;
+}
+
+button > p:nth-child(2) {
+  display: none;
 }
 
 .button:hover {
@@ -56,6 +62,7 @@ code {
 .icon {
   max-width: 250px;
   height: auto;
+  margin: 10px;
 }
 
 
@@ -65,6 +72,10 @@ code {
   gap: 10px;
   justify-content: center;
   align-items: center; 
+}
+
+.wide-button-holder > div:not(:last-child) > button {
+  margin-bottom: 0px;
 }
 
 .wide-button-holder > div{
@@ -92,6 +103,13 @@ code {
   text-align: left;
 }
 
+.task > div {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  align-items: center;
+}
+
 
 .task > div:nth-child(1) {
   flex: 2;
@@ -108,14 +126,26 @@ code {
 .task > div:nth-child(4) {
   flex: 3;
   max-height: 80px; 
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  align-items: center;
+}
+
+.task > div:nth-last-child(1) {
+  display: flex;
+  gap: 20px;
+  margin-left: auto;
 }
 
 .task-popup-content {
   margin:0 auto;
+}
+
+.task button {
+  margin: 0px auto;
+}
+
+.popup-content {
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .modal {
@@ -164,6 +194,7 @@ code {
 
 .button-holder button {
   width: 100%;
+  margin-bottom: 0px;
 }
 
 .modal > div.task-popup-content >input.task-popup-content {  
@@ -173,10 +204,31 @@ code {
 }
 
 
+@media screen and (max-width: 1080px) {
+  .task > div:nth-child(3) {
+    display: none;
+  }
+}
 
+@media screen and (max-width: 980px) {
+  .task button {
+    padding: 10px 15px;
+  }
 
-@media screen and (max-width: 600px) {
-  .task > div:nth-child(3),
+  button > p:nth-child(1) {
+    display: none;
+  }
+
+  button > p:nth-child(2) {
+    display: block;
+  }
+}
+
+@media screen and (max-width: 740px) {
+
+  .task > div:nth-child(1) {
+    flex: 1;
+  }
   .task > div:nth-child(4) {
     display: none;
   }

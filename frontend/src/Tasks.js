@@ -28,16 +28,19 @@ export function Task({index, name, date, time, desc, editTask, deleteTask})
       </div>
 
       <div>
-        <button className="button">Mark Complete</button>
-      </div>
+        <div>
+          <button className="button"><p>Mark Complete</p><p>✓</p></button>
+        </div>
 
-      <div>
-        <EditTaskPopup editTask={editTask} currentName={name} currentDate={date} currentTime={time} currentDesc={desc} index={index}/>
-      </div>
+        <div>
+          <EditTaskPopup editTask={editTask} currentName={name} currentDate={date} currentTime={time} currentDesc={desc} index={index}/>
+        </div>
 
-      <div>
-        <DeleteTaskPopup deleteTask={deleteTask}/>
-      </div>       
+        <div>
+          <DeleteTaskPopup deleteTask={deleteTask}/>
+        </div>     
+
+      </div> 
 
     </div>
   );
@@ -110,7 +113,7 @@ export function DisplayTasks({tasks, numLateTasks, editTask, deleteTask})
         );
     }
     return (
-        <h3><br/>You have no tasks right now.<br/> Get started by creating some!</h3>
+        <h3><br/>You have no new tasks right now.<br/> Get started by creating some!</h3>
     );
 }
 
@@ -139,7 +142,8 @@ export function AddTaskPopup({addTask})
     <div >
       {/* pop up window */}
       <Popup className="task-popup"
-          trigger= {<button className="button"> Add Task </button>}
+          // trigger= {<button className="button"><p>Add Task</p><p>+</p></button>}
+          trigger= {<button className="button">Add Task</button>}
           modal>
           {
               close => (
@@ -212,7 +216,7 @@ export function EditTaskPopup({editTask, currentName, currentDate, currentTime, 
     <div >
       {/* pop up window */}
       <Popup className="task-popup"
-          trigger= {<button className="button">Edit</button>}
+          trigger= {<button className="button"><p>Edit</p><p>✎</p></button>}
           modal>
           {
               close => (
@@ -267,7 +271,7 @@ export function DeleteTaskPopup({deleteTask})
     <div >
       {/* pop up window */}
       <Popup className="task-popup"
-          trigger= {<button className="button">Delete</button>}
+          trigger= {<button className="button"><p>Delete</p><p>🗑</p></button>}
           modal>
           {
               close => (
