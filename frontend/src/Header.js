@@ -7,8 +7,9 @@ export function Header({user})
     return (
         <header>
             <div className="banner">
-                <h1>Class Planner App</h1>
-
+                <div className="title">
+                    <h1>Class Planner App</h1>
+                </div>
                 {
                     user != null && (
 

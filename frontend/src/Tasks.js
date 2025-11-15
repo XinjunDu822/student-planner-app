@@ -175,7 +175,7 @@ export function DisplayCompletedTasks({completedTasks})
 
             <div id="TasksList">
             
-                {completedTasks.map
+                {completedTasks.slice().reverse().map
                   ((item, index) => <CompletedTask index={index} 
                                       key={index}
                                       data={item}/>

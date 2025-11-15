@@ -7,34 +7,68 @@ import { InputField } from './Utils';
 import { Header } from './Header';
 
 
-function isUsernameInDataBase(username)
+function checkRegisterReqs(username, password)
 {
-    return false;
-}
+    const usernameTests = [/^.*[a-zA-Z].*[a-zA-Z].*[a-zA-Z].*$/]
 
-function isLoginValid(username, password)
-{
+    if(!usernameTests.every(r => r.test(username)))
+        return false;
+
+    const passwordTests = [/^.*[A-Z].*$/,
+                           /^.*[a-z].*$/,
+                           /^.*[\d].*$/,
+                           /^.{6,}$/
+                          ];
+    
+    if(!passwordTests.every(r => r.test(password)))
+        return false;
+
     return true;
 }
 
 
 
-function LoginPopup({login})
+export function LoginPopup({login, isLoginValid})
 {
   const [user, setUser] = useState("");
   const [pwd, setPwd] = useState("");
+
+  const [error, setError] = useState("");
+
+  const reset = () =>
+  {
+    setError("");
+    setUser("");
+    setPwd("");
+  }
+
+  const loginWrapper = (username, password) =>
+  {   
+    var id = isLoginValid(username, password);
+    if(id = null)
+    {
+        setError("Invalid login!");
+        return;
+    }
+
+    login(username, id);
+  }
 
   return (
     <div >
       {/* pop up window */}
       <Popup className="task-popup"
-          trigger= {<button className="button"> Login </button>}
+          trigger= {<button className="button"> Login </button>} onClose={reset}
           modal>
           {
               close => (
                   <div className='modal'  style={{textAlign: 'center', margin: '20px'}}>
                       <div className='content'>
                           <h3>Welcome Back</h3>
+                      </div>
+
+                      <div className='error-text'>
+                          {error} 
                       </div>
 
                       <div className="task-popup-content">
@@ -48,7 +82,7 @@ function LoginPopup({login})
                       <div className="button-holder">
                         <div>
                             <button className="button" onClick=
-                                {() => {if(isLoginValid(user, pwd) && !login(user, pwd)) close();}}>
+                                {() => loginWrapper(user, pwd)}>
                                     Sign In
                             </button>
                         </div>
@@ -67,16 +101,46 @@ function LoginPopup({login})
   );
 }
 
-function RegisterPopup({login})
+export function RegisterPopup({login, isUsernameInDatabase, addUser})
 {
   const [user, setUser] = useState("");
   const [pwd, setPwd] = useState("");
+
+  const [error, setError] = useState("");
+
+  const reset = () =>
+  {
+    setError("");
+    setUser("");
+    setPwd("");
+  }
+
+  const register = (username, password) =>
+  {
+    if(isUsernameInDatabase(username))
+    {
+        setError("Username already in use!");
+        return false;
+    }
+    
+    if(!checkRegisterReqs(username, password))
+    {
+        setError("Username and/or password do not satisfy requirements!");
+        return false;
+    }
+
+    var id = addUser(username, password);
+    login(username, id);
+
+    return true;
+  }
+
 
   return (
     <div >
       {/* pop up window */}
       <Popup className="task-popup"
-          trigger= {<button className="button"> Create Account </button>}
+          trigger= {<button className="button"> Create Account </button>} onClose={reset}
           modal>
           {
               close => (
@@ -87,6 +151,10 @@ function RegisterPopup({login})
                           Username must have at least three letters.<br/>
 
                           Password must have at least six characters, including at least one uppercase letter, lowercase letter, and number.<br/><br/> 
+                      </div>
+
+                      <div className='error-text'>
+                          {error} 
                       </div>
 
                       <div className="task-popup-content">
@@ -100,7 +168,7 @@ function RegisterPopup({login})
                       <div className="button-holder">
                         <div>
                             <button className="button" onClick=
-                                {() => {if(!isUsernameInDataBase(user, pwd) && !login(user, pwd)) close();}}>
+                                {() => register(user, pwd)}>
                                     Register
                             </button>
                         </div>
@@ -121,40 +189,23 @@ function RegisterPopup({login})
 
 export function LoginPage({login})
 {
-  function LoginWrapper(username, password)
-  {
-    const usernameTests = [/^.*[a-zA-Z].*[a-zA-Z].*[a-zA-Z].*$/]
 
-    if(!usernameTests.every(r => r.test(username)))
-        return 1;
-
-    const passwordTests = [/^.*[A-Z].*$/,
-                           /^.*[a-z].*$/,
-                           /^.*[\d].*$/,
-                           /^.{6,}$/
-                          ];
     
-    if(!passwordTests.every(r => r.test(password)))
-        return 1;
 
-    login(username, password);
-  }
+    return (
+        <>
+        <Header/>
 
+        <main>
 
-  return (
-    <>
-      <Header/>
+            <img className="large-icon" src={logo} alt="Logo"/>
 
-      <main>
+            <div className="wide-button-holder">
+                <LoginPopup login={login}/>
+                <RegisterPopup login={login}/>
+            </div>
 
-        <img className="large-icon" src={logo} alt="Logo"/>
-
-        <div className="wide-button-holder">
-            <LoginPopup login={login}/>
-            <RegisterPopup login={LoginWrapper}/>
-        </div>
-
-      </main>
-    </>
-  );
+        </main>
+        </>
+    );
 };

@@ -26,8 +26,17 @@ code {
     monospace;
 }
 
+
+.error-text {
+  color: red;
+  font-size: 12px;
+}
+
+
 .banner {
   position: fixed;
+  display: flex;
+  justify-content: center;
   top: 0;   
   left: 0;  
   width: 100%;
@@ -77,6 +86,19 @@ main {
   border-right: 1px solid grey;
 }
 
+.large-icon {
+  max-width: 250px;
+  height: auto;
+  margin: 10px;
+}
+
+.icon {
+  width: 40px;
+  height: auto;
+  margin: 5px;
+}
+
+
 button {
   background-color: #276c92;
   border: none;
@@ -109,18 +131,6 @@ button > p:nth-child(2) {
 
 .yellow.button:hover {
   background-color: #DF961E;
-}
-
-.large-icon {
-  max-width: 250px;
-  height: auto;
-  margin: 10px;
-}
-
-.icon {
-  width: 40px;
-  height: auto;
-  margin: 5px;
 }
 
 
@@ -287,13 +297,13 @@ input[type="time"]{
 }
 
 
-@media screen and (max-width: 1080px) {
+@media screen and (max-width: 1380px) {
   .task > div:nth-child(3) {
     display: none;
   }
 }
 
-@media screen and (max-width: 980px) {
+@media screen and (max-width: 1280px) {
   .task button {
     padding: 10px 15px;
   }
@@ -307,12 +317,28 @@ input[type="time"]{
   }
 }
 
-@media screen and (max-width: 740px) {
+@media screen and (max-width: 1040px) {
 
   .task > div:nth-child(1) {
     flex: 1;
   }
   .task > div:nth-child(4) {
     display: none;
+  }
+}
+
+@media screen and (max-width: 760px) {
+
+  .dashboard > div:nth-child(1) {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 600px) {
+
+  .banner .title {
+    position: fixed;
+    top: 0;   
+    left: 5px;  
   }
 }
