@@ -53,19 +53,15 @@ export function LoginPage({login})
 
 
     return (
-        <>
-        <Header/>
+            <main>
 
-        <main>
+                <img className="large-icon" src={logo} alt="Logo"/>
 
-            <img className="large-icon" src={logo} alt="Logo"/>
+                <div className="wide-button-holder">
+                    <LoginPopup login={login} isLoginValid={isLoginValid}/>
+                    <RegisterPopup login={login} isUsernameInDatabase={isUsernameInDatabase} addUser={addUser}/>
+                </div>
 
-            <div className="wide-button-holder">
-                <LoginPopup login={login} isLoginValid={isLoginValid}/>
-                <RegisterPopup login={login} isUsernameInDatabase={isUsernameInDatabase} addUser={addUser}/>
-            </div>
-
-        </main>
-        </>
+            </main>
     );
 };

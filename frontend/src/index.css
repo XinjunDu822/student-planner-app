@@ -45,14 +45,59 @@ code {
   height:50px;
 }
 
-.banner .profile {
+.profile-holder {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   position: fixed;
   top: 0;   
-  right: 5px;  
-  width: 150px;
+  right: 0px;  
+  max-width: 175px;
 }
+
+.profile {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height:50px;
+}
+
+.profile .username {
+  margin-right:8px;
+}
+
+
+.profile:hover {
+  background-color: #c0c2c5;
+}
+
+.profile.clicked {
+  border-left: 1px solid gray;
+}
+
+.profile-holder button {
+  background-color: #f0f2f5;
+  border: 1px solid gray;
+  font-family: "Inter", sans-serif;
+  font-weight: normal;
+
+  padding: 12px;
+  width: 100%;
+  color: black;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 0px;
+  box-shadow: 0;
+  margin: 0;
+}
+
+.profile-holder .button:hover {
+  background-color: #c0c2c5;
+}
+
+
 
 .username {
   white-space: nowrap;

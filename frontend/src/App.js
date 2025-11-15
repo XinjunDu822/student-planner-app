@@ -15,11 +15,27 @@ export default function App() {
     setUser({usr: username, id: id});
   };
 
+  const logout = function()
+  {
+    setUser(null);
+  };
+
   if(user === null)
+  {
+    return (<>
+              <Header/>
+              <LoginPage login={login}/>
+            </>
+    );
+  }
 
-    return <LoginPage login={login}/>;
+    
 
-  return <TasksPage user={user}/>;
+  return (<>
+            <Header user={user.usr} logout={logout}/>
+            <TasksPage/>
+          </>
+  );
 
 }
 

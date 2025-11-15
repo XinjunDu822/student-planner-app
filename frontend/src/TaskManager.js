@@ -9,7 +9,7 @@ import { DummyTasks } from './DummyData';
 import { AddTaskPopup, DisplayTasks, DisplayLateTasks, DisplayCompletedTasks } from './Tasks';
 
 
-export function TasksPage({user}) {
+export function TasksPage() {
 
   const [numLateTasks, setNumLateTasks] = useState(null);
   
@@ -144,35 +144,31 @@ export function TasksPage({user}) {
   }
 
   return (
-      <>
-        <Header user={user.usr}/>
+    <main>
 
-        <main>
+        <div className="dashboard">
 
-          <div className="dashboard">
+        <div className="completed">
 
-            <div className="completed">
+            <DisplayCompletedTasks completedTasks={completedTasks}/>
 
-              <DisplayCompletedTasks completedTasks={completedTasks}/>
+        </div>
 
-            </div>
+        <div className="todo">
 
-            <div className="todo">
+            <h2>My Dashboard</h2>
 
-              <h2>My Dashboard</h2>
+            <AddTaskPopup addTask = {addTask}/>
 
-              <AddTaskPopup addTask = {addTask}/>
+            <DisplayLateTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask} completeTask={completeTask}/>
 
-              <DisplayLateTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask} completeTask={completeTask}/>
+            <DisplayTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask} completeTask={completeTask}/>
 
-              <DisplayTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask} completeTask={completeTask}/>
+        </div>
 
-            </div>
+        </div>
 
-          </div>
-
-        </main>
-      </>
+    </main>
     );
 }
 
