@@ -1,10 +1,12 @@
 import logo from './logo.png';
 import './App.css';
+import './index.css';
 import Popup from 'reactjs-popup';
 import { useState, useEffect } from 'react';
 import 'reactjs-popup/dist/index.css';
 import { InputField } from './Utils';
 import { LoginPage } from './Login';
+import { Header } from './Header';
 import { AddTaskPopup, DisplayTasks, DisplayLateTasks } from './Tasks';
 
 
@@ -27,12 +29,12 @@ export default function App() {
                                       GenericTask("Generic Task 2")]);
 
 
-  function login(username, password)
+  const login = function(username, password)
   {
     setIsLoggedIn(true);
   };
 
-  function addTask(name, desc, date, time)
+  const addTask = function(name, desc, date, time)
   {
     if(/^\s*$/.test(name) ||
        /^\s*$/.test(desc) ||
@@ -50,7 +52,7 @@ export default function App() {
     setTasks(updatedTasks);
   };
 
-  function editTask(i, name, desc, date, time)
+  const editTask = function(i, name, desc, date, time)
   {
     if(/^\s*$/.test(name) ||
        /^\s*$/.test(desc) ||
@@ -68,7 +70,7 @@ export default function App() {
     setTasks(updatedTasks);
   }
 
-  function deleteTask(i)
+  const deleteTask = function(i)
   {
     let updatedTasks = [...tasks];
 
@@ -92,11 +94,9 @@ export default function App() {
 
   return (
       <>
-        <div className="App">
-          <header>
-            <h1>Class Planner App</h1>
-            <hr></hr>
-          </header>
+        <Header/>
+
+        <main>
 
           <h2>My Dashboard</h2>
 
@@ -106,7 +106,7 @@ export default function App() {
 
           <DisplayTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask}/>
 
-        </div>
+        </main>
       </>
     );
 }
