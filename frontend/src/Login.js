@@ -1,4 +1,4 @@
-import logo from './logo.png';
+import logo from './new_logo_transparent.png';
 import './App.css';
 import Popup from 'reactjs-popup';
 import { useState } from 'react';
@@ -147,7 +147,7 @@ export function LoginPage({login})
 
       <main>
 
-        <img className="icon" src={process.env.PUBLIC_URL + "/new_logo_transparent.png"} alt="Logo"/>
+        <img className="large-icon" src={logo} alt="Logo"/>
 
         <div className="wide-button-holder">
             <LoginPopup login={login}/>

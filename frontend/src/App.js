@@ -4,50 +4,110 @@ import './index.css';
 import Popup from 'reactjs-popup';
 import { useState, useEffect } from 'react';
 import 'reactjs-popup/dist/index.css';
-import { InputField } from './Utils';
+import { InputField, TimeToDate } from './Utils';
 import { LoginPage } from './Login';
 import { Header } from './Header';
-import { AddTaskPopup, DisplayTasks, DisplayLateTasks } from './Tasks';
+import { AddTaskPopup, DisplayTasks, DisplayLateTasks, DisplayCompletedTasks } from './Tasks';
 
 
-function GenericTask(name)
+function GenericTask(name, isLate = false, isComplete = false)
 {
+  var d = new Date();
+  d.setHours(0, 0, 0, 0);
+  if(isLate)
+  {
+    d.setDate(d.getDate() - 1);
+  }
+  else
+  {
+    d.setDate(d.getDate() + 1);
+  }
   return {name: name, 
           desc: name + " description", 
-          date: "00-00-00", 
-          time: "00:00 AM"};
+          date: d,
+          isComplete: isComplete};
 };
 
 export default function App() {
 
-  const [numLateTasks, setNumLateTasks] = useState(2);
+  const [username, setUsername] = useState(null);
+  const [password, setPassword] = useState(null);
+
+  const [numLateTasks, setNumLateTasks] = useState(null);
   
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [tasks, setTasks] = useState([GenericTask("Late Task 1"),
-                                      GenericTask("Late Task 2"),
+  const [tasks, setTasks] = useState([GenericTask("Late Task 1", true),
+                                      GenericTask("Late Task 2", true),
                                       GenericTask("Generic Task 1"),
                                       GenericTask("Generic Task 2")]);
 
+  const [completedTasks, setCompletedTasks] = useState([]);
+
+  useEffect(() => {
+
+    var updatedTasks = [...tasks];
+
+    var c = [];
+
+    var i = 0;
+
+    for(; i < updatedTasks.length; i++)
+    {
+      if(updatedTasks[i].isComplete)
+      {
+        c.push(updatedTasks[i]);
+        updatedTasks.splice(i, 1);
+        i--;
+      }
+    }
+
+    setCompletedTasks(c);
+    setTasks(updatedTasks);
+  }, []);
+  
+  useEffect(() => {
+    var i = 0;
+    var d = new Date();
+    for(; i < tasks.length && d >= tasks[i].date; i++) { }
+    setNumLateTasks(i);
+    console.log("Set NumLateTasks to " + i);
+  }, [tasks]);
 
   const login = function(username, password)
   {
+    setUsername(username);
+    setPassword(password);
     setIsLoggedIn(true);
   };
 
   const addTask = function(name, desc, date, time)
   {
+    
     if(/^\s*$/.test(name) ||
-       /^\s*$/.test(desc) ||
        /^\s*$/.test(date) ||
        /^\s*$/.test(time))
       return 1;
 
-    let updatedTasks = [...tasks];
+    var date_ = TimeToDate(date, time);
+
+    var updatedTasks = [...tasks];
+
+    var i = updatedTasks.length;
 
     updatedTasks.push({name: name, 
                        desc: desc, 
-                       date: date, 
-                       time: time})
+                       date: date_,
+                       isComplete: false});
+
+    var j = i - 1;
+
+    while(j >= 0 && date_ < updatedTasks[j].date)
+    {
+      var temp = updatedTasks[j + 1];
+      updatedTasks[j + 1] = updatedTasks[j];
+      updatedTasks[j] = temp;
+      j--;
+    }
 
     setTasks(updatedTasks);
   };
@@ -55,17 +115,38 @@ export default function App() {
   const editTask = function(i, name, desc, date, time)
   {
     if(/^\s*$/.test(name) ||
-       /^\s*$/.test(desc) ||
        /^\s*$/.test(date) ||
        /^\s*$/.test(time))
       return 1;
 
-    let updatedTasks = [...tasks];
+    var date_ = TimeToDate(date, time);
+
+    var updatedTasks = [...tasks];
 
     updatedTasks[i] = ({name: name, 
                         desc: desc, 
-                        date: date, 
-                        time: time})
+                        date: date_,
+                        isComplete: false});
+
+    var j = i - 1;
+
+    while(j >= 0 && date_ < updatedTasks[j].date)
+    {
+      var temp = updatedTasks[j + 1];
+      updatedTasks[j + 1] = updatedTasks[j];
+      updatedTasks[j] = temp;
+      j--;
+    }
+
+    var j = i + 1;
+
+    while(j < updatedTasks.length && date_ > updatedTasks[j].date)
+    {
+      var temp = updatedTasks[j - 1];
+      updatedTasks[j - 1] = updatedTasks[j];
+      updatedTasks[j] = temp;
+      j++;
+    }
 
     setTasks(updatedTasks);
   }
@@ -76,16 +157,25 @@ export default function App() {
 
     updatedTasks.splice(i, 1);
 
-    if(i < numLateTasks)
-    {
-      setNumLateTasks(numLateTasks-1);
-    }
-
     setTasks(updatedTasks);
   }
 
 
-  
+  const completeTask = function(i)
+  {
+    var task = tasks[i];
+
+    task.isComplete = true;
+    task.date = new Date();
+
+    var c = [...completedTasks];
+
+    c.push(task);
+
+    setCompletedTasks(c);
+
+    deleteTask(i);
+  }
 
 
   if(!isLoggedIn)
@@ -94,17 +184,31 @@ export default function App() {
 
   return (
       <>
-        <Header/>
+        <Header user={username}/>
 
         <main>
 
-          <h2>My Dashboard</h2>
+          <div className="dashboard">
 
-          <AddTaskPopup addTask = {addTask}/>
+            <div className="todo">
 
-          <DisplayLateTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask}/>
+              <DisplayCompletedTasks completedTasks={completedTasks}/>
 
-          <DisplayTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask}/>
+            </div>
+
+            <div className="todo">
+
+              <h2>My Dashboard</h2>
+
+              <AddTaskPopup addTask = {addTask}/>
+
+              <DisplayLateTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask} completeTask={completeTask}/>
+
+              <DisplayTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask} completeTask={completeTask}/>
+
+            </div>
+
+          </div>
 
         </main>
       </>

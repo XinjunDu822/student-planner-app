@@ -1,15 +1,17 @@
-import logo from './logo.png';
 import './App.css';
 import Popup from 'reactjs-popup';
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import 'reactjs-popup/dist/index.css';
-import { InputField } from './Utils';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { InputField, DateInputField, DateToParams, FormatTime } from './Utils';
 
 
-export function Task({index, name, date, time, desc, editTask, deleteTask})
+export function CompletedTask({index, data})
 {
+  var name = data.name; 
+  var date = data.date;
+  var [d, t] = DateToParams(date);
+  // var time = FormatTime(t);
+
   return (
     <div className = "task">
 
@@ -18,7 +20,54 @@ export function Task({index, name, date, time, desc, editTask, deleteTask})
       </div>
 
       <div>
-        {date}  
+        {d}  
+      </div>
+
+      {/* <div>
+        {time}  
+      </div> */}
+
+      {/* <div>
+        {desc}  
+      </div> */}
+
+      {/* <div>
+        <div>
+          <button className="button" onClick={completeTask}><p>Mark Complete</p><p>✓</p></button>
+        </div>
+
+        <div>
+          <EditTaskPopup editTask={editTask} currentName={name} currentDate={date} currentTime={t} currentDesc={desc} index={index}/>
+        </div>
+
+        <div>
+          <DeleteTaskPopup deleteTask={deleteTask}/>
+        </div>     
+
+      </div>  */}
+
+    </div>
+  );
+}
+
+
+export function Task({index, data, editTask, deleteTask, completeTask})
+{
+  var name = data.name; 
+  var desc = data.desc; 
+  var date = data.date;
+  var [d, t] = DateToParams(date);
+  var time = FormatTime(t);
+
+  return (
+    <div className = "task">
+
+      <div>
+        {name}
+      </div>
+
+      <div>
+        {d}  
       </div>
 
       <div>
@@ -31,11 +80,11 @@ export function Task({index, name, date, time, desc, editTask, deleteTask})
 
       <div>
         <div>
-          <button className="button"><p>Mark Complete</p><p>✓</p></button>
+          <button className="button" onClick={completeTask}><p>Mark Complete</p><p>✓</p></button>
         </div>
 
         <div>
-          <EditTaskPopup editTask={editTask} currentName={name} currentDate={date} currentTime={time} currentDesc={desc} index={index}/>
+          <EditTaskPopup editTask={editTask} currentName={name} currentDate={date} currentTime={t} currentDesc={desc} index={index}/>
         </div>
 
         <div>
@@ -48,7 +97,7 @@ export function Task({index, name, date, time, desc, editTask, deleteTask})
   );
 }
 
-export function DisplayLateTasks({tasks, numLateTasks, editTask, deleteTask})
+export function DisplayLateTasks({tasks, numLateTasks, editTask, deleteTask, completeTask})
 {
     if(numLateTasks > 0)
     {
@@ -63,12 +112,10 @@ export function DisplayLateTasks({tasks, numLateTasks, editTask, deleteTask})
                 {
                     return <Task index={index} 
                             key={index}
-                            name={item.name} 
-                            desc={item.desc} 
-                            date={item.date} 
-                            time={item.time} 
+                            data={item} 
                             editTask={editTask}
-                            deleteTask={() => deleteTask(index)}/>;
+                            deleteTask={() => deleteTask(index)}
+                            completeTask={() => completeTask(index)}/>;
                 }
                 return null;
                 }
@@ -80,7 +127,7 @@ export function DisplayLateTasks({tasks, numLateTasks, editTask, deleteTask})
     return null;
 }
 
-export function DisplayTasks({tasks, numLateTasks, editTask, deleteTask})
+export function DisplayTasks({tasks, numLateTasks, editTask, deleteTask, completeTask})
 {
     if(tasks.length - numLateTasks > 0)
     {
@@ -97,13 +144,11 @@ export function DisplayTasks({tasks, numLateTasks, editTask, deleteTask})
                     if(index >= numLateTasks)
                     {
                         return <Task index={index} 
-                                key={index}
-                                name={item.name} 
-                                desc={item.desc} 
-                                date={item.date} 
-                                time={item.time} 
-                                editTask={editTask}
-                                deleteTask={() => deleteTask(index)}/>;
+                            key={index}
+                            data={item} 
+                            editTask={editTask}
+                            deleteTask={() => deleteTask(index)}
+                            completeTask={() => completeTask(index)}/>;
                     }
                     return null;
                     }
@@ -119,6 +164,33 @@ export function DisplayTasks({tasks, numLateTasks, editTask, deleteTask})
     );
 }
 
+export function DisplayCompletedTasks({completedTasks})
+{
+    if(completedTasks.length > 0)
+    {
+        return (
+            
+        <>
+            <h3>Completed Tasks</h3>
+
+            <div id="TasksList">
+            
+                {completedTasks.map
+                  ((item, index) => <CompletedTask index={index} 
+                                      key={index}
+                                      data={item}/>
+                  )
+                }
+
+            </div>
+        </>
+        );
+    }
+    return (
+        <h3><br/>You have no completed tasks right now.<br/> What a bum...</h3>
+    );
+}
+
 
 export function AddTaskPopup({addTask})
 {
@@ -126,35 +198,26 @@ export function AddTaskPopup({addTask})
   const [desc, setDesc] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [showPicker, setShowPicker] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [dateValue, setDateValue] = useState("");
+  
   // const [day, setDay] = useState(0);
   // const [month, setMonth] = useState(0);
   // const [year, setYear] = useState(0);
   // const [hour, setHour] = useState(0);
   // const [minute, setMinute] = useState(0);
 
-  function resetVars()
-  {
+  const resetVars = useCallback(() => {
     setName("");
     setDesc("");
     setDate("");
     setTime("");
-  }
-
-  const handleDateSelection = (date) => {
-    setSelectedDate(date);
-    setDateValue(date.toLocaleDateString());
-    setShowPicker(false);
-  }
+  }, []); 
 
   return (
     <div >
       {/* pop up window */}
       <Popup className="task-popup"
           // trigger= {<button className="button"><p>Add Task</p><p>+</p></button>}
-          trigger= {<button className="button">Add Task</button>}
+          trigger= {<button className="button">Add Task</button>} onClose={resetVars}
           modal>
           {
               close => (
@@ -171,43 +234,24 @@ export function AddTaskPopup({addTask})
                           <InputField placeholderText = "Enter task description" value={desc} setValue = {setDesc}/>
                       </div >
 
-                      <div className="task-popup-content" style={{margin:'0 auto'}}>
-                          {/* <select onChange={(e) => {
-                              if (e.target.value === "openSchedule") setShowPicker(true);
-                              else setShowPicker(false);
-                            }}>
-                            <option value="">Select option</option>
-                            <option value="openSchedule">Open Schedule</option>
-                          </select> */}
-                          <button onClick=
-                              {() => setShowPicker(true)}>
-                                  Open Schedule
-                          </button>
-                          {showPicker && (
-                            <DatePicker selected = {selectedDate} 
-                            onChange = {handleDateSelection}
-                            inline/>
-                          )
-
-                          }
-
-                          <input placeholderText = "Selected date will appear here" value={dateValue} onChange = {(e) => setDateValue(e.target.value)}/>
+                      <div className="task-popup-content">
+                          <DateInputField placeholderText = "Enter task date" value={date} setValue = {setDate}/>          
                       </div >
 
-                      <div className="task-popup-content" style={{margin:'0 auto'}}>
-                          <InputField placeholderText = "Enter task time: (format: 00:00 am/pm)" value={time} setValue = {setTime}/>
+                      <div className="task-popup-content">
+                          <InputField placeholderText = "Enter task time" value={time} setValue = {setTime} inputType = "time"/>
                       </div >
 
                       <div className="button-holder">
                         <div>
                             <button className="button" onClick=
-                                {() => {if(!addTask(name, desc, date, time)){resetVars(); close();}}}>
+                                {() => {if(!addTask(name, desc, date, time)){close();}}}>
                                     Save
                             </button>
                         </div>
                         <div>
                             <button className="button" onClick=
-                                {() => {resetVars(); close();}}>
+                                {() => close()}>
                                     Cancel
                             </button>
                         </div>
@@ -234,19 +278,19 @@ export function EditTaskPopup({editTask, currentName, currentDate, currentTime, 
   // const [hour, setHour] = useState(0);
   // const [minute, setMinute] = useState(0);
 
-  function resetVars()
-  {
+
+  const resetVars = useCallback(() => {
     setName(currentName);
     setDesc(currentDesc);
     setDate(currentDate);
     setTime(currentTime);
-  }
+  }, [currentName, currentDesc, currentDate, currentTime]); 
 
   return (
     <div >
       {/* pop up window */}
       <Popup className="task-popup"
-          trigger= {<button className="button"><p>Edit</p><p>✎</p></button>}
+          trigger= {<button className="button"><p>Edit</p><p>✎</p></button>} onClose={resetVars}
           modal>
           {
               close => (
@@ -264,11 +308,11 @@ export function EditTaskPopup({editTask, currentName, currentDate, currentTime, 
                       </div >
 
                       <div className="task-popup-content">
-                          <InputField placeholderText = "Enter task date" value={date} setValue = {setDate}/>
+                          <DateInputField placeholderText = "Enter task date" value={date} setValue = {setDate}/>          
                       </div >
 
                       <div className="task-popup-content">
-                          <InputField placeholderText = "Enter task time" value={time} setValue = {setTime}/>
+                          <InputField placeholderText = "Enter task time" value={time} setValue = {setTime} inputType = "time"/>
                       </div >
 
                       <div className="button-holder">
