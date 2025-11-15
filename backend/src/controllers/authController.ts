@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import expressAsyncHandler from "express-async-handler";
 import prisma from "../prisma.ts";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
@@ -18,8 +17,12 @@ const createToken = (payload) => {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
 };
 
-export const signUp = expressAsyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
+export const signUp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
     const { email, password } = req.body;
     const hashedPassword = await hashPassword(password);
 
@@ -30,15 +33,20 @@ export const signUp = expressAsyncHandler(
         password: hashedPassword,
       },
     });
-
     const token = createToken({ id: user.id, email: user.email }); //create token for user after signing in
 
     res.json({ token });
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
   }
-);
+};
 
-export const signIn = expressAsyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
+export const signIn = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
     const { email, password } = req.body;
 
     const user = await prisma.user.findUnique({
@@ -57,5 +65,7 @@ export const signIn = expressAsyncHandler(
 
     const token = createToken({ id: user.id, email: user.email });
     res.json({ token });
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
   }
-);
+};
