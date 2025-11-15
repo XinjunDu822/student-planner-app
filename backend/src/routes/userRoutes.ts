@@ -1,10 +1,5 @@
-import { Router } from "express";
+import express from "express";
 
-const router = Router();
-
-// placeholder route
-router.get("/", (req, res) => {
-  res.send("User route working");
-});
+const router = express.Router();
 
 export default router;

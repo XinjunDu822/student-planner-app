@@ -1,10 +1,9 @@
-import { Router } from "express";
+import express from "express";
+import { signUp, signIn } from "../controllers/authController";
 
-const router = Router();
+const router = express.Router();
 
-// placeholder route
-router.get("/", (req, res) => {
-  res.send("Auth route working");
-});
+router.post("/sign-up", signUp);
+router.post("/sign-in", signIn);
 
 export default router;
