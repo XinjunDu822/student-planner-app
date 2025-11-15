@@ -5,16 +5,23 @@ import bcrypt from "bcryptjs";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret"; // store in env in real projects
 
-const hashPassword = async (password) => {
+type Payload = {
+  id: string;
+  email: string;
+};
+
+const hashPassword = async (password: string) => {
   return await bcrypt.hash(password, 10);
 };
 
-const comparePassword = async (password, hash) => {
+const comparePassword = async (password: string, hash: string) => {
   return await bcrypt.compare(password, hash);
 };
 
-const createToken = (payload) => {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
+export const createToken = (payload: Payload): string => {
+  return jwt.sign(payload, process.env.JWT_SECRET as string, {
+    expiresIn: "1h",
+  });
 };
 
 export const signUp = async (
