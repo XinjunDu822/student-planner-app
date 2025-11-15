@@ -4,6 +4,8 @@ import Popup from 'reactjs-popup';
 import { useState } from 'react';
 import 'reactjs-popup/dist/index.css';
 import { InputField } from './Utils';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export function Task({index, name, date, time, desc, editTask, deleteTask})
 {
@@ -118,6 +120,9 @@ export function AddTaskPopup({addTask})
   const [desc, setDesc] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [showPicker, setShowPicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [dateValue, setDateValue] = useState("");
   // const [day, setDay] = useState(0);
   // const [month, setMonth] = useState(0);
   // const [year, setYear] = useState(0);
@@ -130,6 +135,12 @@ export function AddTaskPopup({addTask})
     setDesc("");
     setDate("");
     setTime("");
+  }
+
+  const handleDateSelection = (date) => {
+    setSelectedDate(date);
+    setDateValue(date.toLocaleDateString());
+    setShowPicker(false);
   }
 
   return (
@@ -154,11 +165,30 @@ export function AddTaskPopup({addTask})
                       </div >
 
                       <div className="task-popup-content" style={{margin:'0 auto'}}>
-                          <InputField placeholderText = "Enter task date" value={date} setValue = {setDate}/>
+                          {/* <select onChange={(e) => {
+                              if (e.target.value === "openSchedule") setShowPicker(true);
+                              else setShowPicker(false);
+                            }}>
+                            <option value="">Select option</option>
+                            <option value="openSchedule">Open Schedule</option>
+                          </select> */}
+                          <button onClick=
+                              {() => setShowPicker(true)}>
+                                  Open Schedule
+                          </button>
+                          {showPicker && (
+                            <DatePicker selected = {selectedDate} 
+                            onChange = {handleDateSelection}
+                            inline/>
+                          )
+
+                          }
+
+                          <input placeholderText = "Selected date will appear here" value={dateValue} onChange = {(e) => setDateValue(e.target.value)}/>
                       </div >
 
                       <div className="task-popup-content" style={{margin:'0 auto'}}>
-                          <InputField placeholderText = "Enter task time" value={time} setValue = {setTime}/>
+                          <InputField placeholderText = "Enter task time: (format: 00:00 am/pm)" value={time} setValue = {setTime}/>
                       </div >
 
                       <div style={{ display: 'flex', gap: '10px', justifyContent:'center'}}>
