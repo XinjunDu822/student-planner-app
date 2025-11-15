@@ -45,7 +45,7 @@ export function LoginPopup({login, isLoginValid})
   const loginWrapper = (username, password) =>
   {   
     var id = isLoginValid(username, password);
-    if(id = null)
+    if(id == null)
     {
         setError("Invalid login!");
         return;
@@ -122,7 +122,7 @@ export function RegisterPopup({login, isUsernameInDatabase, addUser})
         setError("Username already in use!");
         return false;
     }
-    
+
     if(!checkRegisterReqs(username, password))
     {
         setError("Username and/or password do not satisfy requirements!");
