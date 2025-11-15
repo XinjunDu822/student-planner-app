@@ -21,7 +21,7 @@ function GenericTask(name)
 export default function App() {
 
   const [numLateTasks, setNumLateTasks] = useState(2);
-  
+  const [studyStreak, setStudyStreak] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [tasks, setTasks] = useState([GenericTask("Late Task 1"),
                                       GenericTask("Late Task 2"),
@@ -84,6 +84,10 @@ export default function App() {
     setTasks(updatedTasks);
   }
 
+  const incrementStreak = function()
+  {
+    setStudyStreak(studyStreak+1);
+  }
 
   
 
@@ -99,12 +103,12 @@ export default function App() {
         <main>
 
           <h2>My Dashboard</h2>
-
+          <div>STUDY STREAK: {studyStreak}</div>
           <AddTaskPopup addTask = {addTask}/>
 
           <DisplayLateTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask}/>
 
-          <DisplayTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask}/>
+          <DisplayTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask} incrementStreak={incrementStreak}/>
 
         </main>
       </>

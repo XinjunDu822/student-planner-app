@@ -8,8 +8,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 
-export function Task({index, name, date, time, desc, editTask, deleteTask})
+export function Task({index, name, date, time, desc, editTask, deleteTask, incrementStreak})
 {
+  
   return (
     <div className = "task">
 
@@ -31,7 +32,7 @@ export function Task({index, name, date, time, desc, editTask, deleteTask})
 
       <div>
         <div>
-          <button className="button"><p>Mark Complete</p><p>✓</p></button>
+          <button className="button" onClick= {() => {deleteTask(); incrementStreak();}}><p>Mark Complete</p><p>✓</p></button>
         </div>
 
         <div>
@@ -80,7 +81,7 @@ export function DisplayLateTasks({tasks, numLateTasks, editTask, deleteTask})
     return null;
 }
 
-export function DisplayTasks({tasks, numLateTasks, editTask, deleteTask})
+export function DisplayTasks({tasks, numLateTasks, editTask, deleteTask, incrementStreak})
 {
     if(tasks.length - numLateTasks > 0)
     {
@@ -102,8 +103,10 @@ export function DisplayTasks({tasks, numLateTasks, editTask, deleteTask})
                                 desc={item.desc} 
                                 date={item.date} 
                                 time={item.time} 
+                  
                                 editTask={editTask}
-                                deleteTask={() => deleteTask(index)}/>;
+                                deleteTask={() => deleteTask(index)}
+                                incrementStreak={incrementStreak}/>;
                     }
                     return null;
                     }
@@ -134,7 +137,7 @@ export function AddTaskPopup({addTask})
   // const [year, setYear] = useState(0);
   // const [hour, setHour] = useState(0);
   // const [minute, setMinute] = useState(0);
-
+  let timeRegex = /^([0-1][0-9]|2[0-4]):([0-5][0-9])(am|pm)$/;
   function resetVars()
   {
     setName("");
@@ -142,6 +145,7 @@ export function AddTaskPopup({addTask})
     setDate("");
     setTime("");
   }
+
 
   const handleDateSelection = (date) => {
     setSelectedDate(date);
@@ -196,6 +200,7 @@ export function AddTaskPopup({addTask})
 
                       <div className="task-popup-content" style={{margin:'0 auto'}}>
                           <InputField placeholderText = "Enter task time: (format: 00:00 am/pm)" value={time} setValue = {setTime}/>
+                          {!timeRegex.test(time) && <div>Invalid Input</div>}
                       </div >
 
                       <div className="button-holder">
