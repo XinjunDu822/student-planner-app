@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-  "start": "node --loader ts-node/esm src/server.ts",
-  "dev": "node --loader ts-node/esm src/server.ts"
+    "start": "node --loader ts-node/esm src/server.ts",
+    "dev": "node --loader ts-node/esm src/server.ts"
   },
-"type": "module",
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -20,6 +20,7 @@
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.10.1",
     "prisma": "^6.19.0",
     "ts-node": "^10.9.2",
