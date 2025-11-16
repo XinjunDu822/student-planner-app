@@ -10,9 +10,9 @@ export default function App() {
 
   const [user, setUser] = useState(null);
 
-  const login = function(username, id)
+  const login = function(user)
   {
-    setUser({usr: username, id: id});
+    setUser(user);
   };
 
   const logout = function()
@@ -32,7 +32,7 @@ export default function App() {
     
 
   return (<>
-            <Header user={user.usr} logout={logout}/>
+            <Header user={user} logout={logout}/>
             <TasksPage/>
           </>
   );

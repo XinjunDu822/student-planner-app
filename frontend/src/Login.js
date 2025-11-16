@@ -44,14 +44,14 @@ export function LoginPopup({login, isLoginValid})
 
   const loginWrapper = (username, password) =>
   {   
-    var id = isLoginValid(username, password);
-    if(id == null)
+    var user = isLoginValid(username, password);
+    if(user == null)
     {
         setError("Invalid login!");
         return;
     }
 
-    login(username, id);
+    login(user);
   }
 
   return (

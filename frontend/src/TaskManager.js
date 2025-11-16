@@ -1,129 +1,61 @@
 import './App.css';
 import './index.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useSyncExternalStore } from 'react';
 import 'reactjs-popup/dist/index.css';
-import { TimeToDate } from './Utils';
 import { Header } from './Header';
-import { DummyTasks } from './DummyData';
+import { TaskDatabase, CompletedTaskDatabase } from './DummyData';
 
-import { AddTaskPopup, DisplayTasks, DisplayLateTasks, DisplayCompletedTasks } from './Tasks';
+import { AddTaskPopup, DisplayTasks, DisplayCompletedTasks } from './Tasks';
 
 
 export function TasksPage() {
 
   const [numLateTasks, setNumLateTasks] = useState(null);
-  
-  const [tasks, setTasks] = useState(DummyTasks);
 
-  const [completedTasks, setCompletedTasks] = useState([]);
+  const tasks = useSyncExternalStore(TaskDatabase.subscribe.bind(TaskDatabase),
+                                    TaskDatabase.getData.bind(TaskDatabase));
+  const completedTasks = useSyncExternalStore(CompletedTaskDatabase.subscribe.bind(CompletedTaskDatabase),
+                                    CompletedTaskDatabase.getData.bind(CompletedTaskDatabase));
 
-  useEffect(() => {
 
-    var updatedTasks = [...tasks];
+  function countLateTasks() {
 
-    var c = [];
-
-    var i = 0;
-
-    for(; i < updatedTasks.length; i++)
-    {
-      if(updatedTasks[i].isComplete)
-      {
-        c.push(updatedTasks[i]);
-        updatedTasks.splice(i, 1);
-        i--;
-      }
-    }
-
-    setCompletedTasks(c);
-    setTasks(updatedTasks);
-  }, []);
-  
-  useEffect(() => {
     var i = 0;
     var d = new Date();
     for(; i < tasks.length && d >= tasks[i].date; i++) { }
-    setNumLateTasks(i);
+
+    if(i != numLateTasks)
+    {
+        setNumLateTasks(i);
+    }
+
+    console.log("numLateTasks: " + numLateTasks)
+  }
+  
+  useEffect(() => {
+    countLateTasks();    
+
+    const refreshInterval = setInterval(countLateTasks, 60000);
+    return () => clearInterval(refreshInterval);
   }, [tasks]);
 
-  const addTask = function(name, desc, date, time)
+  const addTask = function(name, desc, date)
   {
-    
-    if(/^\s*$/.test(name) ||
-       /^\s*$/.test(date) ||
-       /^\s*$/.test(time))
-      return 1;
-
-    var date_ = TimeToDate(date, time);
-
-    var updatedTasks = [...tasks];
-
-    var i = updatedTasks.length;
-
-    updatedTasks.push({name: name, 
-                       desc: desc, 
-                       date: date_,
-                       isComplete: false});
-
-    var j = i - 1;
-
-    while(j >= 0 && date_ < updatedTasks[j].date)
-    {
-      var temp = updatedTasks[j + 1];
-      updatedTasks[j + 1] = updatedTasks[j];
-      updatedTasks[j] = temp;
-      j--;
-    }
-
-    setTasks(updatedTasks);
+    TaskDatabase.add({name: name, 
+                          desc: desc, 
+                          date: date});
   };
 
-  const editTask = function(i, name, desc, date, time)
+  const editTask = function(i, name, desc, date)
   {
-    if(/^\s*$/.test(name) ||
-       /^\s*$/.test(date) ||
-       /^\s*$/.test(time))
-      return 1;
-
-    var date_ = TimeToDate(date, time);
-
-    var updatedTasks = [...tasks];
-
-    updatedTasks[i] = ({name: name, 
-                        desc: desc, 
-                        date: date_,
-                        isComplete: false});
-
-    var j = i - 1;
-
-    while(j >= 0 && date_ < updatedTasks[j].date)
-    {
-      var temp = updatedTasks[j + 1];
-      updatedTasks[j + 1] = updatedTasks[j];
-      updatedTasks[j] = temp;
-      j--;
-    }
-
-    j = i + 1;
-
-    while(j < updatedTasks.length && date_ > updatedTasks[j].date)
-    {
-      temp = updatedTasks[j - 1];
-      updatedTasks[j - 1] = updatedTasks[j];
-      updatedTasks[j] = temp;
-      j++;
-    }
-
-    setTasks(updatedTasks);
+    TaskDatabase.edit(i, {name: name, 
+                            desc: desc, 
+                            date: date});
   }
 
   const deleteTask = function(i)
   {
-    let updatedTasks = [...tasks];
-
-    updatedTasks.splice(i, 1);
-
-    setTasks(updatedTasks);
+    TaskDatabase.delete(i);
   }
 
 
@@ -131,14 +63,9 @@ export function TasksPage() {
   {
     var task = tasks[i];
 
-    task.isComplete = true;
     task.date = new Date();
 
-    var c = [...completedTasks];
-
-    c.push(task);
-
-    setCompletedTasks(c);
+    CompletedTaskDatabase.add(task);
 
     deleteTask(i);
   }
@@ -160,9 +87,33 @@ export function TasksPage() {
 
             <AddTaskPopup addTask = {addTask}/>
 
-            <DisplayLateTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask} completeTask={completeTask}/>
+            {
+                (numLateTasks > 0) && (
+                    <>
+                        <h3>Late</h3>
+                        <DisplayTasks tasks={tasks.slice(0, numLateTasks)} indexOffset={0} editTask={editTask} deleteTask={deleteTask} completeTask={completeTask}/>
+                    </>
+                )
+            }
 
-            <DisplayTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask} completeTask={completeTask}/>
+            {
+                ((tasks.length - numLateTasks) > 0) && (
+                    <>
+                        <h3>To-do</h3>
+                        <DisplayTasks tasks={tasks.slice(numLateTasks)} indexOffset={numLateTasks} editTask={editTask} deleteTask={deleteTask} completeTask={completeTask}/>
+                    </>
+                )
+            }
+
+            {
+                ((tasks.length - numLateTasks) == 0) && (
+                    <>
+                        <h3><br/>You have no new tasks right now.<br/> Get started by creating some!</h3>
+                    </>
+                )
+            }
+
+            
 
         </div>
 

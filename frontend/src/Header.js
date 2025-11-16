@@ -48,7 +48,7 @@ export function Header({user, logout})
                                 <img className="icon" src={logo} alt="Logo"/>
 
                                 <div className="username">
-                                    {user}
+                                    {user.usr}
                                 </div>
 
                             </div>
