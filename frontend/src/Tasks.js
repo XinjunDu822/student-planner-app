@@ -1,11 +1,17 @@
 import logo from './logo.png';
 import './App.css';
 import Popup from 'reactjs-popup';
+<<<<<<< Updated upstream
 import { useState, useEffect } from 'react';
 import 'reactjs-popup/dist/index.css';
 import { InputField } from './Utils';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+=======
+import { useState, useCallback, useEffect } from 'react';
+import 'reactjs-popup/dist/index.css';
+import { InputField, DateInputField, DateToParams, TimeToDate, FormatTime } from './Utils';
+>>>>>>> Stashed changes
 
 
 export function Task({index, name, date, time, desc, editTask, deleteTask})
@@ -48,16 +54,18 @@ export function Task({index, name, date, time, desc, editTask, deleteTask})
   );
 }
 
+<<<<<<< Updated upstream
 export function DisplayLateTasks({tasks, numLateTasks, editTask, deleteTask})
+=======
+export function DisplayTasks({tasks, editTask, deleteTask, completeTask, indexOffset})
+>>>>>>> Stashed changes
 {
-    if(numLateTasks > 0)
-    {
-        return (
-        <>
-            <h3>Late</h3>
-
+    return (
+        <div id="TasksList">
+        
             {tasks.map
             ((item, index) => 
+<<<<<<< Updated upstream
                 {
                 if(index < numLateTasks)
                 {
@@ -72,14 +80,18 @@ export function DisplayLateTasks({tasks, numLateTasks, editTask, deleteTask})
                 }
                 return null;
                 }
+=======
+                  <Task index={index + indexOffset} 
+                        key={index + indexOffset}
+                        data={item} 
+                        editTask={editTask}
+                        deleteTask={() => deleteTask(index + indexOffset)}
+                        completeTask={() => completeTask(index + indexOffset)}/>
+>>>>>>> Stashed changes
             )
             }
-        </>
-        );
-    }
-    return null;
-}
 
+<<<<<<< Updated upstream
 export function DisplayTasks({tasks, numLateTasks, editTask, deleteTask})
 {
     if(tasks.length - numLateTasks > 0)
@@ -116,6 +128,9 @@ export function DisplayTasks({tasks, numLateTasks, editTask, deleteTask})
     }
     return (
         <h3><br/>You have no new tasks right now.<br/> Get started by creating some!</h3>
+=======
+        </div>
+>>>>>>> Stashed changes
     );
 }
 
@@ -126,6 +141,7 @@ export function AddTaskPopup({addTask})
   const [desc, setDesc] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+<<<<<<< Updated upstream
   const [showPicker, setShowPicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [dateValue, setDateValue] = useState("");
@@ -137,6 +153,13 @@ export function AddTaskPopup({addTask})
 
   function resetVars()
   {
+=======
+  
+  const [error, setError] = useState("");
+
+  const resetVars = useCallback(() => {
+    setError("");
+>>>>>>> Stashed changes
     setName("");
     setDesc("");
     setDate("");
@@ -147,6 +170,37 @@ export function AddTaskPopup({addTask})
     setSelectedDate(date);
     setDateValue(date.toLocaleDateString());
     setShowPicker(false);
+  }
+
+  const addTaskWrapper = () => {
+    if(/^\s*$/.test(name))
+    {
+      setError("Please enter a task name.")
+      return false;
+    }
+
+    if(/^\s*$/.test(date))    
+    {
+      setError("Please enter a task date.")
+      return false;  
+    }
+
+    if(/^\s*$/.test(time))    
+    {
+      setError("Please enter a task time.")
+      return false;  
+    }
+
+    var date_ = TimeToDate(date, time);
+
+    if(date_ < new Date())
+    {
+      setError("Date and time have already passed..")
+      return false; 
+    }
+
+    addTask(name, desc, date);
+    return true;
   }
 
   return (
@@ -198,10 +252,18 @@ export function AddTaskPopup({addTask})
                           <InputField placeholderText = "Enter task time: (format: 00:00 am/pm)" value={time} setValue = {setTime}/>
                       </div >
 
+                      <div className='error-text'>
+                          {error} 
+                      </div>
+
                       <div className="button-holder">
                         <div>
                             <button className="button" onClick=
+<<<<<<< Updated upstream
                                 {() => {if(!addTask(name, desc, date, time)){resetVars(); close();}}}>
+=======
+                                {() => {addTaskWrapper() && close()}}>
+>>>>>>> Stashed changes
                                     Save
                             </button>
                         </div>
@@ -228,18 +290,50 @@ export function EditTaskPopup({editTask, currentName, currentDate, currentTime, 
   const [date, setDate] = useState(currentDate);
   const [time, setTime] = useState(currentTime);
   
-  // const [day, setDay] = useState(0);
-  // const [month, setMonth] = useState(0);
-  // const [year, setYear] = useState(0);
-  // const [hour, setHour] = useState(0);
-  // const [minute, setMinute] = useState(0);
+  const [error, setError] = useState("");
 
+<<<<<<< Updated upstream
   function resetVars()
   {
+=======
+  useEffect(() => {
+    setError("");
+>>>>>>> Stashed changes
     setName(currentName);
     setDesc(currentDesc);
     setDate(currentDate);
     setTime(currentTime);
+  }
+
+  const editTaskWrapper = () => {
+    if(/^\s*$/.test(name))
+    {
+      setError("Please enter a task name.")
+      return false;
+    }
+
+    if(/^\s*$/.test(date))    
+    {
+      setError("Please enter a task date.")
+      return false;  
+    }
+
+    if(/^\s*$/.test(time))    
+    {
+      setError("Please enter a task time.")
+      return false;  
+    }
+
+    var date_ = TimeToDate(date, time);
+
+    if((date != currentDate || time != currentTime) && date_ < new Date())
+    {
+      setError("Date and time have already passed.")
+      return false; 
+    }
+
+    editTask(index, name, desc, date);
+    return true;
   }
 
   return (
@@ -271,16 +365,19 @@ export function EditTaskPopup({editTask, currentName, currentDate, currentTime, 
                           <InputField placeholderText = "Enter task time" value={time} setValue = {setTime}/>
                       </div >
 
+                      <div className='error-text'>
+                          {error} 
+                      </div>
+
                       <div className="button-holder">
                         <div>
                             <button className="button" onClick=
-                              {() => {if(!editTask(index, name, desc, date, time)) close();}}>
+                              {() => {editTaskWrapper() && close()}}>
                                   Save
                             </button>
                         </div>
                         <div>
-                            <button className="button" onClick=
-                                {() => {resetVars(); close();}}>
+                            <button className="button" onClick={close}>
                                   Cancel
                             </button>
                         </div>

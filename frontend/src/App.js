@@ -28,10 +28,16 @@ export default function App() {
                                       GenericTask("Generic Task 1"),
                                       GenericTask("Generic Task 2")]);
 
+<<<<<<< Updated upstream
 
   const login = function(username, password)
   {
     setIsLoggedIn(true);
+=======
+  const login = function(user)
+  {
+    setUser(user);
+>>>>>>> Stashed changes
   };
 
   const addTask = function(name, desc, date, time)
@@ -74,7 +80,15 @@ export default function App() {
   {
     let updatedTasks = [...tasks];
 
+<<<<<<< Updated upstream
     updatedTasks.splice(i, 1);
+=======
+  return (<>
+            <Header user={user} logout={logout}/>
+            <TasksPage/>
+          </>
+  );
+>>>>>>> Stashed changes
 
     if(i < numLateTasks)
     {

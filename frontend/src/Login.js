@@ -24,6 +24,30 @@ function LoginPopup({login})
   const [user, setUser] = useState("");
   const [pwd, setPwd] = useState("");
 
+<<<<<<< Updated upstream
+=======
+  const [error, setError] = useState("");
+
+  const reset = () =>
+  {
+    setError("");
+    setUser("");
+    setPwd("");
+  }
+
+  const loginWrapper = (username, password) =>
+  {   
+    var user = isLoginValid(username, password);
+    if(user == null)
+    {
+        setError("Invalid login!");
+        return;
+    }
+
+    login(user);
+  }
+
+>>>>>>> Stashed changes
   return (
     <div >
       {/* pop up window */}
@@ -72,6 +96,39 @@ function RegisterPopup({login})
   const [user, setUser] = useState("");
   const [pwd, setPwd] = useState("");
 
+<<<<<<< Updated upstream
+=======
+  const [error, setError] = useState("");
+
+  const reset = () =>
+  {
+    setError("");
+    setUser("");
+    setPwd("");
+  }
+
+  const register = (username, password) =>
+  {
+    if(isUsernameInDatabase(username))
+    {
+        setError("Username already in use!");
+        return false;
+    }
+
+    if(!checkRegisterReqs(username, password))
+    {
+        setError("Username and/or password do not satisfy requirements!");
+        return false;
+    }
+
+    var user = addUser(username, password);
+    login(user);
+
+    return true;
+  }
+
+
+>>>>>>> Stashed changes
   return (
     <div >
       {/* pop up window */}
