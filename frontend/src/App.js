@@ -1,118 +1,41 @@
-import logo from './logo.png';
 import './App.css';
 import './index.css';
-import Popup from 'reactjs-popup';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import 'reactjs-popup/dist/index.css';
-import { InputField } from './Utils';
-import { LoginPage } from './Login';
+import { LoginPage } from './LoginManager';
+import { TasksPage } from './TaskManager';
 import { Header } from './Header';
-import { AddTaskPopup, DisplayTasks, DisplayLateTasks } from './Tasks';
-
-
-function GenericTask(name)
-{
-  return {name: name, 
-          desc: name + " description", 
-          date: "00-00-00", 
-          time: "00:00 AM"};
-};
 
 export default function App() {
+  const [user, setUser] = useState(null);
 
-  const [numLateTasks, setNumLateTasks] = useState(2);
-  const [studyStreak, setStudyStreak] = useState(0);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [tasks, setTasks] = useState([GenericTask("Late Task 1"),
-                                      GenericTask("Late Task 2"),
-                                      GenericTask("Generic Task 1"),
-                                      GenericTask("Generic Task 2")]);
-
-
-  const login = function(username, password)
+  const login = function(username, id)
   {
-    setIsLoggedIn(true);
+    setUser({usr: username, id: id});
   };
 
-  const addTask = function(name, desc, date, time)
+  const logout = function()
   {
-    if(/^\s*$/.test(name) ||
-       /^\s*$/.test(desc) ||
-       /^\s*$/.test(date) ||
-       /^\s*$/.test(time))
-      return 1;
-
-    let updatedTasks = [...tasks];
-
-    updatedTasks.push({name: name, 
-                       desc: desc, 
-                       date: date, 
-                       time: time})
-
-    setTasks(updatedTasks);
+    setUser(null);
   };
 
-  const editTask = function(i, name, desc, date, time)
+  if(user === null)
   {
-    if(/^\s*$/.test(name) ||
-       /^\s*$/.test(desc) ||
-       /^\s*$/.test(date) ||
-       /^\s*$/.test(time))
-      return 1;
-
-    let updatedTasks = [...tasks];
-
-    updatedTasks[i] = ({name: name, 
-                        desc: desc, 
-                        date: date, 
-                        time: time})
-
-    setTasks(updatedTasks);
-  }
-
-  const deleteTask = function(i)
-  {
-    let updatedTasks = [...tasks];
-
-    updatedTasks.splice(i, 1);
-
-    if(i < numLateTasks)
-    {
-      setNumLateTasks(numLateTasks-1);
-    }
-
-    setTasks(updatedTasks);
-  }
-
-  const incrementStreak = function()
-  {
-    setStudyStreak(studyStreak+1);
-  }
-
-  
-
-
-  if(!isLoggedIn)
-
-    return <LoginPage login={login}/>;
-
-  return (
-      <>
-        <Header/>
-
-        <main>
-
-          <h2>My Dashboard</h2>
-          <div>STUDY STREAK: {studyStreak}</div>
-          <AddTaskPopup addTask = {addTask}/>
-
-          <DisplayLateTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask}/>
-
-          <DisplayTasks tasks={tasks} numLateTasks={numLateTasks} editTask={editTask} deleteTask={deleteTask} incrementStreak={incrementStreak}/>
-
-        </main>
-      </>
+    return (<>
+              <Header/>
+              <LoginPage login={login}/>
+            </>
     );
+  }
+
+    
+
+  return (<>
+            <Header user={user.usr} logout={logout}/>
+            <TasksPage/>
+          </>
+  );
+
 }
 
 
