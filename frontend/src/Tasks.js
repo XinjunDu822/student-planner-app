@@ -259,12 +259,16 @@ export function EditTaskPopup({editTask, currentName, currentDate, currentTime, 
   
   const [error, setError] = useState("");
 
-  useEffect(() => {
+  const resetVars = useCallback(() => {
     setError("");
     setName(currentName);
     setDesc(currentDesc);
     setDate(currentDate);
     setTime(currentTime);
+  }, [currentName, currentDesc, currentDate, currentTime]); 
+
+  useEffect(() => {
+    resetVars();
   }, [currentName, currentDesc, currentDate, currentTime]); 
 
   const editTaskWrapper = () => {
