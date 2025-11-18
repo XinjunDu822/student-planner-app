@@ -1,13 +1,19 @@
 import express from "express";
+import cors from "cors";
+import {
+  getAllTasks,
+  createTask,
+  updateTask,
+  deleteTask,
+} from "./controllers/taskController";
 
 const app = express();
 
-// Middleware
+app.use(cors());
 app.use(express.json());
-
-// Routes
-// For now, you can leave empty or add placeholder
-// import authRoutes from "./routes/authRoutes";
-// app.use("/auth", authRoutes);
+app.use("/api", getAllTasks);
+app.use("/api", createTask);
+app.use("/api", updateTask);
+app.use("/api", deleteTask);
 
 export default app;
