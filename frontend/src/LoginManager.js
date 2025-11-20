@@ -33,7 +33,7 @@ export function LoginPage({login})
 
         setUsers(updatedUsers);
 
-        return id;
+        return updatedUsers[updatedUsers.Length - 1];
     }
 
     const isLoginValid = (username, password) => {
@@ -43,7 +43,7 @@ export function LoginPage({login})
             if(users[i].usr == username)
             {
                 if(users[i].pwd == password)
-                    return users[i].id;
+                    return users[i];
                 break;
             }
         }
