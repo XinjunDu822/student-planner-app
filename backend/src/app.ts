@@ -5,7 +5,7 @@ import {
   createTask,
   updateTask,
   deleteTask,
-} from "./controllers/taskController";
+} from "./controllers/taskController.ts";
 
 const app = express();
 
