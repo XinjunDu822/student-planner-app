@@ -269,7 +269,7 @@ export function EditTaskPopup({editTask, currentName, currentDate, currentTime, 
 
   useEffect(() => {
     resetVars();
-  }, [currentName, currentDesc, currentDate, currentTime]); 
+  }, [resetVars, currentName, currentDesc, currentDate, currentTime]); 
 
   const editTaskWrapper = () => {
     if(/^\s*$/.test(name))
@@ -292,7 +292,7 @@ export function EditTaskPopup({editTask, currentName, currentDate, currentTime, 
 
     var date_ = TimeToDate(date, time);
 
-    if((date != currentDate || time != currentTime) && date_ < new Date())
+    if((date !== currentDate || time !== currentTime) && date_ < new Date())
     {
       setError("Date and time have already passed.")
       return false; 
