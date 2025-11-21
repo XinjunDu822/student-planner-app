@@ -4,22 +4,26 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:./dev.db"
 }
 
 model User {
-  id       String  @id @default(cuid())
-  email    String  @unique
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
   password String
-  tasks    Task[]  // ← add this to define the opposite relation
+  createdAt DateTime @default(now())
+  currStreak Int @default(0)
+  bestStreak Int @default(0)
+  tasks Task[]
 }
 
 model Task {
-  id       String  @id @default(cuid())
-  name     String
-  desc     String
-  date     String
-  time     String
-  userId   String
-  user     User    @relation(fields: [userId], references: [id])
+  id       String   @id @default(uuid())
+  user     User     @relation(fields: [userID], references: [id])
+  userID   String
+  title    String
+  date     DateTime
+  desc     String   @default("")
+  isComplete   Boolean  @default(false)
 }
