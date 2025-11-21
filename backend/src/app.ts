@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import {
@@ -6,6 +7,8 @@ import {
   updateTask,
   deleteTask,
 } from "./controllers/taskController.ts";
+import userRoutes from "./routes/userRoutes";
+
 
 const app = express();
 
@@ -15,5 +18,7 @@ app.use("/api", getAllTasks);
 app.use("/api", createTask);
 app.use("/api", updateTask);
 app.use("/api", deleteTask);
+app.use("/users", userRoutes);
+
 
 export default app;
