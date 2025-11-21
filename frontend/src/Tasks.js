@@ -119,28 +119,17 @@ export function DisplayTasks({tasks, editTask, deleteTask, completeTask, indexOf
 
 export function DisplayCompletedTasks({completedTasks})
 {
-    if(completedTasks.length > 0)
-    {
-        return (
-            
-        <>
-            <h3>Completed Tasks</h3>
+    return (    
+      <div id="TasksList">
+    
+        {completedTasks.slice().reverse().map
+          ((item, index) => <CompletedTask index={index} 
+                              key={index}
+                              data={item}/>
+          )
+        }
 
-            <div id="TasksList">
-            
-                {completedTasks.slice().reverse().map
-                  ((item, index) => <CompletedTask index={index} 
-                                      key={index}
-                                      data={item}/>
-                  )
-                }
-
-            </div>
-        </>
-        );
-    }
-    return (
-        <h3><br/>You have no completed tasks right now.<br/> What a bum...</h3>
+      </div>
     );
 }
 

@@ -77,7 +77,23 @@ export function TasksPage() {
 
         <div className="completed">
 
-            <DisplayCompletedTasks completedTasks={completedTasks}/>
+
+        {
+            ((completedTasks.length) > 0) && (
+                <>
+                    <h3>Complete</h3>
+                    <DisplayCompletedTasks completedTasks={completedTasks}/>
+                </>
+            )
+        }
+
+        {
+            ((completedTasks) == 0) && (
+                <>
+                    <h3><br/>You have no completed tasks right now.<br/> What a bum...</h3>
+                </>
+            )
+        }
 
         </div>
 
