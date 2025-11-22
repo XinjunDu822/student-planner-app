@@ -1,19 +1,26 @@
 import request from "supertest";
 import app from "../src/app";
-import prisma from "../src/prisma";
+import bcrypt from "bcryptjs";
+import { prismaMock } from "../singleton";
 
 //Auth endpoints testing
 
-beforeEach(async () => {
-  if (process.env.NODE_ENV !== "test") {
-    throw new Error("Tests running outside test environment!");
-  }
-  await prisma.user.deleteMany();
-  await prisma.task.deleteMany();
+beforeEach(() => {
+  // Clear all mock calls between tests
+  jest.clearAllMocks();
 });
 
 describe("AuthEndpoints test", () => {
   it("successful signup, return JWT", async () => {
+    const mockUser = {
+      name: "newuser",
+      password: await bcrypt.hash("password", 10),
+    };
+
+    prismaMock.user.findUnique.mockResolvedValue(null); // (user doesnt exist if searching if user exists)
+
+    prismaMock.user.create.mockResolvedValue(mockUser); //create the new user for signup
+
     const res = await request(app)
       .post("/api/auth/sign-up")
       .send({ name: "newuser", password: "password" });
@@ -22,9 +29,12 @@ describe("AuthEndpoints test", () => {
   });
 
   it("successful signin and return JWT", async () => {
-    await prisma.user.create({
-      data: { name: "testuser", password: "password" },
-    });
+    const mockUser = {
+      name: "testuser",
+      password: await bcrypt.hash("password", 10),
+    };
+
+    prismaMock.user.findUnique.mockResolvedValue(mockUser);
 
     const res = await request(app)
       .post("/api/auth/sign-in")
@@ -35,9 +45,7 @@ describe("AuthEndpoints test", () => {
   });
 
   it("unsuccessful signin return 400", async () => {
-    await prisma.user.create({
-      data: { name: "testuser", password: "password" },
-    });
+    prismaMock.user.findUnique.mockResolvedValue(null); // User is not found
 
     const res = await request(app)
       .post("/api/auth/sign-in")

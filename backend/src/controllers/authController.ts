@@ -45,12 +45,12 @@ export const signUp = async (
     }
 
     const user = await prisma.user.create({
-      //creates new account for user
       data: {
         name,
         password: hashedPassword,
       },
     });
+
     const token = createToken({ id: user.id, name: user.name }); //create token for user after signing in
 
     return res.status(200).json({ token });
@@ -75,7 +75,7 @@ export const signIn = async (
       return res.status(400).json({ message: "Username does not exist" });
     }
 
-    const isValid = comparePassword(password, user.password);
+    const isValid = await comparePassword(password, user.password);
 
     if (!isValid) {
       return res.status(400).json({ message: "Incorrect Password" });

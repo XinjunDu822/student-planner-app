@@ -1,12 +1,7 @@
 import express from "express";
 import cors from "cors";
-import {
-  getAllTasks,
-  createTask,
-  updateTask,
-  deleteTask,
-} from "./controllers/taskController.ts";
-import { signIn, signUp } from "./controllers/authController.ts";
+import authRouter from "./routes/authRoutes.ts";
+import taskRouter from "./routes/taskRoutes.ts";
 
 const app = express();
 
@@ -14,13 +9,9 @@ app.use(cors());
 app.use(express.json());
 
 //task routes
-app.use("/api", getAllTasks);
-app.use("/api", createTask);
-app.use("/api", updateTask);
-app.use("/api", deleteTask);
+app.use("/api", taskRouter);
 
 //auth routes
-app.use("/api/auth", signIn);
-app.use("/api/auth", signUp);
+app.use("/api/auth", authRouter);
 
 export default app;
