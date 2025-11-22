@@ -7,7 +7,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecret"; // store in env in r
 
 type Payload = {
   id: string;
-  email: string;
+  name: string;
 };
 
 const hashPassword = async (password: string) => {
@@ -30,21 +30,31 @@ export const signUp = async (
   next: NextFunction
 ) => {
   try {
-    const { email, password } = req.body;
+    const { name, password } = req.body;
     const hashedPassword = await hashPassword(password);
+
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        name,
+      },
+    });
+
+    if (existingUser) {
+      return res.status(409).json({ message: "User already exists" });
+    }
 
     const user = await prisma.user.create({
       //creates new account for user
       data: {
-        email,
+        name,
         password: hashedPassword,
       },
     });
-    const token = createToken({ id: user.id, email: user.email }); //create token for user after signing in
+    const token = createToken({ id: user.id, name: user.name }); //create token for user after signing in
 
-    res.json({ token });
+    return res.json({ token });
   } catch (err) {
-    res.status(500).json({ message: "Server Error" });
+    return res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -54,14 +64,14 @@ export const signIn = async (
   next: NextFunction
 ) => {
   try {
-    const { email, password } = req.body;
+    const { name, password } = req.body;
 
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { name },
     });
 
     if (!user) {
-      return res.status(400).json({ message: "User Email does not exist" });
+      return res.status(400).json({ message: "Username does not exist" });
     }
 
     const isValid = comparePassword(password, user.password);
@@ -70,9 +80,9 @@ export const signIn = async (
       return res.status(400).json({ message: "Incorrect Password" });
     }
 
-    const token = createToken({ id: user.id, email: user.email });
-    res.json({ token });
+    const token = createToken({ id: user.id, name: user.name });
+    return res.json({ token });
   } catch (err) {
-    res.status(500).json({ message: "Server Error" });
+    return res.status(500).json({ message: "Server Error" });
   }
 };
