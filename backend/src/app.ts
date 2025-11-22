@@ -19,6 +19,8 @@ app.use("/api", createTask);
 app.use("/api", updateTask);
 app.use("/api", deleteTask);
 app.use("/users", userRoutes);
-
+app.get("/", (req, res) => {
+  res.send("Backend is probably running.");
+});
 
 export default app;
