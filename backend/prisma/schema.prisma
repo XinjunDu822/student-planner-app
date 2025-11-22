@@ -15,21 +15,21 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(uuid())
-  name     String @unique
-  password String
-  createdAt DateTime @default(now())
-  currStreak Int @default(0)
-  bestStreak Int @default(0)
-  tasks Task[]
+  id         String   @id @default(uuid())
+  name       String   @unique
+  password   String
+  createdAt  DateTime @default(now())
+  currStreak Int      @default(0)
+  bestStreak Int      @default(0)
+  tasks      Task[]
 }
 
 model Task {
-  id       String   @id @default(uuid())
-  user     User     @relation(fields: [userID], references: [id])
-  userID   String
-  title    String
-  date     DateTime
-  desc     String   @default("")
-  isComplete   Boolean  @default(false)
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userID], references: [id])
+  userID     String
+  title      String
+  date       DateTime
+  desc       String   @default("")
+  isComplete Boolean  @default(false)
 }

@@ -19,18 +19,26 @@ const comparePassword = async (password: string, hash: string) => {
 };
 
 export const createToken = (payload: Payload): string => {
-  return jwt.sign(payload, process.env.JWT_SECRET as string, {
+  return jwt.sign(payload, JWT_SECRET, {
     expiresIn: "1h",
   });
 };
 
 export const signUp = async (
+  //NEED TO IMPLEMENT TEST FOR BLANK USERNAME BLANK PASSWORD
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const { name, password } = req.body;
+
+    if (!name || !password) {
+      return res
+        .status(400)
+        .json({ message: "Username and password are required" });
+    }
+
     const hashedPassword = await hashPassword(password);
 
     const existingUser = await prisma.user.findUnique({
@@ -44,15 +52,15 @@ export const signUp = async (
     }
 
     const user = await prisma.user.create({
-      //creates new account for user
       data: {
         name,
         password: hashedPassword,
       },
     });
+
     const token = createToken({ id: user.id, name: user.name }); //create token for user after signing in
 
-    return res.json({ token });
+    return res.status(200).json({ token });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }
@@ -66,6 +74,12 @@ export const signIn = async (
   try {
     const { name, password } = req.body;
 
+    if (!name || !password) {
+      return res
+        .status(400)
+        .json({ message: "Username and password are required" });
+    }
+
     const user = await prisma.user.findUnique({
       where: { name },
     });
@@ -74,14 +88,14 @@ export const signIn = async (
       return res.status(400).json({ message: "Username does not exist" });
     }
 
-    const isValid = comparePassword(password, user.password);
+    const isValid = await comparePassword(password, user.password);
 
     if (!isValid) {
       return res.status(400).json({ message: "Incorrect Password" });
     }
 
     const token = createToken({ id: user.id, name: user.name });
-    return res.json({ token });
+    return res.status(200).json({ token });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }
