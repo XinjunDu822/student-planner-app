@@ -3,7 +3,7 @@ import prisma from "../prisma.ts";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
-const JWT_SECRET = process.env.JWT_SECRET || "3bf0bd9e98b48a5ca2673112658b8a58f62d4ca159fe1a798f1f5abf6bd0656808ff194d733450951219da51a5939561bd32f958c058ed90be21f66e8e061666"; // store in env in real projects
+const JWT_SECRET = process.env.JWT_SECRET || "secret"; // store in env in real projects
 
 type Payload = {
   id: string;
