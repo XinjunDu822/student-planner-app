@@ -32,6 +32,13 @@ export const signUp = async (
 ) => {
   try {
     const { name, password } = req.body;
+
+    if (!name || !password) {
+      return res
+        .status(400)
+        .json({ message: "Username and password are required" });
+    }
+
     const hashedPassword = await hashPassword(password);
 
     const existingUser = await prisma.user.findUnique({
@@ -66,6 +73,12 @@ export const signIn = async (
 ) => {
   try {
     const { name, password } = req.body;
+
+    if (!name || !password) {
+      return res
+        .status(400)
+        .json({ message: "Username and password are required" });
+    }
 
     const user = await prisma.user.findUnique({
       where: { name },
