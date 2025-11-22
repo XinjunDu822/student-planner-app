@@ -7,7 +7,7 @@ import {
   updateTask,
   deleteTask,
 } from "./controllers/taskController.ts";
-import userRoutes from "./routes/userRoutes";
+import userRoutes from "./routes/userRoutes.ts";
 
 
 const app = express();

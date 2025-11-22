@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 
 describe("User Controller", () => {
   beforeAll(async () => {
-    // Optional: clean up users table
+    // Clean up users table before tests
     await prisma.user.deleteMany({});
   });
 
@@ -19,6 +19,7 @@ describe("User Controller", () => {
       const res = await request(app)
         .post("/users/signup")
         .send({
+          name: "Test User",          // <--- required
           email: "test@example.com",
           password: "Password123"
         });
@@ -31,6 +32,7 @@ describe("User Controller", () => {
       const res = await request(app)
         .post("/users/signup")
         .send({
+          name: "No Email User",      // <--- still required
           email: "",
           password: "Password123"
         });
@@ -40,12 +42,18 @@ describe("User Controller", () => {
   });
 
   describe("POST /users/signin", () => {
-    it("should allow signing in with correct credentials", async () => {
-      // first create the user
+    beforeAll(async () => {
+      // Ensure user exists for signin
       await prisma.user.create({
-        data: { email: "login@example.com", password: await bcrypt.hash("Password123", 10) }
+        data: {
+          name: "Login User",
+          email: "login@example.com",
+          password: await bcrypt.hash("Password123", 10)
+        }
       });
+    });
 
+    it("should allow signing in with correct credentials", async () => {
       const res = await request(app)
         .post("/users/signin")
         .send({
@@ -66,6 +74,37 @@ describe("User Controller", () => {
         });
 
       expect(res.statusCode).toBe(400);
+    });
+  });
+
+  describe("Check email existence", () => {
+    beforeAll(async () => {
+      // Create a user for existence test
+      await prisma.user.create({
+        data: {
+          name: "Existence User",
+          email: "exists@example.com",
+          password: await bcrypt.hash("Password123", 10)
+        }
+      });
+    });
+
+    it("should return true if email exists", async () => {
+      const res = await request(app)
+        .post("/users/check-email")
+        .send({ email: "exists@example.com" });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.exists).toBe(true);
+    });
+
+    it("should return false if email does not exist", async () => {
+      const res = await request(app)
+        .post("/users/check-email")
+        .send({ email: "notfound@example.com" });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.exists).toBe(false);
     });
   });
 });
