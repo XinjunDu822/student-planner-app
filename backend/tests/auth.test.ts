@@ -55,4 +55,37 @@ describe("AuthEndpoints test", () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toHaveProperty("message", "Username does not exist");
   });
+
+  it("wrong password signin return 400", async () => {
+    const mockUser = {
+      id: 1,
+      name: "testuser",
+      password: await bcrypt.hash("correctpassword", 10),
+    };
+
+    prismaMock.user.findUnique.mockResolvedValue(mockUser); // User exists
+
+    const res = await request(app)
+      .post("/api/auth/sign-in")
+      .send({ name: "testuser", password: "wrongpassword" });
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toHaveProperty("message", "Incorrect Password");
+  });
+
+  it("signup with existing username returns 409", async () => {
+    const existingUser = {
+      id: 1,
+      name: "existinguser",
+      password: await bcrypt.hash("password", 10),
+    };
+
+    prismaMock.user.findUnique.mockResolvedValue(existingUser); //user already exists
+
+    const res = await request(app)
+      .post("/api/auth/sign-up")
+      .send({ name: "existinguser", password: "password" });
+
+    expect(res.statusCode).toBe(409);
+    expect(res.body).toHaveProperty("message", "User already exists");
+  });
 });
