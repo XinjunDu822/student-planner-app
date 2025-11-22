@@ -13,6 +13,7 @@ beforeEach(() => {
 describe("AuthEndpoints test", () => {
   it("successful signup, return JWT", async () => {
     const mockUser = {
+      id: "test-id-123",
       name: "newuser",
       password: await bcrypt.hash("password", 10),
     };
@@ -30,6 +31,7 @@ describe("AuthEndpoints test", () => {
 
   it("successful signin and return JWT", async () => {
     const mockUser = {
+      id: "test-id-456",
       name: "testuser",
       password: await bcrypt.hash("password", 10),
     };
