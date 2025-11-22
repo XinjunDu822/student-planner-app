@@ -25,6 +25,7 @@ export const createToken = (payload: Payload): string => {
 };
 
 export const signUp = async (
+  //NEED TO IMPLEMENT TEST FOR BLANK USERNAME BLANK PASSWORD
   req: Request,
   res: Response,
   next: NextFunction
@@ -52,7 +53,7 @@ export const signUp = async (
     });
     const token = createToken({ id: user.id, name: user.name }); //create token for user after signing in
 
-    return res.json({ token });
+    return res.status(200).json({ token });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }
@@ -81,7 +82,7 @@ export const signIn = async (
     }
 
     const token = createToken({ id: user.id, name: user.name });
-    return res.json({ token });
+    return res.status(200).json({ token });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }

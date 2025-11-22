@@ -20,7 +20,7 @@ app.use("/api", updateTask);
 app.use("/api", deleteTask);
 
 //auth routes
-app.use("/api", signIn);
-app.use("/api", signUp);
+app.use("/api/auth", signIn);
+app.use("/api/auth", signUp);
 
 export default app;
