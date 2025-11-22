@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 // Extend Express Request type
 declare module "express-serve-static-core" {
   interface Request {
-    user?: { id: string; email: string };
+    user?: { id: string; name: string };
   }
 }
 
@@ -24,7 +24,7 @@ export const authMiddleware = (
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, JWT_SECRET) as {
       id: string;
-      email: string;
+      name: string;
     };
     req.user = decoded;
     next();
