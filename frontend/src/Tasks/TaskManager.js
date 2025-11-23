@@ -3,6 +3,7 @@ import 'reactjs-popup/dist/index.css';
 // import { TaskDatabase, CompletedTaskDatabase } from '../DummyData';
 import { AddTaskPopup, DisplayTasks, DisplayCompletedTasks } from './Tasks';
 import { getAllTasks, createTask, editTask, deleteTask, completeTask, updateLastLate, updateBestStreak } from "./TaskService";
+import { getUser } from "../Login/AuthService";
 
 
 export function TasksPage({user, logout}) {
@@ -69,28 +70,44 @@ export function TasksPage({user, logout}) {
         lastLate = tasks[i - 1].date;
     }
 
-    var serverLastLate = await updateLastLate(user, lastLate);
+    var user_ = await getUser(user);
 
-    if(serverLastLate.date)
+    if(user_.lastLate)
     {
-        lastLate = new Date(serverLastLate.date);
+        var serverLastLate = new Date(user_.lastLate);
+
+        if(lastLate != null && lastLate > serverLastLate)
+        {
+            await updateLastLate(user, lastLate);
+        }
+        else
+        {
+            lastLate = serverLastLate;
+        }
     }
 
-    console.log(lastLate);
-
     var streak = 0;
-
-    for(; streak < completedTasks.length && completedTasks[streak].date > lastLate; streak++) { }
+    
+    if(lastLate == null)
+    {
+        streak = completedTasks.length;
+    }
+    else
+    {
+        for(; streak < completedTasks.length && completedTasks[streak].date > lastLate; streak++) { }
+    }
 
     setCurrStreak(streak);
 
-    var bestStreakResponse = await updateBestStreak(user, streak);
+    var bestStreak = user_.bestStreak;
 
-    if(bestStreakResponse.streak)
+    if(streak > bestStreak)
     {
-        setBestStreak(bestStreakResponse.streak);
+        bestStreak = streak;
+        await updateBestStreak(user, bestStreak);
     }
-    
+
+    setBestStreak(bestStreak);
   }
   
   useEffect(() => {

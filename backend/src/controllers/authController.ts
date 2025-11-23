@@ -125,7 +125,16 @@ export const getUser = async (
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    return res.status(200).json({ name: req.user?.name });
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid user" });
+    }
+
+    return res.status(200).json({ name: req.user?.name,
+                                  lastLate: user.lastLate,
+                                  bestStreak: user.bestStreak
+                                });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }

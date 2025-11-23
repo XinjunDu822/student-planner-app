@@ -171,6 +171,11 @@ export const updateLastLate = async (
 ) => {
   try {
     const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const { date } = req.body;
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -180,24 +185,25 @@ export const updateLastLate = async (
     }
 
     if (!date) {
-      return res.status(200).json({ date: user.lastLate });
+      return res.status(400).json({ message: "Invalid date" });
     }
 
-    var date_ = new Date(date);
+    var date_;
 
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+    try
+    {
+      date_ = new Date(date);
+    }
+    catch (err) {
+      return res.status(400).json({ message: "Invalid date" });
     }
 
-    if (date_ > user.lastLate) {
-      await prisma.user.update({
-        where: { id: userId },
-        data: { lastLate: date_ },
-      });
-      return res.status(200).json({ date: date_ });
-    }
+    await prisma.user.update({
+      where: { id: userId },
+      data: { lastLate: date_ },
+    });
+    return res.status(200).json({ date: date_ });
 
-    return res.status(200).json({ date: user.lastLate });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }
@@ -222,15 +228,12 @@ export const updateBestStreak = async (
       return res.status(400).json({ message: "Invalid user" });
     }
 
-    if (streak > user.bestStreak) {
-      await prisma.user.update({
-        where: { id: userId },
-        data: { bestStreak: streak },
-      });
-      return res.status(200).json({ streak: streak });
-    }
-
-    return res.status(200).json({ streak: user.bestStreak });
+    await prisma.user.update({
+      where: { id: userId },
+      data: { bestStreak: streak },
+    });
+    return res.status(200).json({ streak: streak });
+  
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }
