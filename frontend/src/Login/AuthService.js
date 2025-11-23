@@ -29,3 +29,13 @@ export const getUser = async (authorization) => {
 
   return await res.json();
 };
+
+export const logout = async (authorization) => {
+  const res = await fetch(`${API_URL}/logout`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json",
+               "Authorization": `Bearer ${authorization}` },
+  });
+
+  return await res.json();
+};

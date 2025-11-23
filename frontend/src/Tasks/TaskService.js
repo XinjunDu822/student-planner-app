@@ -48,7 +48,8 @@ export const completeTask = async (authorization, taskId) => {
     method: "PUT",
     headers: { "Content-Type": "application/json",
                "Authorization": `Bearer ${authorization}` },
-    body: JSON.stringify({ isComplete: true }),
+    body: JSON.stringify({ date: new Date(), 
+                           isComplete: true }),
   });
 
   return await res.json();

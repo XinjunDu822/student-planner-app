@@ -174,22 +174,29 @@ export const updateLastLate = async (
     const userId = req.user?.id;
     const { date } = req.body;
 
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
       return res.status(400).json({ message: "Invalid user" });
     }
-    
-    if (date > user.lastLate) {
+
+    if(!date)
+    {
+      return res.status(200).json({ date: user.lastLate });
+    }
+
+    var date_ = new Date(date);
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (date_ > user.lastLate) {
       await prisma.user.update({
         where: { id: userId },
-        data: { lastLate: date },
+        data: { lastLate: date_ },
       });
-      return res.status(200).json({ date: date });
+      return res.status(200).json({ date: date_ });
     }
 
     return res.status(200).json({ date: user.lastLate });

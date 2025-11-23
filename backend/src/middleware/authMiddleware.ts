@@ -20,7 +20,7 @@ type Payload = {
 
 export const createToken = (payload: Payload): string => {
   return jwt.sign(payload, JWT_SECRET, {
-    expiresIn: "1h",
+    expiresIn: "30m",
   });
 };
 
@@ -43,6 +43,6 @@ export const authMiddleware = (
     req.user = decoded;
     next();
   } catch {
-    return res.status(401).json({ message: "Token is invalid or expired" });
+    return res.status(401).json({ message: "Unauthorized" });
   }
 };

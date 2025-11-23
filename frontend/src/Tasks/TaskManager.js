@@ -5,7 +5,7 @@ import { AddTaskPopup, DisplayTasks, DisplayCompletedTasks } from './Tasks';
 import { getAllTasks, createTask, editTask, deleteTask, completeTask, updateLastLate, updateBestStreak } from "./TaskService";
 
 
-export function TasksPage({user}) {
+export function TasksPage({user, logout}) {
 
   const [numLateTasks, setNumLateTasks] = useState(null);
 
@@ -23,42 +23,64 @@ export function TasksPage({user}) {
   async function loadTasks() {
 
     var response = await getAllTasks(user);
-
-    console.log(response);
     
     if(!response.tasks)
-    {
+    {        
+        if(response.message == "Unauthorized")
+        {
+            logout();   
+            return;         
+        }
         setTasks(null);
         setCompletedTasks(null);
         setError(response.message);
         return;
     }
 
-    setTasks(response.tasks);
-    setCompletedTasks(response.completedTasks);
+    var tasks = response.tasks;
+    var completedTasks = response.completedTasks;
+
+    for(var i = 0; i < tasks.length; i++)
+    {
+        tasks[i].date = new Date(tasks[i].date);
+    }
+
+    for(var i = 0; i < completedTasks.length; i++)
+    {
+        completedTasks[i].date = new Date(completedTasks[i].date);
+    }
+
+    setTasks(tasks);
+    setCompletedTasks(completedTasks);
 
     var i = 0;
     var d = new Date();
-    for(; i < response.tasks.length && d >= response.tasks[i].date; i++) { }
+    for(; i < tasks.length && d >= tasks[i].date; i++) { }
 
     if(i !== numLateTasks)
     {
         setNumLateTasks(i);
     }
 
-    var streak = 0;
+    var lastLate = null;
 
     if(i > 0)
     {
-        var lastLate = tasks[i - 1].date;
-        await updateLastLate(user, lastLate);
+        lastLate = tasks[i - 1].date;
+    }
 
-        for(; streak < response.completedTasks.length && response.completedTasks[streak] > lastLate; streak++) { }
-    }
-    else
+    var serverLastLate = await updateLastLate(user, lastLate);
+
+    if(serverLastLate.date)
     {
-        streak = response.completedTasks.length;
+        lastLate = new Date(serverLastLate.date);
     }
+
+    console.log(lastLate);
+
+    var streak = 0;
+
+    for(; streak < completedTasks.length && completedTasks[streak].date > lastLate; streak++) { }
 
     setCurrStreak(streak);
 
@@ -79,12 +101,7 @@ export function TasksPage({user}) {
 
   const addTask = async function(name, desc, date)
   {
-    console.log(name);
-    console.log(desc);
-    console.log(date);
     var response = await createTask(user, name, date, desc);
-
-    console.log(response.message);
 
     await loadTasks();
   };
@@ -126,7 +143,7 @@ export function TasksPage({user}) {
 
             <div className="completed">
 
-            <h3>Your current streak</h3>
+            <h3>Current streak</h3>
 
             <streak>{currStreak}</streak>
 
@@ -138,7 +155,7 @@ export function TasksPage({user}) {
                 ((completedTasks.length) > 0) && (
                     <>
                         <h3>Complete</h3>
-                        <DisplayCompletedTasks completedTasks={completedTasks}/>
+                        <DisplayCompletedTasks completedTasks={completedTasks} deleteTask={deleteTask_}/>
                     </>
                 )
             }

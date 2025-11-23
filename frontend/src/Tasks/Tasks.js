@@ -6,15 +6,10 @@ import { InputField, DateInputField, DateToParams, TimeToDate, FormatTime } from
 
 
 
-export function CompletedTask({index, data})
+export function CompletedTask({index, data, deleteTask})
 {
   var name = data.title; 
   var date = data.date;
-
-  if(typeof date === 'string')
-  {
-    date = new Date(date);
-  }
 
   var [d, t] = DateToParams(date);
   // var time = FormatTime(t);
@@ -45,13 +40,13 @@ export function CompletedTask({index, data})
 
         <div>
           <EditTaskPopup editTask={editTask} currentName={name} currentDate={date} currentTime={t} currentDesc={desc} index={index}/>
-        </div>
+        </div> */}
 
-        <div>
+        {/* <div>
           <DeleteTaskPopup deleteTask={deleteTask}/>
-        </div>     
+        </div>      */}
 
-      </div>  */}
+      {/* </div>  */}
 
     </div>
   );
@@ -63,11 +58,7 @@ export function Task({index, data, editTask, deleteTask, completeTask})
   var name = data.title; 
   var desc = data.desc; 
   var date = data.date;
-  
-  if(typeof date === 'string')
-  {
-    date = new Date(date);
-  }
+
   
   var [d, t] = DateToParams(date);
   var time = FormatTime(t);
@@ -133,7 +124,7 @@ export function DisplayTasks({tasks, editTask, deleteTask, completeTask})
     );
 }
 
-export function DisplayCompletedTasks({completedTasks})
+export function DisplayCompletedTasks({completedTasks, deleteTask})
 {
     return (    
       <div id="TasksList">
@@ -141,7 +132,8 @@ export function DisplayCompletedTasks({completedTasks})
         {completedTasks.slice().reverse().map
           ((item, index) => <CompletedTask index={item.id} 
                               key={index}
-                              data={item}/>
+                              data={item}
+                              deleteTask={() => deleteTask(item.id)}/>
           )
         }
 
