@@ -1,34 +1,12 @@
-import logo from './new_logo_transparent.png';
 import './App.css';
 import Popup from 'reactjs-popup';
 import { useState } from 'react';
 import 'reactjs-popup/dist/index.css';
 import { InputField } from './Utils';
-import { Header } from './Header';
+import { signUp, signIn } from "./AuthService";
+import { jwtDecode } from "jwt-decode";
 
-
-function checkRegisterReqs(username, password)
-{
-    const usernameTests = [/^.*[a-zA-Z].*[a-zA-Z].*[a-zA-Z].*$/]
-
-    if(!usernameTests.every(r => r.test(username)))
-        return false;
-
-    const passwordTests = [/^.*[A-Z].*$/,
-                           /^.*[a-z].*$/,
-                           /^.*[\d].*$/,
-                           /^.{6,}$/
-                          ];
-    
-    if(!passwordTests.every(r => r.test(password)))
-        return false;
-
-    return true;
-}
-
-
-
-export function LoginPopup({login, isLoginValid})
+export function LoginPopup({login})
 {
   const [user, setUser] = useState("");
   const [pwd, setPwd] = useState("");
@@ -42,17 +20,19 @@ export function LoginPopup({login, isLoginValid})
     setPwd("");
   }
 
-  const loginWrapper = (username, password) =>
+  const loginWrapper = async (username, password) =>
   {   
-    var user = isLoginValid(username, password);
-    if(user == null)
+    var response = await signIn(username, password);
+
+    if(!response.token)
     {
-        setError("Invalid login!");
+        setError(response.message);
         return;
     }
 
-    login(user);
+    login(response.name);
   }
+
 
   return (
     <div >
@@ -67,10 +47,6 @@ export function LoginPopup({login, isLoginValid})
                           <h3>Welcome Back</h3>
                       </div>
 
-                      <div className='error-text'>
-                          {error} 
-                      </div>
-
                       <div className="task-popup-content">
                           <InputField placeholderText = "Username" value={user} setValue = {setUser}/>
                       </div >
@@ -78,6 +54,10 @@ export function LoginPopup({login, isLoginValid})
                       <div className="task-popup-content">
                           <InputField placeholderText = "Password" value={pwd} setValue = {setPwd} inputType="password"/>
                       </div >
+
+                      <div className='error-text'>
+                          {error} 
+                      </div>
 
                       <div className="button-holder">
                         <div>
@@ -101,7 +81,7 @@ export function LoginPopup({login, isLoginValid})
   );
 }
 
-export function RegisterPopup({login, isUsernameInDatabase, addUser})
+export function RegisterPopup({login, addUser})
 {
   const [user, setUser] = useState("");
   const [pwd, setPwd] = useState("");
@@ -115,24 +95,17 @@ export function RegisterPopup({login, isUsernameInDatabase, addUser})
     setPwd("");
   }
 
-  const register = (username, password) =>
+  const register = async (username, password) =>
   {
-    if(isUsernameInDatabase(username))
+    var response = await signUp(username, password);
+
+    if(!response.token)
     {
-        setError("Username already in use!");
-        return false;
+        setError(response.message);
+        return;
     }
 
-    if(!checkRegisterReqs(username, password))
-    {
-        setError("Username and/or password do not satisfy requirements!");
-        return false;
-    }
-
-    var id = addUser(username, password);
-    login(username, id);
-
-    return true;
+    login(response.name);
   }
 
 
@@ -153,10 +126,6 @@ export function RegisterPopup({login, isUsernameInDatabase, addUser})
                           Password must have at least six characters, including at least one uppercase letter, lowercase letter, and number.<br/><br/> 
                       </div>
 
-                      <div className='error-text'>
-                          {error} 
-                      </div>
-
                       <div className="task-popup-content">
                           <InputField placeholderText = "Username" value={user} setValue = {setUser}/>
                       </div >
@@ -164,6 +133,11 @@ export function RegisterPopup({login, isUsernameInDatabase, addUser})
                       <div className="task-popup-content">
                           <InputField placeholderText = "Password" value={pwd} setValue = {setPwd} inputType="password"/>
                       </div >
+
+                      <div className='error-text'>
+                          {error} 
+                      </div>
+
 
                       <div className="button-holder">
                         <div>
@@ -186,26 +160,3 @@ export function RegisterPopup({login, isUsernameInDatabase, addUser})
     </div>
   );
 }
-
-export function LoginPage({login})
-{
-
-    
-
-    return (
-        <>
-        <Header/>
-
-        <main>
-
-            <img className="large-icon" src={logo} alt="Logo"/>
-
-            <div className="wide-button-holder">
-                <LoginPopup login={login}/>
-                <RegisterPopup login={login}/>
-            </div>
-
-        </main>
-        </>
-    );
-};

@@ -2,7 +2,6 @@ import './App.css';
 import './index.css';
 import { useState, useEffect, useSyncExternalStore } from 'react';
 import 'reactjs-popup/dist/index.css';
-import { Header } from './Header';
 import { TaskDatabase, CompletedTaskDatabase } from './DummyData';
 
 import { AddTaskPopup, DisplayTasks, DisplayCompletedTasks } from './Tasks';
@@ -24,12 +23,10 @@ export function TasksPage() {
     var d = new Date();
     for(; i < tasks.length && d >= tasks[i].date; i++) { }
 
-    if(i != numLateTasks)
+    if(i !== numLateTasks)
     {
         setNumLateTasks(i);
     }
-
-    console.log("numLateTasks: " + numLateTasks)
   }
   
   useEffect(() => {
@@ -88,7 +85,7 @@ export function TasksPage() {
         }
 
         {
-            ((completedTasks) == 0) && (
+            ((completedTasks) === 0) && (
                 <>
                     <h3><br/>You have no completed tasks right now.<br/> What a bum...</h3>
                 </>
@@ -122,7 +119,7 @@ export function TasksPage() {
             }
 
             {
-                ((tasks.length - numLateTasks) == 0) && (
+                ((tasks.length - numLateTasks) === 0) && (
                     <>
                         <h3><br/>You have no new tasks right now.<br/> Get started by creating some!</h3>
                     </>

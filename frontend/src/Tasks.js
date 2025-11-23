@@ -147,8 +147,6 @@ export function AddTaskPopup({addTask})
   
   const [error, setError] = useState("");
 
-  let timeRegex = /^([0-1][0-9]|2[0-4]):([0-5][0-9])(am|pm)$/;
-
   const resetVars = useCallback(() => {
 
     setError("");
@@ -219,8 +217,6 @@ export function AddTaskPopup({addTask})
                       </div >
                       <div className="task-popup-content">
                           <InputField placeholderText = "Enter task time" value={time} setValue = {setTime} inputType = "time"/>
-                          {!timeRegex.test(time) && <div>Invalid Input</div>}
-
                       </div >
 
                       <div className='error-text'>
@@ -329,7 +325,6 @@ export function EditTaskPopup({editTask, currentName, currentDate, currentTime, 
 
                       <div className="task-popup-content">
                           <InputField placeholderText = "Enter task time" value={time} setValue = {setTime} inputType = "time"/>
-                          {!timeRegex.test(time) && <div>Invalid Input</div>}
                       </div >
 
                       <div className='error-text'>
