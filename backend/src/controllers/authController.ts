@@ -19,23 +19,16 @@ const comparePassword = async (password: string, hash: string) => {
 };
 
 const checkRegisterReqs = (username: string, password: string): boolean => {
-  const usernameTests = [/(?=(?:.*[A-Za-z]){3,})/]
+  const usernameTests = [/(?=(?:.*[A-Za-z]){3,})/];
 
-  if(!usernameTests.every(r => r.test(username)))
-      return false;
+  if (!usernameTests.every((r) => r.test(username))) return false;
 
-  const passwordTests = [/[A-Z]/,
-                         /[a-z]/,
-                         /\d/,
-                         /[^a-zA-Z\d]/,
-                         /.{6,}/
-                        ];
-  
-  if(!passwordTests.every(r => r.test(password)))
-      return false;
+  const passwordTests = [/[A-Z]/, /[a-z]/, /\d/, /[^a-zA-Z\d]/, /.{6,}/];
+
+  if (!passwordTests.every((r) => r.test(password))) return false;
 
   return true;
-}
+};
 
 export const createToken = (payload: Payload): string => {
   return jwt.sign(payload, JWT_SECRET, {
@@ -57,9 +50,10 @@ export const signUp = async (
         .json({ message: "Username and password are required." });
     }
 
-    if(!checkRegisterReqs(name, password))
-    {
-      return res.status(409).json({ message: "Username and/or password do not satisfy requirements!" });
+    if (!checkRegisterReqs(name, password)) {
+      return res.status(400).json({
+        message: "Username and/or password do not satisfy requirements!",
+      });
     }
 
     const existingUser = await prisma.user.findUnique({
