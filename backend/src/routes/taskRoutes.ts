@@ -4,8 +4,8 @@ import {
   createTask,
   updateTask,
   deleteTask,
-} from "../controllers/taskController";
-import { authMiddleware } from "../middleware/authMiddleware";
+} from "../controllers/taskController.ts";
+import { authMiddleware } from "../middleware/authMiddleware.ts";
 
 const router = express.Router();
 
