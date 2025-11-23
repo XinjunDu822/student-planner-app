@@ -28,8 +28,6 @@ export default function App() {
     );
   }
 
-    
-
   return (<>
             <Header user={user} logout={logout}/>
             <TasksPage/>

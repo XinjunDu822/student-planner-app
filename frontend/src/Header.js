@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react';
 
 export function Header({user, logout})
 {
-
     const [isClicked, setIsClicked] = useState(false);
 
     const [isHovering, setIsHovering] = useState(false);
@@ -48,7 +47,7 @@ export function Header({user, logout})
                                 <img className="icon" src={logo} alt="Logo"/>
 
                                 <div className="username">
-                                    {user.usr}
+                                    {user}
                                 </div>
 
                             </div>

@@ -18,6 +18,24 @@ const comparePassword = async (password: string, hash: string) => {
   return await bcrypt.compare(password, hash);
 };
 
+const checkRegisterReqs = (username: string, password: string): boolean => {
+  const usernameTests = [/(?=(?:.*[A-Za-z]){3,})/]
+
+  if(!usernameTests.every(r => r.test(username)))
+      return false;
+
+  const passwordTests = [/[A-Z]/,
+                         /[a-z]/,
+                         /\d/,
+                         /.{6,}/
+                        ];
+  
+  if(!passwordTests.every(r => r.test(password)))
+      return false;
+
+  return true;
+}
+
 export const createToken = (payload: Payload): string => {
   return jwt.sign(payload, JWT_SECRET, {
     expiresIn: "1h",
@@ -25,7 +43,6 @@ export const createToken = (payload: Payload): string => {
 };
 
 export const signUp = async (
-  //NEED TO IMPLEMENT TEST FOR BLANK USERNAME BLANK PASSWORD
   req: Request,
   res: Response,
   next: NextFunction
@@ -36,10 +53,13 @@ export const signUp = async (
     if (!name || !password) {
       return res
         .status(400)
-        .json({ message: "Username and password are required" });
+        .json({ message: "Username and password are required." });
     }
 
-    const hashedPassword = await hashPassword(password);
+    if(!checkRegisterReqs(name, password))
+    {
+      return res.status(409).json({ message: "Username and/or password do not satisfy requirements!" });
+    }
 
     const existingUser = await prisma.user.findUnique({
       where: {
@@ -48,8 +68,10 @@ export const signUp = async (
     });
 
     if (existingUser) {
-      return res.status(409).json({ message: "User already exists" });
+      return res.status(409).json({ message: "Username already in use." });
     }
+
+    const hashedPassword = await hashPassword(password);
 
     const user = await prisma.user.create({
       data: {
@@ -60,7 +82,7 @@ export const signUp = async (
 
     const token = createToken({ id: user.id, name: user.name }); //create token for user after signing in
 
-    return res.status(200).json({ token });
+    return res.status(200).json({ name: name, token: token });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }
@@ -77,7 +99,7 @@ export const signIn = async (
     if (!name || !password) {
       return res
         .status(400)
-        .json({ message: "Username and password are required" });
+        .json({ message: "Username and password are required." });
     }
 
     const user = await prisma.user.findUnique({
@@ -85,17 +107,17 @@ export const signIn = async (
     });
 
     if (!user) {
-      return res.status(400).json({ message: "Username does not exist" });
+      return res.status(400).json({ message: "Invalid username or password." });
     }
 
     const isValid = await comparePassword(password, user.password);
 
     if (!isValid) {
-      return res.status(400).json({ message: "Incorrect Password" });
+      return res.status(400).json({ message: "Invalid username or password." });
     }
 
     const token = createToken({ id: user.id, name: user.name });
-    return res.status(200).json({ token });
+    return res.status(200).json({ name: name, token: token });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }
