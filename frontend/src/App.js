@@ -2,8 +2,8 @@ import './App.css';
 import './index.css';
 import { useState } from 'react';
 import 'reactjs-popup/dist/index.css';
-import { LoginPage } from './LoginManager';
-import { TasksPage } from './TaskManager';
+import { LoginPage } from './Login/LoginManager';
+import { TasksPage } from './Tasks/TaskManager';
 import { Header } from './Header';
 
 export default function App() {
@@ -30,7 +30,7 @@ export default function App() {
 
   return (<>
             <Header user={user} logout={logout}/>
-            <TasksPage/>
+            <TasksPage user={user}/>
           </>
   );
 

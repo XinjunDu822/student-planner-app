@@ -1,3 +1,5 @@
+'use client';
+
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
@@ -10,6 +12,17 @@ declare module "express-serve-static-core" {
 
 // middleware/authMiddleware.ts
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
+
+type Payload = {
+  id: string;
+  name: string;
+};
+
+export const createToken = (payload: Payload): string => {
+  return jwt.sign(payload, JWT_SECRET, {
+    expiresIn: "1h",
+  });
+};
 
 export const authMiddleware = (
   req: Request,

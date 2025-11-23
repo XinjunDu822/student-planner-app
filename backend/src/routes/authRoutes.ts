@@ -1,5 +1,5 @@
 import express from "express"; 
-import { signUp, signIn, logout } from "../controllers/authController.ts";
+import { signUp, signIn, getUser, logout } from "../controllers/authController.ts";
 import { authMiddleware } from "../middleware/authMiddleware.ts"; // import middleware
 
 const router = express.Router();
@@ -8,7 +8,8 @@ const router = express.Router();
 router.post("/sign-up", signUp);
 router.post("/sign-in", signIn);
 
-// Protected route: logout requires the user to be logged in
+// Protected route: requires the user to be logged in
+router.get("/get-user", authMiddleware, getUser);
 router.post("/logout", authMiddleware, logout);
 
 export default router;

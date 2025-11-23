@@ -1,15 +1,21 @@
-import './App.css';
+// import './App.css';
 import Popup from 'reactjs-popup';
 import { useState, useCallback, useEffect } from 'react';
 import 'reactjs-popup/dist/index.css';
-import { InputField, DateInputField, DateToParams, TimeToDate, FormatTime } from './Utils';
+import { InputField, DateInputField, DateToParams, TimeToDate, FormatTime } from '../Utils';
 
 
 
 export function CompletedTask({index, data})
 {
-  var name = data.name; 
+  var name = data.title; 
   var date = data.date;
+
+  if(typeof date === 'string')
+  {
+    date = new Date(date);
+  }
+
   var [d, t] = DateToParams(date);
   // var time = FormatTime(t);
 
@@ -54,9 +60,15 @@ export function CompletedTask({index, data})
 
 export function Task({index, data, editTask, deleteTask, completeTask})
 {
-  var name = data.name; 
+  var name = data.title; 
   var desc = data.desc; 
   var date = data.date;
+  
+  if(typeof date === 'string')
+  {
+    date = new Date(date);
+  }
+  
   var [d, t] = DateToParams(date);
   var time = FormatTime(t);
 
@@ -99,19 +111,19 @@ export function Task({index, data, editTask, deleteTask, completeTask})
   );
 }
 
-export function DisplayTasks({tasks, editTask, deleteTask, completeTask, indexOffset})
+export function DisplayTasks({tasks, editTask, deleteTask, completeTask})
 {
     return (
         <div id="TasksList">
         
             {tasks.map
             ((item, index) => 
-                  <Task index={index + indexOffset} 
-                        key={index + indexOffset}
+                  <Task index={item.id} 
+                        key={index}
                         data={item} 
                         editTask={editTask}
-                        deleteTask={() => deleteTask(index + indexOffset)}
-                        completeTask={() => completeTask(index + indexOffset)}/>
+                        deleteTask={() => deleteTask(item.id)}
+                        completeTask={() => completeTask(item.id)}/>
             )
             }
 
@@ -127,7 +139,7 @@ export function DisplayCompletedTasks({completedTasks})
       <div id="TasksList">
     
         {completedTasks.slice().reverse().map
-          ((item, index) => <CompletedTask index={index} 
+          ((item, index) => <CompletedTask index={item.id} 
                               key={index}
                               data={item}/>
           )

@@ -18,7 +18,7 @@ model User {
   name       String   @unique
   password   String
   createdAt  DateTime @default(now())
-  currStreak Int      @default(0)
+  lastLate   DateTime @default(now())
   bestStreak Int      @default(0)
   tasks      Task[]
 }

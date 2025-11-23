@@ -1,8 +1,7 @@
-import './App.css';
 import Popup from 'reactjs-popup';
 import { useState } from 'react';
 import 'reactjs-popup/dist/index.css';
-import { InputField } from './Utils';
+import { InputField } from '../Utils';
 import { signUp, signIn } from "./AuthService";
 import { jwtDecode } from "jwt-decode";
 
@@ -30,7 +29,7 @@ export function LoginPopup({login})
         return;
     }
 
-    login(response.name);
+    login(response.token);
   }
 
 
@@ -105,7 +104,7 @@ export function RegisterPopup({login, addUser})
         return;
     }
 
-    login(response.name);
+    login(response.token);
   }
 
 
