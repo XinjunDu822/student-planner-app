@@ -2,7 +2,6 @@
 
 import { Request, Response, NextFunction } from "express";
 import prisma from "../prisma.ts";
-import { title } from "process";
 
 export const getAllTasks = async (
   req: Request,
@@ -11,7 +10,7 @@ export const getAllTasks = async (
 ) => {
   try {
     const allTasks = await prisma.task.findMany({
-      orderBy: { deadline: "asc" },
+      orderBy: { date: "asc" },
     });
     // if (!allTasks)
     // {
@@ -29,8 +28,8 @@ export const createTask = async (
   next: NextFunction
 ) => {
   try {
-    const { title, deadline, description } = req.body;
-    if (!title || !deadline || !description) {
+    const { title, date, desc } = req.body;
+    if (!title || !date || !desc) {
       return res
         .status(400)
         .json({ message: "Please enter a title, description and deadline" });
@@ -38,8 +37,8 @@ export const createTask = async (
     const task = await prisma.task.create({
       data: {
         title,
-        deadline: new Date(deadline),
-        description,
+        date: new Date(date),
+        desc,
       },
     });
     res.json(task);
@@ -55,14 +54,14 @@ export const updateTask = async (
 ) => {
   try {
     const taskId = req.params.id;
-    const { title, deadline, description } = req.body; // add more fields later
+    const { title, date, desc } = req.body; // add more fields later
 
     const updatedTask = await prisma.task.update({
       where: { id: taskId },
       data: {
         ...(title && { title }),
-        ...(deadline && { deadline: new Date(deadline) }),
-        ...(description && { description }),
+        ...(date && { deadline: new Date(date) }),
+        ...(desc && { desc }),
       },
     });
 
@@ -79,7 +78,7 @@ export const deleteTask = async (
 ) => {
   try {
     const taskId = req.params.id;
-    const { title, deadline } = req.body; // add more fields later
+    const { title, date } = req.body; // add more fields later
 
     const deletedTask = await prisma.task.delete({
       where: { id: taskId },
