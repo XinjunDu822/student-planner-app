@@ -12,7 +12,7 @@ const router = express.Router();
 //i commented out authentication for now - marvin
 router.get("/dashboard", /*authMiddleware,*/ getAllTasks);
 router.post("/task", /*authMiddleware,*/ createTask);
-router.put("/task/:id", /*authMiddleware,*/ updateTask);
-router.delete("/task/:id", /*authMiddleware,*/ deleteTask);
+router.put("/task/:taskId", /*authMiddleware,*/ updateTask);
+router.delete("/task/:taskId", /*authMiddleware,*/ deleteTask);
 
 export default router;

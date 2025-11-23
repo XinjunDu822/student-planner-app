@@ -9,16 +9,24 @@ export const getAllTasks = async (
   next: NextFunction
 ) => {
   try {
-    const allTasks = await prisma.task.findMany({
-      orderBy: { date: "asc" },
+    const userId = req.user?.id; // Assuming you have auth middleware that adds user to req
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const tasks = await prisma.task.findMany({
+      where: {
+        userID: userId,
+      },
+      orderBy: {
+        date: "asc",
+      },
     });
-    // if (!allTasks)
-    // {
-    //   res.status(400).json({ message: "User does not have any tasks at the moment" });
-    // }
-    res.json(allTasks);
+
+    return res.status(200).json({ tasks });
   } catch (err) {
-    res.status(500).json({ message: "Server Error" });
+    return res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -28,22 +36,29 @@ export const createTask = async (
   next: NextFunction
 ) => {
   try {
+    const userId = req.user?.id;
     const { title, date, desc } = req.body;
-    if (!title || !date || !desc) {
-      return res
-        .status(400)
-        .json({ message: "Please enter a title, description and deadline" });
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
+
+    if (!title || !date) {
+      return res.status(400).json({ message: "Title and date are required." });
+    }
+
     const task = await prisma.task.create({
       data: {
+        userID: userId,
         title,
         date: new Date(date),
-        desc,
+        desc: desc || "",
       },
     });
-    res.json(task);
+
+    return res.status(201).json({ task });
   } catch (err) {
-    res.status(500).json({ message: "Server Error" });
+    return res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -53,21 +68,46 @@ export const updateTask = async (
   next: NextFunction
 ) => {
   try {
-    const taskId = req.params.id;
-    const { title, date, desc } = req.body; // add more fields later
+    const userId = req.user?.id;
+    const { taskId } = req.params;
+    const { title, date, desc, isComplete } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!taskId) {
+      return res.status(400).json({ message: "Task ID is required." });
+    }
+
+    // Check if task exists and belongs to user
+    const existingTask = await prisma.task.findUnique({
+      where: { id: taskId },
+    });
+
+    if (!existingTask) {
+      return res.status(404).json({ message: "Task not found." });
+    }
+
+    if (existingTask.userID !== userId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    // Build update object with only provided fields
+    const updateData: any = {};
+    if (title !== undefined) updateData.title = title;
+    if (date !== undefined) updateData.date = new Date(date);
+    if (desc !== undefined) updateData.desc = desc;
+    if (isComplete !== undefined) updateData.isComplete = isComplete;
 
     const updatedTask = await prisma.task.update({
       where: { id: taskId },
-      data: {
-        ...(title && { title }),
-        ...(date && { deadline: new Date(date) }),
-        ...(desc && { desc }),
-      },
+      data: updateData,
     });
 
-    res.json(updatedTask);
+    return res.status(200).json({ task: updatedTask });
   } catch (err) {
-    res.status(404).json({ message: "Cannot find task" });
+    return res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -77,16 +117,36 @@ export const deleteTask = async (
   next: NextFunction
 ) => {
   try {
-    const taskId = req.params.id;
-    const { title, date } = req.body; // add more fields later
+    const userId = req.user?.id;
+    const { taskId } = req.params;
 
-    const deletedTask = await prisma.task.delete({
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!taskId) {
+      return res.status(400).json({ message: "Task ID is required." });
+    }
+
+    // Check if task exists and belongs to user
+    const existingTask = await prisma.task.findUnique({
       where: { id: taskId },
     });
-    res.json({ message: "Task deleted", deletedTask });
+
+    if (!existingTask) {
+      return res.status(404).json({ message: "Task not found." });
+    }
+
+    if (existingTask.userID !== userId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    await prisma.task.delete({
+      where: { id: taskId },
+    });
+
+    return res.status(200).json({ message: "Task deleted successfully." });
   } catch (err) {
-    res.status(404).json({ message: "Cannot find task" });
+    return res.status(500).json({ message: "Server Error" });
   }
 };
-
-//maybe later we can do "getCompletedTasks" or "getDeletedTasks" etc etc
