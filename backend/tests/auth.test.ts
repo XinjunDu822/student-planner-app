@@ -64,7 +64,7 @@ describe("Auth Endpoints", () => {
     const mockUser = {
       id: "test-id-789",
       name: "testuser",
-      password: await bcrypt.hash("Correctpassword1", 10),
+      password: await bcrypt.hash("$Correctpassword1", 10),
       createdAt: new Date(),
       currStreak: 0,
       bestStreak: 0,
@@ -74,7 +74,7 @@ describe("Auth Endpoints", () => {
 
     const res = await request(app)
       .post("/api/auth/sign-in")
-      .send({ name: "testuser", password: "Wrongpassword1" });
+      .send({ name: "testuser", password: "$Wrongpassword1" });
 
     expect(res.statusCode).toBe(400);
     expect(res.body).toHaveProperty("message", "Invalid username or password.");
@@ -145,6 +145,36 @@ describe("Auth Endpoints", () => {
     expect(res.body).toHaveProperty(
       "message",
       "Username and password are required."
+    );
+  });
+
+  // Test password requirements
+  it("signup with weak password returns 400", async () => {
+    prismaMock.user.findUnique.mockResolvedValue(null);
+
+    const res = await request(app)
+      .post("/api/auth/sign-up")
+      .send({ name: "validuser", password: "weak" }); // no uppercase, no special char
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toHaveProperty(
+      "message",
+      "Username and/or password do not satisfy requirements!"
+    );
+  });
+
+  // Test username requirements
+  it("signup with invalid username returns 400", async () => {
+    prismaMock.user.findUnique.mockResolvedValue(null);
+
+    const res = await request(app)
+      .post("/api/auth/sign-up")
+      .send({ name: "ab", password: "$Password1" }); // only 2 letters
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toHaveProperty(
+      "message",
+      "Username and/or password do not satisfy requirements!"
     );
   });
 });
