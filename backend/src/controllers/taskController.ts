@@ -35,9 +35,9 @@ export const getAllTasks = async (
       },
     });
 
-    return res.status(200).json({ tasks: tasks,
-                                  completedTasks: completedTasks                            
-                                });
+    return res
+      .status(200)
+      .json({ tasks: tasks, completedTasks: completedTasks });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }
@@ -164,7 +164,6 @@ export const deleteTask = async (
   }
 };
 
-
 export const updateLastLate = async (
   req: Request,
   res: Response,
@@ -180,8 +179,7 @@ export const updateLastLate = async (
       return res.status(400).json({ message: "Invalid user" });
     }
 
-    if(!date)
-    {
+    if (!date) {
       return res.status(200).json({ date: user.lastLate });
     }
 
@@ -233,7 +231,6 @@ export const updateBestStreak = async (
     }
 
     return res.status(200).json({ streak: user.bestStreak });
-
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }

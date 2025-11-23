@@ -3,7 +3,6 @@ import prisma from "../prisma.ts";
 import { createToken } from "../middleware/authMiddleware.ts";
 import bcrypt from "bcryptjs";
 
-
 const hashPassword = async (password: string) => {
   return await bcrypt.hash(password, 10);
 };
@@ -114,14 +113,12 @@ export const logout = (req: Request, res: Response) => {
   return res.status(200).json({ message: "Logged out successfully." });
 };
 
-
 export const getUser = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-
     const userId = req.user?.id;
 
     if (!userId) {
@@ -129,7 +126,6 @@ export const getUser = async (
     }
 
     return res.status(200).json({ name: req.user?.name });
-
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }
