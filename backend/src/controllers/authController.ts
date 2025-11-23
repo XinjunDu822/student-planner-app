@@ -117,3 +117,11 @@ export const signIn = async (
     return res.status(500).json({ message: "Server Error" });
   }
 };
+
+export const logout = (req: Request, res: Response) => {
+  // If using cookies:
+  // res.clearCookie("token");
+
+  // Stateless JWT approach: just respond
+  return res.status(200).json({ message: "Logged out successfully." });
+};

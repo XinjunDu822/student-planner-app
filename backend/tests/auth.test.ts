@@ -178,3 +178,18 @@ describe("Auth Endpoints", () => {
     );
   });
 });
+
+describe("Auth Logout", () => {
+  it("should logout successfully", async () => {
+    // Simulate user already logged in by sending token in headers (if using auth middleware)
+    const token = "dummy-token"; // If logout is stateless, token presence is optional
+    
+    const res = await request(app)
+      .post("/api/auth/logout")
+      .set("Authorization", `Bearer ${token}`)
+      .send();
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty("message", "Logged out successfully.");
+  });
+});
