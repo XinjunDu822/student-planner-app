@@ -2,6 +2,7 @@ import request from "supertest";
 import app from "../src/app";
 import bcrypt from "bcryptjs";
 import { prismaMock } from "../singleton";
+import jwt from "jsonwebtoken";
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -180,10 +181,12 @@ describe("Auth Endpoints", () => {
 });
 
 describe("Auth Logout", () => {
+const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
+
+
   it("should logout successfully", async () => {
-    // Simulate user already logged in by sending token in headers (if using auth middleware)
-    const token = "dummy-token"; // If logout is stateless, token presence is optional
-    
+    const token = jwt.sign({ id: "123", name: "Alice" }, JWT_SECRET);
+
     const res = await request(app)
       .post("/api/auth/logout")
       .set("Authorization", `Bearer ${token}`)
@@ -192,4 +195,84 @@ describe("Auth Logout", () => {
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty("message", "Logged out successfully.");
   });
+
+  it("successful signup returns JWT", async () => {
+  const mockUser = {
+    id: "test-id-123",
+    name: "newuser",
+    password: await bcrypt.hash("$Password1", 10),
+    createdAt: new Date(),
+    currStreak: 0,
+    bestStreak: 0,
+  };
+
+  prismaMock.user.findUnique.mockResolvedValue(null); // user doesn't exist
+  prismaMock.user.create.mockResolvedValue(mockUser);
+
+  const res = await request(app)
+    .post("/api/auth/sign-up")
+    .send({ name: "newuser", password: "$Password1" });
+
+  expect(res.statusCode).toBe(200);
+  expect(res.body).toHaveProperty("token");
+});
+
+it("successful signin returns JWT", async () => {
+  const mockUser = {
+    id: "test-id-456",
+    name: "testuser",
+    password: await bcrypt.hash("$Password1", 10),
+    createdAt: new Date(),
+    currStreak: 0,
+    bestStreak: 0,
+  };
+
+  prismaMock.user.findUnique.mockResolvedValue(mockUser);
+
+  const res = await request(app)
+    .post("/api/auth/sign-in")
+    .send({ name: "testuser", password: "$Password1" });
+
+  expect(res.statusCode).toBe(200);
+  expect(res.body).toHaveProperty("token");
+});
+
+it("should logout successfully", async () => {
+  const token = jwt.sign({ id: "test-id-123", name: "Alice" }, JWT_SECRET, { expiresIn: "1h" });
+
+  const res = await request(app)
+    .post("/api/auth/logout")
+    .set("Authorization", `Bearer ${token}`)
+    .send();
+
+  expect(res.statusCode).toBe(200);
+  expect(res.body).toHaveProperty("message", "Logged out successfully.");
+});
+it("allows access with valid token", async () => {
+  const token = jwt.sign({ id: "123", name: "Alice" }, JWT_SECRET, { expiresIn: "1h" });
+
+  const res = await request(app)
+    .get("/test/protected")
+    .set("Authorization", `Bearer ${token}`);
+
+  expect(res.statusCode).toBe(200);
+  expect(res.body).toHaveProperty("message", "Hello Alice");
+});
+
+it("denies access with missing token", async () => {
+  const res = await request(app).get("/test/protected");
+
+  expect(res.statusCode).toBe(401);
+  expect(res.body).toHaveProperty("message", "No token provided");
+});
+
+it("denies access with invalid token", async () => {
+  const res = await request(app)
+    .get("/test/protected")
+    .set("Authorization", "Bearer invalidtoken");
+
+  expect(res.statusCode).toBe(401);
+  expect(res.body).toHaveProperty("message", "Token is invalid or expired");
+});
+
 });

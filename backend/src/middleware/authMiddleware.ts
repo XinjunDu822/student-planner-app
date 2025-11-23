@@ -8,7 +8,8 @@ declare module "express-serve-static-core" {
   }
 }
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
+// middleware/authMiddleware.ts
+const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
 export const authMiddleware = (
   req: Request,
