@@ -3,37 +3,40 @@ import app from "../src/app";
 import bcrypt from "bcryptjs";
 import { prismaMock } from "../singleton";
 
-//Auth endpoints testing
-
 beforeEach(() => {
-  // Clear all mock calls between tests
   jest.clearAllMocks();
 });
 
-describe("AuthEndpoints test", () => {
-  it("successful signup, return JWT", async () => {
+describe("Auth Endpoints", () => {
+  it("successful signup returns JWT", async () => {
     const mockUser = {
       id: "test-id-123",
       name: "newuser",
       password: await bcrypt.hash("password", 10),
+      createdAt: new Date(),
+      currStreak: 0,
+      bestStreak: 0
     };
 
-    prismaMock.user.findUnique.mockResolvedValue(null); // (user doesnt exist if searching if user exists)
-
-    prismaMock.user.create.mockResolvedValue(mockUser); //create the new user for signup
+    prismaMock.user.findUnique.mockResolvedValue(null); // user doesn't exist
+    prismaMock.user.create.mockResolvedValue(mockUser);
 
     const res = await request(app)
       .post("/api/auth/sign-up")
       .send({ name: "newuser", password: "password" });
+
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty("token");
   });
 
-  it("successful signin and return JWT", async () => {
+  it("successful signin returns JWT", async () => {
     const mockUser = {
       id: "test-id-456",
       name: "testuser",
       password: await bcrypt.hash("password", 10),
+      createdAt: new Date(),
+      currStreak: 0,
+      bestStreak: 0
     };
 
     prismaMock.user.findUnique.mockResolvedValue(mockUser);
@@ -46,40 +49,48 @@ describe("AuthEndpoints test", () => {
     expect(res.body).toHaveProperty("token");
   });
 
-  it("unsuccessful signin return 400", async () => {
-    prismaMock.user.findUnique.mockResolvedValue(null); // User is not found
+  it("signin with non-existent user returns 400", async () => {
+    prismaMock.user.findUnique.mockResolvedValue(null);
 
     const res = await request(app)
       .post("/api/auth/sign-in")
       .send({ name: "wronguser", password: "password" });
+
     expect(res.statusCode).toBe(400);
     expect(res.body).toHaveProperty("message", "Username does not exist");
   });
 
-  it("wrong password signin return 400", async () => {
+  it("signin with wrong password returns 400", async () => {
     const mockUser = {
-      id: 1,
+      id: "test-id-789",
       name: "testuser",
       password: await bcrypt.hash("correctpassword", 10),
+      createdAt: new Date(),
+      currStreak: 0,
+      bestStreak: 0
     };
 
-    prismaMock.user.findUnique.mockResolvedValue(mockUser); // User exists
+    prismaMock.user.findUnique.mockResolvedValue(mockUser);
 
     const res = await request(app)
       .post("/api/auth/sign-in")
       .send({ name: "testuser", password: "wrongpassword" });
+
     expect(res.statusCode).toBe(400);
     expect(res.body).toHaveProperty("message", "Incorrect Password");
   });
 
   it("signup with existing username returns 409", async () => {
     const existingUser = {
-      id: 1,
+      id: "test-id-000",
       name: "existinguser",
       password: await bcrypt.hash("password", 10),
+      createdAt: new Date(),
+      currStreak: 0,
+      bestStreak: 0
     };
 
-    prismaMock.user.findUnique.mockResolvedValue(existingUser); //user already exists
+    prismaMock.user.findUnique.mockResolvedValue(existingUser);
 
     const res = await request(app)
       .post("/api/auth/sign-up")
