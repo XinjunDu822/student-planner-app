@@ -27,6 +27,7 @@ const checkRegisterReqs = (username: string, password: string): boolean => {
   const passwordTests = [/[A-Z]/,
                          /[a-z]/,
                          /\d/,
+                         /[^a-zA-Z\d]/,
                          /.{6,}/
                         ];
   

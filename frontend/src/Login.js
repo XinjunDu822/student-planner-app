@@ -123,7 +123,7 @@ export function RegisterPopup({login, addUser})
 
                           Username must have at least three letters.<br/>
 
-                          Password must have at least six characters, including at least one uppercase letter, lowercase letter, and number.<br/><br/> 
+                          Password must have at least six characters, including at least one uppercase letter, one lowercase letter, one number, and one special character.<br/><br/> 
                       </div>
 
                       <div className="task-popup-content">
