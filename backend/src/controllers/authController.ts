@@ -1,14 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import prisma from "../prisma.ts";
-import jwt from "jsonwebtoken";
+import { createToken } from "../middleware/authMiddleware.ts";
 import bcrypt from "bcryptjs";
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecret"; // store in env in real projects
-
-type Payload = {
-  id: string;
-  name: string;
-};
 
 const hashPassword = async (password: string) => {
   return await bcrypt.hash(password, 10);
@@ -28,12 +22,6 @@ const checkRegisterReqs = (username: string, password: string): boolean => {
   if (!passwordTests.every((r) => r.test(password))) return false;
 
   return true;
-};
-
-export const createToken = (payload: Payload): string => {
-  return jwt.sign(payload, JWT_SECRET, {
-    expiresIn: "1h",
-  });
 };
 
 export const signUp = async (
@@ -77,7 +65,7 @@ export const signUp = async (
 
     const token = createToken({ id: user.id, name: user.name }); //create token for user after signing in
 
-    return res.status(200).json({ name: name, token: token });
+    return res.status(200).json({ token });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }
@@ -112,7 +100,7 @@ export const signIn = async (
     }
 
     const token = createToken({ id: user.id, name: user.name });
-    return res.status(200).json({ name: name, token: token });
+    return res.status(200).json({ token });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }
@@ -124,4 +112,25 @@ export const logout = (req: Request, res: Response) => {
 
   // Stateless JWT approach: just respond
   return res.status(200).json({ message: "Logged out successfully." });
+};
+
+
+export const getUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    return res.status(200).json({ name: req.user?.name });
+
+  } catch (err) {
+    return res.status(500).json({ message: "Server Error" });
+  }
 };

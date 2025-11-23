@@ -1,3 +1,5 @@
+'use client';
+
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
@@ -8,7 +10,19 @@ declare module "express-serve-static-core" {
   }
 }
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
+// middleware/authMiddleware.ts
+const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
+
+type Payload = {
+  id: string;
+  name: string;
+};
+
+export const createToken = (payload: Payload): string => {
+  return jwt.sign(payload, JWT_SECRET, {
+    expiresIn: "30m",
+  });
+};
 
 export const authMiddleware = (
   req: Request,
@@ -29,6 +43,6 @@ export const authMiddleware = (
     req.user = decoded;
     next();
   } catch {
-    return res.status(401).json({ message: "Token is invalid or expired" });
+    return res.status(401).json({ message: "Unauthorized" });
   }
 };

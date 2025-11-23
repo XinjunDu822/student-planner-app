@@ -12,6 +12,7 @@ function addLeadingZero(number) {
 
 export function DateToParams(date)
 {
+
   var mm = addLeadingZero(date.getMonth() + 1);
   var dd = addLeadingZero(date.getDate());
   var yy = addLeadingZero(date.getFullYear().toString().substr(-2));
@@ -63,7 +64,7 @@ export function InputField({placeholderText, value, setValue, inputType="text"})
   if(inputType === "time" && isEmpty)
   {
     setValue("00:00");
-    return <input className="task-popup-content" type="text" placeholder={placeholderText} readonly="readonly" onClick={() => {setIsEmpty(false)}}/>;
+    return <input className="task-popup-content" type="text" placeholder={placeholderText} onClick={() => {setIsEmpty(false)}} readOnly/>;
   }
 
   return <input className="task-popup-content" type={inputType} value={value} placeholder={placeholderText} onChange={handleInputChange}/>;
@@ -97,7 +98,7 @@ export function DateInputField({placeholderText, value, setValue, inputType="tex
 
     <div className="datepicker-holder">
 
-     <input className="task-popup-content" placeholder={placeholderText} value={value === "" ? "" : DateToParams(value)[0]} onClick={() => setShowPicker(true)} onChange = {(e) => setValue(e.target.value)} readonly="readonly"/>
+     <input className="task-popup-content" placeholder={placeholderText} value={value === "" ? "" : DateToParams(value)[0]} onClick={() => setShowPicker(true)} onChange = {(e) => setValue(e.target.value)} readOnly/>
 
                 {showPicker && (
                   <DatePicker selected = {value} 

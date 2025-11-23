@@ -18,13 +18,26 @@ export const getAllTasks = async (
     const tasks = await prisma.task.findMany({
       where: {
         userID: userId,
+        isComplete: false,
       },
       orderBy: {
         date: "asc",
       },
     });
 
-    return res.status(200).json({ tasks });
+    const completedTasks = await prisma.task.findMany({
+      where: {
+        userID: userId,
+        isComplete: true,
+      },
+      orderBy: {
+        date: "desc",
+      },
+    });
+
+    return res.status(200).json({ tasks: tasks,
+                                  completedTasks: completedTasks                            
+                                });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }
@@ -50,7 +63,7 @@ export const createTask = async (
     const task = await prisma.task.create({
       data: {
         userID: userId,
-        title,
+        title: title,
         date: new Date(date),
         desc: desc || "",
       },
@@ -95,10 +108,10 @@ export const updateTask = async (
 
     // Build update object with only provided fields
     const updateData: any = {};
-    if (title !== undefined) updateData.title = title;
-    if (date !== undefined) updateData.date = new Date(date);
-    if (desc !== undefined) updateData.desc = desc;
-    if (isComplete !== undefined) updateData.isComplete = isComplete;
+    if (title != undefined) updateData.title = title;
+    if (date != undefined) updateData.date = new Date(date);
+    if (desc != undefined) updateData.desc = desc;
+    if (isComplete != undefined) updateData.isComplete = isComplete;
 
     const updatedTask = await prisma.task.update({
       where: { id: taskId },
@@ -146,6 +159,81 @@ export const deleteTask = async (
     });
 
     return res.status(200).json({ message: "Task deleted successfully." });
+  } catch (err) {
+    return res.status(500).json({ message: "Server Error" });
+  }
+};
+
+
+export const updateLastLate = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+    const { date } = req.body;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid user" });
+    }
+
+    if(!date)
+    {
+      return res.status(200).json({ date: user.lastLate });
+    }
+
+    var date_ = new Date(date);
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (date_ > user.lastLate) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { lastLate: date_ },
+      });
+      return res.status(200).json({ date: date_ });
+    }
+
+    return res.status(200).json({ date: user.lastLate });
+  } catch (err) {
+    return res.status(500).json({ message: "Server Error" });
+  }
+};
+
+export const updateBestStreak = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+    const { streak } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid user" });
+    }
+
+    if (streak > user.bestStreak) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { bestStreak: streak },
+      });
+      return res.status(200).json({ streak: streak });
+    }
+
+    return res.status(200).json({ streak: user.bestStreak });
+
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }

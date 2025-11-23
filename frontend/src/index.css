@@ -143,7 +143,10 @@ main {
   margin: 5px;
 }
 
-
+streak {
+  font-size: 75px;
+  font-weight: bold;
+}
 
 .error-text {
   color: red;

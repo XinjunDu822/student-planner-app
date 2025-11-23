@@ -2,12 +2,35 @@ import logo from './new_logo_transparent.png';
 import './App.css';
 import 'reactjs-popup/dist/index.css';
 import { useState, useEffect } from 'react';
+import { getUser } from "./Login/AuthService";
 
 export function Header({user, logout})
 {
     const [isClicked, setIsClicked] = useState(false);
 
+    const [name, setName] = useState(null);
+
     const [isHovering, setIsHovering] = useState(false);
+
+    useEffect(() => {
+        const getUsername = async () => {
+            if(user == null)
+            {
+                setName(null);
+                return;
+            }
+
+            var response = await getUser(user);
+            if(!response.name)
+            {
+                setName(null);
+                return;
+            }
+            setName(response.name);
+        }
+        getUsername();
+    }, [user]);
+
 
     function GlobalClickDetector() {
 
@@ -47,7 +70,7 @@ export function Header({user, logout})
                                 <img className="icon" src={logo} alt="Logo"/>
 
                                 <div className="username">
-                                    {user}
+                                    {name}
                                 </div>
 
                             </div>
