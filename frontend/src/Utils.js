@@ -25,17 +25,6 @@ export function DateToParams(date)
 
 }
 
-export function TimeToDate(date, time)
-{
-  // const [mm, dd, yy] = date.split("/", 3);
-  const [h, m] = time.split(":", 2);
-
-  // return new Date(yy, mm - 1, dd, h, m);
-  date.setHours(h, m, 0, 0);
-
-  return date;
-}
-
 export function FormatTime(time)
 {
   if(time === "") return "";

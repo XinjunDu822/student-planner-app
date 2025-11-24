@@ -2,7 +2,7 @@
 import Popup from 'reactjs-popup';
 import { useState, useCallback, useEffect } from 'react';
 import 'reactjs-popup/dist/index.css';
-import { InputField, DateInputField, DateToParams, TimeToDate, FormatTime } from '../Utils';
+import { InputField, DateInputField, DateToParams, FormatTime } from '../Utils';
 
 
 
@@ -34,19 +34,12 @@ export function CompletedTask({index, data, deleteTask})
       </div> */}
 
       {/* <div>
-        <div>
-          <button className="button" onClick={completeTask}><p>Mark Complete</p><p>✓</p></button>
-        </div>
 
         <div>
-          <EditTaskPopup editTask={editTask} currentName={name} currentDate={date} currentTime={t} currentDesc={desc} index={index}/>
-        </div> */}
-
-        {/* <div>
           <DeleteTaskPopup deleteTask={deleteTask}/>
-        </div>      */}
+        </div>     
 
-      {/* </div>  */}
+      </div>  */}
 
     </div>
   );
@@ -162,34 +155,15 @@ export function AddTaskPopup({addTask})
   }, []); 
 
 
-  const addTaskWrapper = () => {
-    if(/^\s*$/.test(name))
+  const addTaskWrapper = async () => {
+
+    var response = await addTask(name, desc, date, time);
+
+    if(response !== true)
     {
-      setError("Please enter a task name.")
+      setError(response);
       return false;
     }
-
-    if(/^\s*$/.test(date))    
-    {
-      setError("Please enter a task date.")
-      return false;  
-    }
-
-    if(/^\s*$/.test(time))    
-    {
-      setError("Please enter a task time.")
-      return false;  
-    }
-
-    var date_ = TimeToDate(date, time);
-
-    if(date_ < new Date())
-    {
-      setError("Date and time have already passed..")
-      return false; 
-    }
-
-    addTask(name, desc, date);
     return true;
   }
 
@@ -230,7 +204,8 @@ export function AddTaskPopup({addTask})
                       <div className="button-holder">
                         <div>
                             <button className="button" onClick=
-                                {() => {addTaskWrapper() && close()}}>
+                                {async () => {const ok = await addTaskWrapper();
+                                              if (ok) close();}}>
                                     Save
                             </button>
                         </div>
@@ -271,7 +246,7 @@ export function EditTaskPopup({editTask, currentName, currentDate, currentTime, 
     resetVars();
   }, [resetVars, currentName, currentDesc, currentDate, currentTime]); 
 
-  const editTaskWrapper = () => {
+  const editTaskWrapper = async () => {
     if(/^\s*$/.test(name))
     {
       setError("Please enter a task name.")
@@ -290,15 +265,13 @@ export function EditTaskPopup({editTask, currentName, currentDate, currentTime, 
       return false;  
     }
 
-    var date_ = TimeToDate(date, time);
+    var response = await editTask(index, name, desc, date, time);
 
-    if((date !== currentDate || time !== currentTime) && date_ < new Date())
+    if(response !== true)
     {
-      setError("Date and time have already passed.")
-      return false; 
+      setError(response);
+      return false;
     }
-
-    editTask(index, name, desc, date);
     return true;
   }
 
@@ -338,7 +311,8 @@ export function EditTaskPopup({editTask, currentName, currentDate, currentTime, 
                       <div className="button-holder">
                         <div>
                             <button className="button" onClick=
-                              {() => {editTaskWrapper() && close()}}>
+                              {async () => {const ok = await editTaskWrapper();
+                                            if (ok) close();}}>
                                   Save
                             </button>
                         </div>

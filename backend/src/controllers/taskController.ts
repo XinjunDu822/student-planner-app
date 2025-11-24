@@ -3,6 +3,19 @@
 import { Request, Response, NextFunction } from "express";
 import prisma from "../prisma.ts";
 
+
+function TimeToDate(date: string, time: string)
+{
+  if(!time || time == undefined)
+  {
+    return new Date(date);
+  }
+  const [h, m] = time.split(":", 2);
+  var date_ = new Date(date);
+  date_.setHours(+h, +m, 0, 0);
+  return date_;
+}
+
 export const getAllTasks = async (
   req: Request,
   res: Response,
@@ -50,21 +63,40 @@ export const createTask = async (
 ) => {
   try {
     const userId = req.user?.id;
-    const { title, date, desc } = req.body;
+    const { title, date, time, desc } = req.body;
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    if (!title || !date) {
-      return res.status(400).json({ message: "Title and date are required." });
+    if (!title) {
+      return res.status(400).json({ message: "Please enter a task name." });
+    }
+
+    if (!date) {
+      return res.status(400).json({ message: "Please enter a task date." });
+    }
+
+    if (!time) {
+      return res.status(400).json({ message: "Please enter a task time." });
+    }
+
+    var date_ = TimeToDate(date, time);
+
+    if (!date_) {
+      return res.status(400).json({ message: "Please enter a valid date." });
+    }
+
+    if(date_ < new Date())
+    {
+      return res.status(400).json({ message: "Date and time have already passed." });
     }
 
     const task = await prisma.task.create({
       data: {
         userID: userId,
         title: title,
-        date: new Date(date),
+        date: date_,
         desc: desc || "",
       },
     });
@@ -83,7 +115,7 @@ export const updateTask = async (
   try {
     const userId = req.user?.id;
     const { taskId } = req.params;
-    const { title, date, desc, isComplete } = req.body;
+    const { title, date, time, desc, isComplete } = req.body;
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -106,10 +138,22 @@ export const updateTask = async (
       return res.status(403).json({ message: "Forbidden" });
     }
 
+    var date_;
+
+    if(date != undefined)
+    {
+      date_ = TimeToDate(date, time);
+
+      if(time != undefined && date_ < new Date())
+      {
+        return res.status(400).json({ message: "Date and time have already passed." });  
+      }
+    }
+
     // Build update object with only provided fields
     const updateData: any = {};
     if (title != undefined) updateData.title = title;
-    if (date != undefined) updateData.date = new Date(date);
+    if (date_ != undefined) updateData.date = date_;
     if (desc != undefined) updateData.desc = desc;
     if (isComplete != undefined) updateData.isComplete = isComplete;
 

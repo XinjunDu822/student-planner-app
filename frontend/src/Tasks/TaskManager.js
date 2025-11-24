@@ -58,10 +58,7 @@ export function TasksPage({user, logout}) {
     var d = new Date();
     for(; i < tasks.length && d >= tasks[i].date; i++) { }
 
-    if(i !== numLateTasks)
-    {
-        setNumLateTasks(i);
-    }
+    setNumLateTasks(i);
 
     var lastLate = null;
 
@@ -116,17 +113,31 @@ export function TasksPage({user, logout}) {
     return () => clearInterval(refreshInterval);
   }, [user]);
 
-  const addTask = async function(name, desc, date)
+  const addTask = async function(name, desc, date, time)
   {
-    var response = await createTask(user, name, date, desc);
+    var response = await createTask(user, name, date, time, desc);
 
     await loadTasks();
+
+    if(response.message)
+    {
+        return response.message;
+    }
+
+    return true;
   };
 
-  const editTask_ = async function(id, name, desc, date)
+  const editTask_ = async function(id, name, desc, date, time)
   {
-    await editTask(user, id, name, date, desc);
+    var response = await editTask(user, id, name, date, time, desc);
     await loadTasks();
+
+    if(response.message)
+    {
+        return response.message;
+    }
+
+    return true;
   }
 
   const deleteTask_ = async function(id)

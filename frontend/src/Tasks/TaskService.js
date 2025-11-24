@@ -11,23 +11,23 @@ export const getAllTasks = async (authorization) => {
   return await res.json();
 };
 
-export const createTask = async (authorization, title, date, desc) => {
+export const createTask = async (authorization, title, date, time, desc) => {
   const res = await fetch(`${API_URL}/task`, {
     method: "POST",
     headers: { "Content-Type": "application/json",
                "Authorization": `Bearer ${authorization}` },
-    body: JSON.stringify({ title, date, desc }),
+    body: JSON.stringify({ title, date, time, desc }),
   });
 
   return await res.json();
 };
 
-export const editTask = async (authorization, taskId, title, date, desc) => {
+export const editTask = async (authorization, taskId, title, date, time, desc) => {
   const res = await fetch(`${API_URL}/task/${taskId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json",
                "Authorization": `Bearer ${authorization}` },
-    body: JSON.stringify({ title, date, desc }),
+    body: JSON.stringify({ title, date, time, desc }),
   });
 
   return await res.json();
