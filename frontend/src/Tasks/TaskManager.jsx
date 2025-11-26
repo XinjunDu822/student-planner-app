@@ -173,7 +173,9 @@ export function TasksPage({user, logout}) {
 
             <h3>Current streak</h3>
 
-            <streak>{currStreak}</streak>
+            <div className="streak">
+                {currStreak}
+            </div>
 
             <h3>Best: {bestStreak}</h3><br/>
             
