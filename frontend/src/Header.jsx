@@ -56,7 +56,7 @@ export function Header({user, logout})
         <header>
             <div className="banner">
                 <div className="title">
-                    <h1>Class Planner App</h1>
+                    <h1>Student Planner App</h1>
                 </div>
                 {
                     user != null && (
