@@ -21,9 +21,9 @@ export function TasksPage({user, logout}) {
   const [completedTasks, setCompletedTasks] = useState(null);
 
 
-  async function loadTasks() {
+  async function loadTasks(filter = "") {
 
-    var response = await getAllTasks(user, keywords);
+    var response = await getAllTasks(user, filter);
     
     if(!response.tasks)
     {        
@@ -150,7 +150,7 @@ export function TasksPage({user, logout}) {
   const completeTask_ = async function(id)
   {
     await completeTask(user, id);
-    await loadTasks();
+    await loadTasks(keywords);
   }
 
   if(tasks == null || completedTasks == null)
@@ -208,8 +208,12 @@ export function TasksPage({user, logout}) {
                 <div>
                     <InputField placeholderText = "Enter keyword" value={keywords} setValue = {setKeywords}/>
                     <button className="button" onClick=
-                        {async () => {const ok = await loadTasks();}}>
-                                Save
+                        {async () => {const ok = await loadTasks(keywords);}}>
+                                Search
+                    </button>
+                    <button className="button" onClick=
+                        {async () => {await loadTasks();}}>
+                                Reset
                     </button>
                 </div >
                 {
@@ -231,15 +235,21 @@ export function TasksPage({user, logout}) {
                 }
 
                 {
-                    ((tasks.length - numLateTasks) === 0) && (
+                    ((tasks.length - numLateTasks) === 0 && keywords === "") && (
                         <>
                             <h3><br/>You have no new tasks right now.<br/> Get started by creating some!</h3>
                         </>
                     )
+
                 }
-
+                {
+                    ((tasks.length - numLateTasks) === 0 && keywords != "") && (
+                        <>
+                            <h3><br/>You have no tasks that match those keywords<br/> Get started by creating some!</h3>
+                        </>
+                    )
+                }
                 
-
             </div>
 
         </div>

@@ -66,17 +66,17 @@ export const getAllTasks = async (
         )
       : allTasks;
 
-    const completedTasks = keyword
-      ? allCompletedTasks.filter(
-          (task) =>
-            task.title.toLowerCase().includes(String(keyword).toLowerCase()) ||
-            task.desc.toLowerCase().includes(String(keyword).toLowerCase())
-        )
-      : allCompletedTasks;
+    // const completedTasks = keyword
+    //   ? allCompletedTasks.filter(
+    //       (task) =>
+    //         task.title.toLowerCase().includes(String(keyword).toLowerCase()) ||
+    //         task.desc.toLowerCase().includes(String(keyword).toLowerCase())
+    //     )s
+    //   : allCompletedTasks;
 
     return res
       .status(200)
-      .json({ tasks: tasks, completedTasks: completedTasks });
+      .json({ tasks: tasks, completedTasks: allCompletedTasks });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }
