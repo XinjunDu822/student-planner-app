@@ -1,7 +1,7 @@
-import { useState, useEffect, useSyncExternalStore } from 'react';
+import { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
 import 'reactjs-popup/dist/index.css';
 // import { TaskDatabase, CompletedTaskDatabase } from '../DummyData';
-import { AddTaskPopup, DisplayTasks, DisplayCompletedTasks } from './Tasks';
+import { AddTaskPopup, DisplayTasks, DisplayCompletedTasks, EditTaskPopup, DeleteTaskPopup } from './Tasks';
 import { getAllTasks, createTask, editTask, deleteTask, completeTask, updateLastLate, updateBestStreak } from "./TaskService";
 import { getUser } from "../Login/AuthService";
 
@@ -15,6 +15,10 @@ export function TasksPage({user, logout}) {
 
 
   const [tasks, setTasks] = useState(null);
+
+  const [taskToEdit, setTaskToEdit] = useState(null);
+
+  const [taskToDelete, setTaskToDelete] = useState(null);
 
   const [error, setError] = useState(null);
 
@@ -38,25 +42,25 @@ export function TasksPage({user, logout}) {
         return;
     }
 
-    var tasks = response.tasks;
-    var completedTasks = response.completedTasks;
+    var tasks_ = response.tasks;
+    var completedTasks_ = response.completedTasks;
 
-    for(var i = 0; i < tasks.length; i++)
+    for(var i = 0; i < tasks_.length; i++)
     {
-        tasks[i].date = new Date(tasks[i].date);
+        tasks_[i].date = new Date(tasks_[i].date);
     }
 
-    for(var i = 0; i < completedTasks.length; i++)
+    for(var i = 0; i < completedTasks_.length; i++)
     {
-        completedTasks[i].date = new Date(completedTasks[i].date);
+        completedTasks_[i].date = new Date(completedTasks_[i].date);
     }
 
-    setTasks(tasks);
-    setCompletedTasks(completedTasks);
+    setTasks(tasks_);
+    setCompletedTasks(completedTasks_);
 
     var i = 0;
     var d = new Date();
-    for(; i < tasks.length && d >= tasks[i].date; i++) { }
+    for(; i < tasks_.length && d >= tasks_[i].date; i++) { }
 
     setNumLateTasks(i);
 
@@ -64,7 +68,7 @@ export function TasksPage({user, logout}) {
 
     if(i > 0)
     {
-        lastLate = tasks[i - 1].date;
+        lastLate = tasks_[i - 1].date;
     }
 
     var user_ = await getUser(user);
@@ -87,11 +91,11 @@ export function TasksPage({user, logout}) {
     
     if(lastLate == null)
     {
-        streak = completedTasks.length;
+        streak = completedTasks_.length;
     }
     else
     {
-        for(; streak < completedTasks.length && completedTasks[streak].date > lastLate; streak++) { }
+        for(; streak < completedTasks_.length && completedTasks_[streak].date > lastLate; streak++) { }
     }
 
     setCurrStreak(streak);
@@ -113,9 +117,9 @@ export function TasksPage({user, logout}) {
     return () => clearInterval(refreshInterval);
   }, [user]);
 
-  const addTask = async function(name, desc, date, time)
+  const addTask = useCallback(async (title, desc, date, time) =>
   {
-    var response = await createTask(user, name, date, time, desc);
+    var response = await createTask(user, title, date, time, desc);
 
     await loadTasks();
 
@@ -125,11 +129,29 @@ export function TasksPage({user, logout}) {
     }
 
     return true;
-  };
+  }, [loadTasks]);
 
-  const editTask_ = async function(id, name, desc, date, time)
+  const selectTaskToEdit = useCallback((index) =>
   {
-    var response = await editTask(user, id, name, date, time, desc);
+    for(let i = 0; i < tasks.length; i++)
+    {
+        if(tasks[i].id == index)
+        {
+            setTaskToEdit(tasks[i]);
+            return;
+        }
+    }
+    setTaskToEdit(null);
+
+  }, [tasks]);
+
+  const deselectTaskToEdit = useCallback(() => {
+    setTaskToEdit(null);
+  }, [])
+
+  const editTask_ = async function(id, title, desc, date, time)
+  {
+    var response = await editTask(user, id, title, date, time, desc);
     await loadTasks();
 
     if(response.message)
@@ -139,6 +161,24 @@ export function TasksPage({user, logout}) {
 
     return true;
   }
+
+  const selectTaskToDelete = useCallback((index) =>
+  {
+    for(let i = 0; i < tasks.length; i++)
+    {
+        if(tasks[i].id == index)
+        {
+            setTaskToDelete(tasks[i]);
+            return;
+        }
+    }
+    setTaskToDelete(null);
+
+  }, [tasks]);
+
+  const deselectTaskToDelete = useCallback(() => {
+    setTaskToDelete(null);
+  }, [])
 
   const deleteTask_ = async function(id)
   {
@@ -185,7 +225,7 @@ export function TasksPage({user, logout}) {
                 ((completedTasks.length) > 0) && (
                     <>
                         <h3>Complete</h3>
-                        <DisplayCompletedTasks completedTasks={completedTasks} deleteTask={deleteTask_}/>
+                        <DisplayCompletedTasks completedTasks={completedTasks} selectTaskToDelete={selectTaskToDelete}/>
                     </>
                 )
             }
@@ -210,7 +250,7 @@ export function TasksPage({user, logout}) {
                     (numLateTasks > 0) && (
                         <>
                             <h3>Late</h3>
-                            <DisplayTasks tasks={tasks.slice(0, numLateTasks)} editTask={editTask_} deleteTask={deleteTask_} completeTask={completeTask_}/>
+                            <DisplayTasks tasks={tasks.slice(0, numLateTasks)} openEditPopup={selectTaskToEdit} openDeletePopup={selectTaskToDelete} completeTask={completeTask_}/>
                         </>
                     )
                 }
@@ -219,7 +259,7 @@ export function TasksPage({user, logout}) {
                     ((tasks.length - numLateTasks) > 0) && (
                         <>
                             <h3>To-do</h3>
-                            <DisplayTasks tasks={tasks.slice(numLateTasks)} editTask={editTask_} deleteTask={deleteTask_} completeTask={completeTask_}/>
+                            <DisplayTasks tasks={tasks.slice(numLateTasks)} openEditPopup={selectTaskToEdit} openDeletePopup={selectTaskToDelete} completeTask={completeTask_}/>
                         </>
                     )
                 }
@@ -232,7 +272,10 @@ export function TasksPage({user, logout}) {
                     )
                 }
 
-                
+
+            <EditTaskPopup task={taskToEdit} editTask={editTask_} closeEditPopup={deselectTaskToEdit} />
+  
+            <DeleteTaskPopup task={taskToDelete} deleteTask={deleteTask_} closeDeletePopup={deselectTaskToDelete} />
 
             </div>
 

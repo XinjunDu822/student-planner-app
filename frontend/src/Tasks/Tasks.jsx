@@ -6,49 +6,9 @@ import { InputField, DateInputField, DateToParams, FormatTime } from '../Utils';
 
 
 
-export function CompletedTask({index, data, deleteTask})
+export function Task({index, data, openEditPopup, openDeletePopup, completeTask, isComplete=false})
 {
-  var name = data.title; 
-  var date = data.date;
-
-  var [d, t] = DateToParams(date);
-  // var time = FormatTime(t);
-
-  return (
-    <div className = "task">
-
-      <div>
-        {name}
-      </div>
-
-      <div>
-        {d}  
-      </div>
-
-      {/* <div>
-        {time}  
-      </div> */}
-
-      {/* <div>
-        {desc}  
-      </div> */}
-
-      {/* <div>
-
-        <div>
-          <DeleteTaskPopup deleteTask={deleteTask}/>
-        </div>     
-
-      </div>  */}
-
-    </div>
-  );
-}
-
-
-export function Task({index, data, editTask, deleteTask, completeTask})
-{
-  var name = data.title; 
+  var title = data.title; 
   var desc = data.desc; 
   var date = data.date;
 
@@ -60,42 +20,52 @@ export function Task({index, data, editTask, deleteTask, completeTask})
     <div className = "task">
 
       <div>
-        {name}
+        {title}
       </div>
 
       <div>
         {d}  
       </div>
 
-      <div>
-        {time}  
-      </div>
+      {
+        !isComplete && (
+          <>
+            <div>
+              {time}  
+            </div>
 
-      <div>
-        {desc}  
-      </div>
+            <div>
+              {desc}  
+            </div>
 
-      <div>
-        <div>
+            <div>
+    
+              <div>
 
-          <button className="button" onClick={completeTask}><p>Mark Complete</p><p>✓</p></button>
-        </div>
+                <button className="button" onClick={completeTask}><p>Mark Complete</p><p>✓</p></button>
+              </div>
 
-        <div>
-          <EditTaskPopup editTask={editTask} currentName={name} currentDate={date} currentTime={t} currentDesc={desc} index={index}/>
-        </div>
+              <div>
 
-        <div>
-          <DeleteTaskPopup deleteTask={deleteTask}/>
-        </div>     
+                <button className="button" onClick={() => openEditPopup(index)}><p>Edit</p><p>✎</p></button>
 
-      </div> 
+              </div>
+
+              <div>
+                <button className="button" onClick={() => openDeletePopup(index)}><p>Delete</p><p>🗑</p></button>
+              </div>   
+
+            </div> 
+          </>
+        )
+      }
+      
 
     </div>
   );
 }
 
-export function DisplayTasks({tasks, editTask, deleteTask, completeTask})
+export function DisplayTasks({tasks, openEditPopup, openDeletePopup, completeTask})
 {
     return (
         <div id="TasksList">
@@ -105,8 +75,8 @@ export function DisplayTasks({tasks, editTask, deleteTask, completeTask})
                   <Task index={item.id} 
                         key={index}
                         data={item} 
-                        editTask={editTask}
-                        deleteTask={() => deleteTask(item.id)}
+                        openEditPopup={openEditPopup}
+                        openDeletePopup={openDeletePopup}
                         completeTask={() => completeTask(item.id)}/>
             )
             }
@@ -115,18 +85,19 @@ export function DisplayTasks({tasks, editTask, deleteTask, completeTask})
         </div>
 
     );
-}
+} 
 
-export function DisplayCompletedTasks({completedTasks, deleteTask})
+export function DisplayCompletedTasks({completedTasks, openDeletePopup})
 {
     return (    
       <div id="TasksList">
     
-        {completedTasks.slice().reverse().map
-          ((item, index) => <CompletedTask index={item.id} 
+        {completedTasks.slice().map
+          ((item, index) => <Task index={item.id} 
                               key={index}
                               data={item}
-                              deleteTask={() => deleteTask(item.id)}/>
+                              openDeletePopup={openDeletePopup}
+                              isComplete={true}/>
           )
         }
 
@@ -137,7 +108,7 @@ export function DisplayCompletedTasks({completedTasks, deleteTask})
 
 export function AddTaskPopup({addTask})
 {
-  const [name, setName] = useState("");
+  const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
@@ -148,7 +119,7 @@ export function AddTaskPopup({addTask})
 
     setError("");
 
-    setName("");
+    setTitle("");
     setDesc("");
     setDate("");
     setTime("");
@@ -157,7 +128,7 @@ export function AddTaskPopup({addTask})
 
   const addTaskWrapper = async () => {
 
-    var response = await addTask(name, desc, date, time);
+    var response = await addTask(title, desc, date, time);
 
     if(response !== true)
     {
@@ -183,7 +154,7 @@ export function AddTaskPopup({addTask})
                       </div>
 
                       <div className="task-popup-content">
-                          <InputField placeholderText = "Enter task name" value={name} setValue = {setName}/>
+                          <InputField placeholderText = "Enter task name" value={title} setValue = {setTitle}/>
                       </div >
 
                       <div className="task-popup-content">
@@ -225,29 +196,34 @@ export function AddTaskPopup({addTask})
 }
 
 
-export function EditTaskPopup({editTask, currentName, currentDate, currentTime, currentDesc, index})
+export function EditTaskPopup({task, editTask, closeEditPopup})
 {
-  const [name, setName] = useState(currentName);
-  const [desc, setDesc] = useState(currentDesc);
-  const [date, setDate] = useState(currentDate);
-  const [time, setTime] = useState(currentTime);
+  const [displayName, setDisplayName] = useState(null);
+  const [title, setTitle] = useState(null);
+  const [desc, setDesc] = useState(null);
+  const [date, setDate] = useState(null);
+  const [time, setTime] = useState(null);
   
-  const [error, setError] = useState("");
-
-  const resetVars = useCallback(() => {
-    setError("");
-    setName(currentName);
-    setDesc(currentDesc);
-    setDate(currentDate);
-    setTime(currentTime);
-  }, [currentName, currentDesc, currentDate, currentTime]); 
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    resetVars();
-  }, [resetVars, currentName, currentDesc, currentDate, currentTime]); 
+
+    if(!task)
+      return;
+
+    setError(null);
+    setDisplayName(task.title)
+    setTitle(task.title);
+    var [d, t] = DateToParams(task.date);
+    setDate(task.date);
+    setTime(t);
+    setDesc(task.desc);
+
+  }, [task]);
+
 
   const editTaskWrapper = async () => {
-    if(/^\s*$/.test(name))
+    if(/^\s*$/.test(title))
     {
       setError("Please enter a task name.")
       return false;
@@ -265,7 +241,7 @@ export function EditTaskPopup({editTask, currentName, currentDate, currentTime, 
       return false;  
     }
 
-    var response = await editTask(index, name, desc, date, time);
+    var response = await editTask(task.id, title, desc, date, time);
 
     if(response !== true)
     {
@@ -275,21 +251,22 @@ export function EditTaskPopup({editTask, currentName, currentDate, currentTime, 
     return true;
   }
 
+  
   return (
     <div >
       {/* pop up window */}
       <Popup className="task-popup"
-          trigger= {<button className="button"><p>Edit</p><p>✎</p></button>}
+          open={!!task} onClose={closeEditPopup}
           modal>
           {
               close => (
                   <div className='modal'>
                       <div className='content'>
-                          <h3>Editing {currentName}</h3>
+                          <h3>Editing {displayName}</h3>
                       </div>
 
                       <div className="task-popup-content">
-                          <InputField placeholderText = "Enter task name" value={name} setValue = {setName}/>
+                          <InputField placeholderText = "Enter task name" value={title} setValue = {setTitle}/>
                       </div >
 
                       <div className="task-popup-content">
@@ -331,14 +308,15 @@ export function EditTaskPopup({editTask, currentName, currentDate, currentTime, 
 }
 
 
-export function DeleteTaskPopup({deleteTask})
+export function DeleteTaskPopup({task, deleteTask, closeDeletePopup})
 {
+  
 
   return (
     <div >
       {/* pop up window */}
       <Popup className="task-popup"
-          trigger= {<button className="button"><p>Delete</p><p>🗑</p></button>}
+          open={!!task} onClose={closeDeletePopup}
           modal>
           {
               close => (
@@ -350,7 +328,7 @@ export function DeleteTaskPopup({deleteTask})
                       <div className="button-holder">
                         <div>
                             <button className="button" onClick=
-                              {() => {deleteTask(); close();}}>
+                              {() => {deleteTask(task.id); close();}}>
                                   Yes
                             </button>
                         </div>
