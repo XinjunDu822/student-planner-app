@@ -4,7 +4,7 @@ import 'reactjs-popup/dist/index.css';
 import { AddTaskPopup, DisplayTasks, DisplayCompletedTasks } from './Tasks';
 import { getAllTasks, createTask, editTask, deleteTask, completeTask, updateLastLate, updateBestStreak } from "./TaskService";
 import { getUser } from "../Login/AuthService";
-
+import { InputField} from '../Utils';
 
 export function TasksPage({user, logout}) {
 
@@ -12,7 +12,7 @@ export function TasksPage({user, logout}) {
 
   const [currStreak, setCurrStreak] = useState(null);
   const [bestStreak, setBestStreak] = useState(null);
-
+  const [keywords, setKeywords] = useState("");
 
   const [tasks, setTasks] = useState(null);
 
@@ -23,7 +23,7 @@ export function TasksPage({user, logout}) {
 
   async function loadTasks() {
 
-    var response = await getAllTasks(user);
+    var response = await getAllTasks(user, keywords);
     
     if(!response.tasks)
     {        
@@ -205,7 +205,13 @@ export function TasksPage({user, logout}) {
                 <h2>My Dashboard</h2>
 
                 <AddTaskPopup addTask = {addTask}/>
-
+                <div>
+                    <InputField placeholderText = "Enter keyword" value={keywords} setValue = {setKeywords}/>
+                    <button className="button" onClick=
+                        {async () => {const ok = await loadTasks();}}>
+                                Save
+                    </button>
+                </div >
                 {
                     (numLateTasks > 0) && (
                         <>
