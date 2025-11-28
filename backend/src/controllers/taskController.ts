@@ -23,12 +23,22 @@ export const getAllTasks = async (
 ) => {
   try {
     const userId = req.user?.id; // Assuming you have auth middleware that adds user to req
-
+    const { keyword } = req.query;
+    // const { keyword } = req.body;
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const tasks = await prisma.task.findMany({
+    // const keywordFilter = keyword
+    // ? {
+    //     title: {
+    //         contains: keyword,
+    //         // mode: "insensitive", // case-insensitive search
+    //       },
+    //   }
+    // :{};
+
+    const allTasks = await prisma.task.findMany({
       where: {
         userID: userId,
         isComplete: false,
@@ -38,7 +48,7 @@ export const getAllTasks = async (
       },
     });
 
-    const completedTasks = await prisma.task.findMany({
+    const allCompletedTasks = await prisma.task.findMany({
       where: {
         userID: userId,
         isComplete: true,
@@ -47,6 +57,22 @@ export const getAllTasks = async (
         date: "desc",
       },
     });
+
+     const tasks = keyword
+      ? allTasks.filter(
+          (task) =>
+            task.title.toLowerCase().includes(String(keyword).toLowerCase()) ||
+            task.desc.toLowerCase().includes(String(keyword).toLowerCase())
+        )
+      : allTasks;
+
+    const completedTasks = keyword
+      ? allCompletedTasks.filter(
+          (task) =>
+            task.title.toLowerCase().includes(String(keyword).toLowerCase()) ||
+            task.desc.toLowerCase().includes(String(keyword).toLowerCase())
+        )
+      : allCompletedTasks;
 
     return res
       .status(200)
