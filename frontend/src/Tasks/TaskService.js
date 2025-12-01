@@ -1,13 +1,30 @@
 const API_URL = "http://localhost:5000/api"; // adjust to your backend
 
 
-export const getAllTasks = async (authorization) => {
-  const res = await fetch(`${API_URL}/dashboard`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json",
-               "Authorization": `Bearer ${authorization}` },
-  });
-
+export const getAllTasks = async (authorization, keyword) => {
+  // const res = await fetch(`${API_URL}/dashboard`, {
+  //   method: "GET",
+  //   headers: { "Content-Type": "application/json",
+  //              "Authorization": `Bearer ${authorization}` },
+  // });
+  const res = await fetch(
+    `${API_URL}/dashboard?keyword=${encodeURIComponent(keyword ?? "")}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${authorization}`,
+      },
+    }
+  );
+  //   const res = await fetch(`${API_URL}/dashboard`, {
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //     "Authorization": `Bearer ${authorization}`,
+  //   },
+  //   body: JSON.stringify({ keyword }),
+  // });
   return await res.json();
 };
 

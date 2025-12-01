@@ -4,7 +4,7 @@ import 'reactjs-popup/dist/index.css';
 import { AddTaskPopup, DisplayTasks, DisplayCompletedTasks, EditTaskPopup, DeleteTaskPopup } from './Tasks';
 import { getAllTasks, createTask, editTask, deleteTask, completeTask, updateLastLate, updateBestStreak } from "./TaskService";
 import { getUser } from "../Login/AuthService";
-
+import { InputField} from '../Utils';
 
 export function TasksPage({user, logout}) {
 
@@ -12,7 +12,7 @@ export function TasksPage({user, logout}) {
 
   const [currStreak, setCurrStreak] = useState(null);
   const [bestStreak, setBestStreak] = useState(null);
-
+  const [keywords, setKeywords] = useState("");
 
   const [tasks, setTasks] = useState(null);
 
@@ -25,9 +25,9 @@ export function TasksPage({user, logout}) {
   const [completedTasks, setCompletedTasks] = useState(null);
 
 
-  async function loadTasks() {
+  async function loadTasks(filter = "") {
 
-    var response = await getAllTasks(user);
+    var response = await getAllTasks(user, filter);
     
     if(!response.tasks)
     {        
@@ -190,7 +190,7 @@ export function TasksPage({user, logout}) {
   const completeTask_ = async function(id)
   {
     await completeTask(user, id);
-    await loadTasks();
+    await loadTasks(keywords);
   }
 
   if(tasks == null || completedTasks == null)
@@ -245,7 +245,17 @@ export function TasksPage({user, logout}) {
                 <h2>My Dashboard</h2>
 
                 <AddTaskPopup addTask = {addTask}/>
-
+                <div>
+                    <InputField placeholderText = "Enter keyword" value={keywords} setValue = {setKeywords}/>
+                    <button className="button" onClick=
+                        {async () => {const ok = await loadTasks(keywords);}}>
+                                Search
+                    </button>
+                    <button className="button" onClick=
+                        {async () => {await loadTasks();}}>
+                                Reset
+                    </button>
+                </div >
                 {
                     (numLateTasks > 0) && (
                         <>
@@ -265,17 +275,27 @@ export function TasksPage({user, logout}) {
                 }
 
                 {
-                    ((tasks.length - numLateTasks) === 0) && (
+                    ((tasks.length - numLateTasks) === 0 && keywords === "") && (
                         <>
                             <h3><br/>You have no new tasks right now.<br/> Get started by creating some!</h3>
+                        </>
+                    )
+
+                }
+                {
+                    ((tasks.length - numLateTasks) === 0 && keywords != "") && (
+                        <>
+                            <h3><br/>You have no tasks that match those keywords<br/> Get started by creating some!</h3>
                         </>
                     )
                 }
 
 
-            <EditTaskPopup task={taskToEdit} editTask={editTask_} closeEditPopup={deselectTaskToEdit} />
+
+            {/* <EditTaskPopup task={taskToEdit} editTask={editTask_} closeEditPopup={deselectTaskToEdit} />
   
-            <DeleteTaskPopup task={taskToDelete} deleteTask={deleteTask_} closeDeletePopup={deselectTaskToDelete} />
+            <DeleteTaskPopup task={taskToDelete} deleteTask={deleteTask_} closeDeletePopup={deselectTaskToDelete} /> */}
+
 
             </div>
 
