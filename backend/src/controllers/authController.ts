@@ -29,33 +29,38 @@ export const signUp = async (
   next: NextFunction
 ) => {
   try {
-    const { name, password } = req.body;
+    const { name, password } = req.body; //get user body submitted info
 
     if (!name || !password) {
+      //check if user left something blank
       return res
         .status(400)
         .json({ message: "Username and password are required." });
     }
 
     if (!checkRegisterReqs(name, password)) {
+      //REGEX check for valid user/pwd
       return res.status(400).json({
         message: "Username and/or password do not satisfy requirements!",
       });
     }
 
     const existingUser = await prisma.user.findUnique({
+      //search DB if user exists
       where: {
         name,
       },
     });
 
     if (existingUser) {
+      //cannot create another user with same name
       return res.status(409).json({ message: "Username already in use." });
     }
 
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await hashPassword(password); //hash pwd for privacy
 
     const user = await prisma.user.create({
+      //create new user in DB with new data
       data: {
         name,
         password: hashedPassword,
@@ -64,9 +69,9 @@ export const signUp = async (
 
     const token = createToken({ id: user.id, name: user.name }); //create token for user after signing in
 
-    return res.status(200).json({ token });
+    return res.status(200).json({ token }); //return JWT Token for user
   } catch (err) {
-    return res.status(500).json({ message: "Server Error" });
+    return res.status(500).json({ message: "Server Error" }); //error if failed
   }
 };
 
@@ -131,10 +136,11 @@ export const getUser = async (
       return res.status(400).json({ message: "Invalid user" });
     }
 
-    return res.status(200).json({ name: req.user?.name,
-                                  lastLate: user.lastLate,
-                                  bestStreak: user.bestStreak
-                                });
+    return res.status(200).json({
+      name: req.user?.name,
+      lastLate: user.lastLate,
+      bestStreak: user.bestStreak,
+    });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }
