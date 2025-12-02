@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
 import 'reactjs-popup/dist/index.css';
 // import { TaskDatabase, CompletedTaskDatabase } from '../DummyData';
-import { AddTaskPopup, DisplayTasks, DisplayCompletedTasks, EditTaskPopup, DeleteTaskPopup } from './Tasks';
+import { AddTaskPopup, DisplayTasks, EditTaskPopup, DeleteTaskPopup } from './Tasks';
 import { getAllTasks, createTask, editTask, deleteTask, completeTask, updateLastLate, updateBestStreak } from "./TaskService";
 import { getUser } from "../Login/AuthService";
 import { InputField} from '../Utils';
@@ -225,7 +225,7 @@ export function TasksPage({user, logout}) {
                 ((completedTasks.length) > 0) && (
                     <>
                         <h3>Complete</h3>
-                        <DisplayCompletedTasks completedTasks={completedTasks} selectTaskToDelete={selectTaskToDelete}/>
+                        <DisplayTasks keywords={keywords} tasks={completedTasks} selectTaskToDelete={selectTaskToDelete} displayCompleted={true}/>
                     </>
                 )
             }
@@ -241,26 +241,22 @@ export function TasksPage({user, logout}) {
             </div>
 
             <div className="todo">
+               
+                <div className="dashboard-bar">
 
-                <h2>My Dashboard</h2>
+                    <h2>My Dashboard</h2>
+
+                    <InputField placeholderText = "Enter keyword(s)" value={keywords} setValue = {setKeywords}/>
+                
+                </div >
 
                 <AddTaskPopup addTask = {addTask}/>
-                <div>
-                    <InputField placeholderText = "Enter keyword" value={keywords} setValue = {setKeywords}/>
-                    <button className="button" onClick=
-                        {async () => {const ok = await loadTasks(keywords);}}>
-                                Search
-                    </button>
-                    <button className="button" onClick=
-                        {async () => {await loadTasks();}}>
-                                Reset
-                    </button>
-                </div >
+
                 {
                     (numLateTasks > 0) && (
                         <>
                             <h3>Late</h3>
-                            <DisplayTasks tasks={tasks.slice(0, numLateTasks)} openEditPopup={selectTaskToEdit} openDeletePopup={selectTaskToDelete} completeTask={completeTask_}/>
+                            <DisplayTasks keywords={keywords} tasks={tasks.slice(0, numLateTasks)} openEditPopup={selectTaskToEdit} openDeletePopup={selectTaskToDelete} completeTask={completeTask_}/>
                         </>
                     )
                 }
@@ -269,26 +265,20 @@ export function TasksPage({user, logout}) {
                     ((tasks.length - numLateTasks) > 0) && (
                         <>
                             <h3>To-do</h3>
-                            <DisplayTasks tasks={tasks.slice(numLateTasks)} openEditPopup={selectTaskToEdit} openDeletePopup={selectTaskToDelete} completeTask={completeTask_}/>
+                            <DisplayTasks keywords={keywords} tasks={tasks.slice(numLateTasks)} openEditPopup={selectTaskToEdit} openDeletePopup={selectTaskToDelete} completeTask={completeTask_}/>
                         </>
                     )
                 }
 
                 {
-                    ((tasks.length - numLateTasks) === 0 && keywords === "") && (
+                    ((tasks.length - numLateTasks) === 0) && (
                         <>
                             <h3><br/>You have no new tasks right now.<br/> Get started by creating some!</h3>
                         </>
                     )
 
                 }
-                {
-                    ((tasks.length - numLateTasks) === 0 && keywords != "") && (
-                        <>
-                            <h3><br/>You have no tasks that match those keywords<br/> Get started by creating some!</h3>
-                        </>
-                    )
-                }
+
 
 
 

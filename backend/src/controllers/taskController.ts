@@ -23,8 +23,8 @@ export const getAllTasks = async (
 ) => {
   try {
     const userId = req.user?.id; // Assuming you have auth middleware that adds user to req
-    const { keyword } = req.query;
-    // const { keyword } = req.body;
+    // const { keyword } = req.query;
+
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -58,25 +58,27 @@ export const getAllTasks = async (
       },
     });
 
-     const tasks = keyword
-      ? allTasks.filter(
-          (task) =>
-            task.title.toLowerCase().includes(String(keyword).toLowerCase()) ||
-            task.desc.toLowerCase().includes(String(keyword).toLowerCase())
-        )
-      : allTasks;
+    // const tasks = keyword
+    //   ? allTasks.filter(
+    //       (task) =>
+    //         task.title.toLowerCase().includes(String(keyword).toLowerCase()) ||
+    //         task.desc.toLowerCase().includes(String(keyword).toLowerCase())
+    //     )
+    //   : allTasks;
+
+
 
     // const completedTasks = keyword
     //   ? allCompletedTasks.filter(
     //       (task) =>
     //         task.title.toLowerCase().includes(String(keyword).toLowerCase()) ||
     //         task.desc.toLowerCase().includes(String(keyword).toLowerCase())
-    //     )s
+    //     )
     //   : allCompletedTasks;
 
     return res
       .status(200)
-      .json({ tasks: tasks, completedTasks: allCompletedTasks });
+      .json({ tasks: allTasks, completedTasks: allCompletedTasks });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }

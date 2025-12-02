@@ -2,29 +2,101 @@
 import Popup from 'reactjs-popup';
 import { useState, useCallback, useEffect } from 'react';
 import 'reactjs-popup/dist/index.css';
-import { InputField, DateInputField, DateToParams, FormatTime } from '../Utils';
+import { InputField, DateInputField, DateToParams, FormatTime, escapeRegExp } from '../Utils';
 
 
+function StringDisplay({string, keys, keywordPattern})
+{
+  if(!keywordPattern || keys.length === 0)
+  {
+    return (
+      <>
+        {string}
+      </>
+    );
+  }  
 
-export function Task({index, data, openEditPopup, openDeletePopup, completeTask, isComplete=false})
+  // a, b, c => (a|(b|(c)))
+
+  var parts = string.split(keywordPattern);
+
+  console.log(keywordPattern.source);
+
+  console.log(parts);
+
+  return (
+    <span>
+      {parts.map((part, index) =>
+        keywordPattern.test(part) ? (
+          <mark key={index} className="highlight">
+            {part}
+          </mark>
+        ) : (
+          <span key={index}>{part}</span>
+        )
+      )}
+    </span>
+  );
+
+}
+
+
+export function Task({index, data, openEditPopup, openDeletePopup, completeTask, keywords, isComplete=false})
 {
   var title = data.title; 
   var desc = data.desc; 
   var date = data.date;
-
   
   var [d, t] = DateToParams(date);
   var time = FormatTime(t);
+
+  var text = title + desc;
+
+  var keys = keywords.split(/[\s,]+/);
+
+  keys = keys.filter(item => item);
+
+  var keywordPattern = null;
+
+  if(!!keywords && keys.length > 0)
+  {
+    var regexString = "(";
+    var regexStringEnd = ")";
+
+    for(let i = 0; i < keys.length; i++)
+    {
+      let regexPattern = new RegExp(keys[i]);
+      if(!regexPattern.test(text))
+      {
+        return null;
+      }
+      if(i == keys.length - 1)
+      {
+        regexString += keys[i];
+      }
+      else
+      {
+        regexString += keys[i] + "|(";
+        regexStringEnd += ")";
+      }
+
+    }
+
+    keywordPattern = new RegExp(`(?:${regexString + regexStringEnd})`, 'gi');
+  }
+
+
+
 
   return (
     <div className = "task">
 
       <div>
-        {title}
+        <StringDisplay string={title} keys={keys} keywordPattern={keywordPattern}/>
       </div>
 
       <div>
-        {d}  
+        {d}
       </div>
 
       {
@@ -35,7 +107,7 @@ export function Task({index, data, openEditPopup, openDeletePopup, completeTask,
             </div>
 
             <div>
-              {desc}  
+              <StringDisplay string={desc} keys={keys} keywordPattern={keywordPattern}/>
             </div>
 
             <div>
@@ -65,19 +137,22 @@ export function Task({index, data, openEditPopup, openDeletePopup, completeTask,
   );
 }
 
-export function DisplayTasks({tasks, openEditPopup, openDeletePopup, completeTask})
+export function DisplayTasks({tasks, openEditPopup, openDeletePopup, completeTask, keywords, displayCompleted=false})
 {
     return (
         <div id="TasksList">
         
-            {tasks.map
+            {tasks.slice().map
             ((item, index) => 
                   <Task index={item.id} 
                         key={index}
                         data={item} 
                         openEditPopup={openEditPopup}
                         openDeletePopup={openDeletePopup}
-                        completeTask={() => completeTask(item.id)}/>
+                        completeTask={() => completeTask(item.id)}
+                        keywords={keywords}
+                        isComplete={displayCompleted}
+                        />
             )
             }
 
@@ -86,24 +161,6 @@ export function DisplayTasks({tasks, openEditPopup, openDeletePopup, completeTas
 
     );
 } 
-
-export function DisplayCompletedTasks({completedTasks, openDeletePopup})
-{
-    return (    
-      <div id="TasksList">
-    
-        {completedTasks.slice().map
-          ((item, index) => <Task index={item.id} 
-                              key={index}
-                              data={item}
-                              openDeletePopup={openDeletePopup}
-                              isComplete={true}/>
-          )
-        }
-
-      </div>
-    );
-}
 
 
 export function AddTaskPopup({addTask})
@@ -127,6 +184,8 @@ export function AddTaskPopup({addTask})
 
 
   const addTaskWrapper = async () => {
+
+    console.log(time);
 
     var response = await addTask(title, desc, date, time);
 
