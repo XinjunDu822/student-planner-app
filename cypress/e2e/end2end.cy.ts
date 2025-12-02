@@ -52,7 +52,7 @@ describe('E2E Tests', () => {
       cy.contains('button', 'Sign In').click();
 
       // Check for a dashboard element to confirm login was successful
-      cy.contains('h2', 'My Dashboard').should('be.visible');
+      cy.contains('button', 'Add Task').should('be.visible');
     });
   });
 
@@ -64,60 +64,66 @@ describe('E2E Tests', () => {
       cy.get('input[placeholder="Username"]').type(user.username);
       cy.get('input[placeholder="Password"]').type(user.password);
       cy.contains('button', 'Sign In').click();
-      // cy.contains('h2', 'My Dashboard').should('be.visible');
+      cy.contains('button', 'Add Task').should('be.visible');
     });
 
     it('allows a user to add a task', () => {
       cy.contains('button', 'Add Task').click();
-      cy.get('input[placeholder="Task Name"]').type('My New Task');
-      cy.get('input[placeholder="Task Description"]').type('This is a test task.');
+      cy.get('input[placeholder="Enter task name"]').type('My New Task');
+      cy.get('input[placeholder="Enter task description"]').type('This is a test task.');
       // Date handling might need adjustment based on the date picker component
-      cy.get('input[placeholder="mm/dd/yy"]').click();
-      cy.contains('.react-datepicker__day', '15').click();
+      cy.get('input[placeholder="Enter task date"]').type('2025-12-15');
+      cy.get('input[placeholder="Enter task time"]').type('10:30');
 
 
-      cy.contains('button', 'Add Task').click();
+      cy.contains('button', 'Save').click();
 
-      cy.contains('h5', 'My New Task').should('be.visible');
-      cy.contains('p', 'This is a test task.').should('be.visible');
+      cy.contains('div', 'My New Task').should('be.visible');
+      cy.contains('div', 'This is a test task.').should('be.visible');
     });
 
     it('allows a user to mark a task as completed', () => {
         // First add a task to be marked as complete
         cy.contains('button', 'Add Task').click();
-        cy.get('input[placeholder="Task Name"]').type('Complete Me');
-        cy.get('input[placeholder="Task Description"]').type('A task to be completed.');
-        cy.get('input[placeholder="mm/dd/yy"]').click();
-        cy.contains('.react-datepicker__day', '20').click();
-        cy.contains('button', 'Add Task').click();
+        cy.get('input[placeholder="Enter task name"]').type('Complete Me');
+        cy.get('input[placeholder="Enter task description"]').type('A task to be completed.');
+        cy.get('input[placeholder="Enter task date"]').type('2025-12-20');
+        cy.get('input[placeholder="Enter task time"]').type('11:00');
+        cy.contains('button', 'Save').click();
 
 
         // Find the task and mark it as complete
-        cy.contains('.task-body', 'Complete Me').within(() => {
-            cy.get('input[type="checkbox"]').check();
+        cy.contains('.todo', 'Complete Me').within(() => {
+            cy.contains('button', 'Mark Complete').click();
         });
 
-        // Verify the task is marked as complete
-        cy.contains('.task-body', 'Complete Me').should('have.css', 'text-decoration', 'line-through solid rgb(0, 0, 0)');
+        // Verify the task is in the completed list
+        cy.contains('h2', 'Completed Tasks').should('be.visible');
+        cy.contains('.completed', 'Complete Me').should('be.visible');
     });
 
 
     it('allows a user to delete a task', () => {
         // First add a task to be deleted
         cy.contains('button', 'Add Task').click();
-        cy.get('input[placeholder="Task Name"]').type('Delete Me');
-        cy.get('input[placeholder="Task Description"]').type('A task to be deleted.');
-        cy.get('input[placeholder="mm/dd/yy"]').click();
-        cy.contains('.react-datepicker__day', '25').click();
-        cy.contains('button', 'Add Task').click();
+        cy.get('input[placeholder="Enter task name"]').type('Delete Me');
+        cy.get('input[placeholder="Enter task description"]').type('A task to be deleted.');
+        cy.get('input[placeholder="Enter task date"]').type('2025-12-25');
+        cy.get('input[placeholder="Enter task time"]').type('12:00');
+        cy.contains('button', 'Save').click();
 
-        cy.contains('h5', 'Delete Me').should('be.visible');
+        cy.contains('div', 'Delete Me').should('be.visible');
 
         // Find the task and delete it
-        cy.contains('.task-body', 'Delete Me').next('.task-actions').find('button').contains('Delete').click();
+        cy.contains('.todo', 'Delete Me').within(() => {
+            cy.contains('button', 'Delete').click();
+        });
+        
+        cy.contains('h3', 'Are you sure you want to delete this task?').should('be.visible');
+        cy.contains('button', 'Yes').click();
 
 
-        cy.contains('h5', 'Delete Me').should('not.exist');
+        cy.contains('div', 'Delete Me').should('not.exist');
     });
   });
 
