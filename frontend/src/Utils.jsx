@@ -45,6 +45,11 @@ export function InputField({placeholderText, value, setValue, inputType="text"})
 {
   const [isEmpty, setIsEmpty] = useState(value === "");
 
+  if(!isEmpty && value === "")
+  {
+    setIsEmpty(true);
+  }
+
 
   const handleInputChange = (event) => {
     setValue(event.target.value);
@@ -52,8 +57,7 @@ export function InputField({placeholderText, value, setValue, inputType="text"})
 
   if(inputType === "time" && isEmpty)
   {
-    setValue("00:00");
-    return <input className="task-popup-content" type="text" placeholder={placeholderText} onClick={() => {setIsEmpty(false)}} readOnly/>;
+    return <input className="task-popup-content" type="text" placeholder={placeholderText} onClick={() => {setValue("00:00"); setIsEmpty(false)}} readOnly/>;
   }
 
   return <input className="task-popup-content" type={inputType} value={value} placeholder={placeholderText} onChange={handleInputChange}/>;
@@ -99,3 +103,7 @@ export function DateInputField({placeholderText, value, setValue, inputType="tex
     </div>
         );
 };
+
+export function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
