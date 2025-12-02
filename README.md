@@ -103,9 +103,7 @@ From the backend folder:
 npm test
 ```
 
-## 📦 Backend Scripts
-
-### Available Scripts
+### 📦 Backend Scripts
 
 ```json
 "scripts": {
@@ -115,7 +113,7 @@ npm test
 }
 ```
 
-### 7️⃣ End to End Test Suite
+### End to End Test Suite
 In the root folder:
 
 ```sh
