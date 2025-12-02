@@ -113,4 +113,11 @@ npm test
   "dev": "node --loader ts-node/esm src/server.ts",
   "test": "jest"
 }
+```
 
+### 7️⃣ End to End Test Suite
+In the root folder:
+
+```sh
+npm run cypress
+```
