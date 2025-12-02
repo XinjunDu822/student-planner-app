@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "concurrently \"npm start --prefix backend\" \"npm start --prefix frontend\""
+    "start": "concurrently \"npm start --prefix backend\" \"npm start --prefix frontend\"",
+    "cypress": "cypress open"
   },
   "author": "",
   "license": "MIT",
@@ -19,6 +20,7 @@
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "cypress": "^15.7.0"
   }
 }

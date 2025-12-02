@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api", taskRouter);
+//app.use("/api", taskRouter);
 app.use("/api/auth", authRouter);
 
 //temp for testing auth middleware
