@@ -52,9 +52,12 @@ export function Task({index, data, openEditPopup, openDeletePopup, completeTask,
 
   var text = title + desc;
 
+  keywords = escapeRegExp(keywords);
+
   var keys = keywords.split(/[\s,]+/);
 
   keys = keys.filter(item => item);
+
 
   var keywordPattern = null;
 
