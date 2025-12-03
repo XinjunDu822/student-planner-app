@@ -1,6 +1,5 @@
 import Popup from 'reactjs-popup';
 import { useState } from 'react';
-import 'reactjs-popup/dist/index.css';
 import { InputField } from '../Utils';
 import { signUp } from "./AuthService";
 

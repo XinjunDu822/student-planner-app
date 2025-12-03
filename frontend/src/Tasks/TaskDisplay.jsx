@@ -26,7 +26,7 @@ function DisplayEmptyText({text})
   );
 }
 
-export function TaskDisplay({header, emptyText, emptySearchText, tasks, openEditPopup, openDeletePopup, completeTask, keywords, filterStartDate, filterEndDate, displayCompleted=false})
+export function TaskDisplay({header, emptyText, emptySearchText, tasks, openEditPopup, openDeletePopup, completeTask, keywords, startDate, endDate, displayCompleted=false})
 {
   const [keys, setKeys] = useState([]);
   const [keywordPattern, setKeywordPattern] = useState(null);
@@ -55,15 +55,10 @@ export function TaskDisplay({header, emptyText, emptySearchText, tasks, openEdit
   }, [keywords])
 
   useEffect(() => {
-    var filterStartDateAndTime = new Date(filterStartDate);
-    var filterEndDateAndTime = new Date(filterEndDate);
-    filterStartDateAndTime.setHours(0, 0, 0, 0);
-    filterEndDateAndTime.setHours(24, 0, 0, 0);
-    if(!keywordPattern || keys.length === 0)
-    {
-      setDisplayedTasks(tasks);
-    }
-    else
+
+    var displayedTasks_ = tasks;
+  
+    if(!!keywordPattern && keys.length > 0)
     {
       var numKeys = keys.length;
 
@@ -71,9 +66,6 @@ export function TaskDisplay({header, emptyText, emptySearchText, tasks, openEdit
 
       for(let i = 0; i < tasks.length; i++)
       {
-        if (tasks[i].date < filterStartDateAndTime || tasks[i].date > filterEndDateAndTime)
-          continue;
-
         let text = tasks[i].title + tasks[i].desc;
         for(let j = 0; j < numKeys; j++)
         {
@@ -88,11 +80,33 @@ export function TaskDisplay({header, emptyText, emptySearchText, tasks, openEdit
           }
         }
       }
+    }
 
-      setDisplayedTasks(displayedTasks_);
+    var displayedTasks_final = [];
 
-    }    
-  }, [keys, keywordPattern, tasks, filterStartDate, filterEndDate])
+    var startDate_ = !!startDate ? new Date(startDate) : null;
+    var endDate_ = !!endDate ? new Date(endDate) : null;
+
+    if(!!startDate_)
+    {
+      startDate_.setHours(0, 0, 0, 0);
+    }
+
+    if(!!endDate_)
+    {
+      endDate_.setHours(0, 0, 0, 0);
+      endDate_.setDate(endDate_.getDate() + 1);
+    }
+
+    for(let i = 0; i < displayedTasks_.length; i++)
+    {
+      if ((!startDate_ || startDate_ <= displayedTasks_[i].date) && (!endDate_ || displayedTasks_[i].date <= endDate_))
+        displayedTasks_final.push(displayedTasks_[i]);
+    }
+
+    setDisplayedTasks(displayedTasks_final);
+
+  }, [keys, keywordPattern, tasks, startDate, endDate])
 
   if(tasks.length === 0)
   {
@@ -107,7 +121,7 @@ export function TaskDisplay({header, emptyText, emptySearchText, tasks, openEdit
   return (
       <>
         <h3>{header}</h3>
-        {/* <button className="button" onClick={console.log(filterStartDateAndTime)}><p>Mark Complete</p><p>✓</p></button> */}
+        {/* <button className="button" onClick={console.log(startDate_)}><p>Mark Complete</p><p>✓</p></button> */}
         <div id="TasksList">
           {displayedTasks.slice().map
           ((item, index) => 
