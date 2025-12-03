@@ -3,87 +3,72 @@ import './App.css';
 import { useState, useEffect } from 'react';
 import { getUser } from "./Login/AuthService";
 
-export function Header({user, logout})
-{
-    const [isClicked, setIsClicked] = useState(false);
+export function Header({ user, logout }) {
+  const [isClicked, setIsClicked] = useState(false);
+  const [name, setName] = useState(null);
+  const [isHovering, setIsHovering] = useState(false);
 
-    const [name, setName] = useState(null);
+  useEffect(() => {
+    const getUsername = async () => {
+      if (!user) {
+        setName(null);
+        return;
+      }
+      const response = await getUser(user);
+      setName(response.name || null);
+    };
+    getUsername();
+  }, [user]);
 
-    const [isHovering, setIsHovering] = useState(false);
-
-    useEffect(() => {
-        const getUsername = async () => {
-            if(user == null)
-            {
-                setName(null);
-                return;
-            }
-
-            var response = await getUser(user);
-            if(!response.name)
-            {
-                setName(null);
-                return;
-            }
-            setName(response.name);
-        }
-        getUsername();
-    }, [user]);
-
-
-    function GlobalClickDetector() {
-
-        useEffect(() => {
-                const handleGlobalClick = (event) => {
-                    if(isClicked || isHovering)
-                    {
-                        setIsClicked(!isClicked);
-                    }
-                };
-
-                document.addEventListener('click', handleGlobalClick);
-
-                // Clean up the event listener when the component unmounts
-                return () => {
-                document.removeEventListener('click', handleGlobalClick);
-                };
-            }, []);
-
+  // Handle global click to close dropdown
+  useEffect(() => {
+    const handleGlobalClick = (event) => {
+      // Only close dropdown if clicked outside the profile div
+      const profileDiv = document.querySelector('.profile');
+      if (profileDiv && !profileDiv.contains(event.target)) {
+        setIsClicked(false);
+      }
     };
 
-    return (
-        <header>
-            <div className="banner">
-                <div className="title">
-                    <h1>Student Planner App</h1>
-                </div>
-                {
-                    user != null && (
+    document.addEventListener('click', handleGlobalClick);
 
-                        <div className='profile-holder'>
+    return () => {
+      document.removeEventListener('click', handleGlobalClick);
+    };
+  }, []);
 
-                            <div className={"profile" + ((isClicked) ? " clicked" : "") }
-                                    onMouseEnter={() => setIsHovering(true)}
-                                    onMouseLeave={() => setIsHovering(false)}>
-                                <GlobalClickDetector/>
-                                <img className="icon" src={logo} alt="Logo"/>
-
-                                <div className="username">
-                                    {name}
-                                </div>
-
-                            </div>
-
-                            {isClicked && (
-                                <button className="button" onClick={() => {logout(); setIsClicked(false)}}>
-                                    Logout
-                                </button>
-                            )}
-
-                        </div>
-                    )
-                }
+  return (
+    <header>
+      <div className="banner">
+        <div className="title">
+          <h1>Student Planner App</h1>
+        </div>
+        {user && (
+          <div className="profile-holder">
+            <div
+              className={`profile${isClicked ? ' clicked' : ''}`}
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+              onClick={() => setIsClicked(!isClicked)}
+            >
+              <img className="icon" src={logo} alt="Logo" />
+              <div className="username">{name}</div>
             </div>
-        </header>     
-    );
+
+            {isClicked && (
+              <button
+                className="button"
+                onClick={() => {
+                  logout();
+                  setIsClicked(false);
+                }}
+              >
+                Logout
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </header>
+  );
 }
