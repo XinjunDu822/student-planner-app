@@ -138,7 +138,7 @@ export const getUser = async (
 
     return res.status(200).json({
       name: req.user?.name,
-      // lastLate: user.lastLate,
+      lastLate: user.lastLate,
       bestStreak: user.bestStreak,
     });
   } catch (err) {
