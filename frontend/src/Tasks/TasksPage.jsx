@@ -4,29 +4,10 @@ import { TaskDisplay } from './TaskDisplay';
 import { AddTaskPopup } from './AddTask';
 import { EditTaskPopup } from './EditTask';
 import { DeleteTaskPopup } from './DeleteTask';
-
-import { 
-  getAllTasks, 
-  createTask, 
-  editTask, 
-  deleteTask, 
-  completeTask, 
-  updateLastLate, 
-  updateBestStreak 
-} from "./TaskService";
-
-import { getUser } from "../Login/AuthService";
 import {InputField, DateInputField} from '../Utils';
+import {useTasks} from './TaskManager';
 
 export function TasksPage({user, logout}) {
-
-  const [tasks, setTasks] = useState(null);
-  const [completedTasks, setCompletedTasks] = useState(null);
-
-  const [numLateTasks, setNumLateTasks] = useState(null);
-  const [currStreak, setCurrStreak] = useState(null);
-  const [bestStreak, setBestStreak] = useState(null);
-
   const [keywords, setKeywords] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -34,150 +15,33 @@ export function TasksPage({user, logout}) {
   const [taskToEdit, setTaskToEdit] = useState(null);
   const [taskToDelete, setTaskToDelete] = useState(null);
 
-  const [error, setError] = useState(null);
+  const {
+    tasks,
+    completedTasks,
+    numLateTasks,
+    currStreak,
+    bestStreak,
+    error,
+    addTask,
+    editTask_,
+    deleteTask_,
+    completeTask_,
+    getTaskById
+  } = useTasks(user, logout);
 
 
-  const loadTasks = useCallback(async () => {
-    const response = await getAllTasks(user);
-    
-    if(!response.tasks)
-    {        
-        if(response.message == "Unauthorized")
-        {
-            logout();   
-            return;         
-        }
-        setTasks(null);
-        setCompletedTasks(null);
-        setError(response.message);
-        return;
-    }
-
-    const tasksArr = response.tasks.map(task => ({ ...task, date: new Date(task.date) }));
-    const completedArr = response.completedTasks.map(task => ({ ...task, date: new Date(task.date) }));
-
-    setTasks(tasksArr);
-    setCompletedTasks(completedArr);
-
-    // Calculate late tasks
-    const now = new Date();
-    var lateCount = 0;
-    while(lateCount < tasksArr.length && now >= tasksArr[lateCount].date)
-    {
-      lateCount++;
-    }
-
-    setNumLateTasks(lateCount);
-
-    let lastLate = lateCount > 0 ? tasksArr[lateCount - 1].date : null;
-
-    // Fetch user record
-    var userInfo = await getUser(user);
-
-    if(userInfo.lastLate)
-    {
-        const serverLastLate = new Date(userInfo.lastLate);
-
-        if(lastLate && lastLate > serverLastLate)
-        {
-            await updateLastLate(user, lastLate);
-        }
-        else
-        {
-            lastLate = serverLastLate;
-        }
-    }
-
-    // Calculate streak
-    let streak = 0;
-    
-    if(!lastLate)
-    {
-        streak = completedArr.length;
-    }
-    else
-    {
-        while(streak < completedArr.length && completedArr[streak].date > lastLate)
-        {
-          streak++;
-        }
-    }
-
-    setCurrStreak(streak);
-
-    // Update best streak
-    let best = userInfo.bestStreak;
-
-    if(streak > best)
-    {
-        best = streak;
-        await updateBestStreak(user, best);
-    }
-
-    setBestStreak(best);
-
-  }, [user, logout]);
-  
-  // Load tasks & refresh every minute
-  useEffect(() => {
-    loadTasks();
-    const refreshInterval = setInterval(loadTasks, 60000);
-    return () => clearInterval(refreshInterval);
-  }, [loadTasks]);
-
-  const addTask = useCallback(async (title, desc, date, time) => {
-    const response = await createTask(user, title, date, time, desc);
-    await loadTasks();
-    return response;
-  }, [user, loadTasks]);
-
-
-  const editTask_ = useCallback(async (id, title, desc, date, time) => {
-    const response = await editTask(user, id, title, date, time, desc);
-    await loadTasks();
-    return response;
-  }, [user, loadTasks]);
-
-
-  const deleteTask_ = useCallback(async (id) => {
-    await deleteTask(user, id);
-    await loadTasks();
-  }, [user, loadTasks]);
-
-  const completeTask_ = useCallback(async (id) => {
-    await completeTask(user, id);
-    await loadTasks();
-  }, [user, loadTasks]);
-
-  const getTaskById = useCallback((id) =>
-  {
-    if(!id || !tasks)
-    {
-        return null;
-    }
-    return tasks.find(task => task.id === id) || null;
-  }, [tasks]);
-
-
+  // Loading/Error UI
   if(!tasks || !completedTasks)
   {
-    if(error)
-    {
-      return (
-        <main>
-          <div>
-            <h3><br/>Error fetching tasks<br/>{error}</h3>
-          </div>
-        </main>
-      );
-    }
-
     return (
-      <main>
-        <div>
-          <h3><br/>Loading tasks...</h3>
-        </div>
-      </main>
+    <main>
+      <div>
+        <h3>
+          <br/>
+            {error ? `Error fetching tasks\n${error}` : "Loading tasks..."}
+        </h3>
+      </div>
+    </main>
     );
   }
 
@@ -188,9 +52,7 @@ export function TasksPage({user, logout}) {
         <div className="completed">
           <h3>Current streak</h3>
 
-          <div className="streak">
-            {currStreak}
-          </div>
+          <div className="streak">{currStreak}</div>
 
           <h3>Best: {bestStreak}</h3>
           
@@ -198,6 +60,7 @@ export function TasksPage({user, logout}) {
           <hr/>
           <br/>
 
+          {/* Completed tasks */}
           <TaskDisplay 
             header={"Complete"} 
             tasks={completedTasks}
@@ -206,7 +69,6 @@ export function TasksPage({user, logout}) {
             emptyText={["You have no completed tasks right now.", "What a bum..."]}
             emptySearchText={["No new matching completed tasks."]}           
           />
-
         </div>
 
         <div className="todo">
@@ -244,6 +106,7 @@ export function TasksPage({user, logout}) {
 
         <AddTaskPopup addTask={addTask}/>
 
+        {/* Late tasks */}
         <TaskDisplay 
           header={"Late"} 
           keywords={keywords} 
@@ -257,6 +120,7 @@ export function TasksPage({user, logout}) {
           completeTask={completeTask_}
         />
 
+        {/* New tasks */}
         <TaskDisplay 
           header={"To-do"} 
           emptyText={["You have no new tasks right now.", "Get started by creating some!"]}
@@ -269,7 +133,6 @@ export function TasksPage({user, logout}) {
           openDeletePopup={(index) => setTaskToDelete(getTaskById(index))} 
           completeTask={completeTask_}
         />
-
 
         <EditTaskPopup 
           task={taskToEdit} 

@@ -1,8 +1,8 @@
 import { DateToParams, FormatTime } from '../Utils';
 
-function HighlightMatches({string, keys, keywordPattern})
+function HighlightMatches({string, regexPattern})
 {
-  if(!keywordPattern || keys.length === 0)
+  if(!regexPattern)
   {
     return <>{string}</>;
   }  
@@ -11,7 +11,7 @@ function HighlightMatches({string, keys, keywordPattern})
   const parts = [];
   let lastIndex = 0;
 
-  string.replace(keywordPattern, (match, p1, offset) => {
+  string.replace(regexPattern, (match, p1, offset) => {
     // Push text before the match
     if (lastIndex < offset) {
       parts.push(string.slice(lastIndex, offset));
@@ -38,8 +38,7 @@ export function Task({
   openEditPopup, 
   openDeletePopup, 
   completeTask, 
-  keys, 
-  keywordPattern,
+  regexPattern,
   isComplete=false
 })
 {  
@@ -50,11 +49,7 @@ export function Task({
     <div className = "task">
 
       <div>
-        <HighlightMatches 
-          string={data.title} 
-          keys={keys} 
-          keywordPattern={keywordPattern}
-        />
+        <HighlightMatches string={data.title} regexPattern={regexPattern}/>
       </div>
 
       <div>{dateString}</div>
@@ -64,11 +59,7 @@ export function Task({
           <div>{time}</div>
 
           <div>
-            <HighlightMatches 
-              string={data.desc} 
-              keys={keys} 
-              keywordPattern={keywordPattern}
-            />
+            <HighlightMatches string={data.desc} regexPattern={regexPattern}/>
           </div>
 
           <div>
