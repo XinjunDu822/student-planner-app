@@ -183,7 +183,7 @@ export function DisplayTasks({header, emptyText, emptySearchText, tasks, openEdi
           <h3>
             {emptyText.map
             ((item, index) => 
-              <span>
+              <span key={index}>
                 <br/>{item}
               </span>
             )
@@ -204,7 +204,7 @@ export function DisplayTasks({header, emptyText, emptySearchText, tasks, openEdi
           <h3>
             {emptySearchText.map
             ((item, index) => 
-              <span>
+              <span key={index}>
                 <br/>{item}
               </span>
             )

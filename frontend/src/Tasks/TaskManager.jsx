@@ -25,9 +25,9 @@ export function TasksPage({user, logout}) {
   const [completedTasks, setCompletedTasks] = useState(null);
 
 
-  async function loadTasks(filter = "") {
+  const loadTasks = useCallback(async () => {
 
-    var response = await getAllTasks(user, filter);
+    var response = await getAllTasks(user);
     
     if(!response.tasks)
     {        
@@ -109,15 +109,15 @@ export function TasksPage({user, logout}) {
     }
 
     setBestStreak(bestStreak);
-  }
+  }, [user, logout]);
   
   useEffect(() => {
     loadTasks();
     const refreshInterval = setInterval(loadTasks, 60000);
     return () => clearInterval(refreshInterval);
-  }, [user]);
+  }, [user, loadTasks]);
 
-  const addTask = async (title, desc, date, time) =>
+  const addTask = useCallback(async (title, desc, date, time) =>
   {
     var response = await createTask(user, title, date, time, desc);
 
@@ -129,7 +129,7 @@ export function TasksPage({user, logout}) {
     }
 
     return true;
-  };
+  }, [user, loadTasks]);
 
   const selectTaskToEdit = useCallback((index) =>
   {
@@ -149,7 +149,8 @@ export function TasksPage({user, logout}) {
     setTaskToEdit(null);
   }, [])
 
-  const editTask_ = async function(id, title, desc, date, time)
+
+  const editTask_ = useCallback(async (id, title, desc, date, time) =>
   {
     var response = await editTask(user, id, title, date, time, desc);
     await loadTasks();
@@ -158,9 +159,8 @@ export function TasksPage({user, logout}) {
     {
         return response.message;
     }
-
     return true;
-  }
+  }, [user, loadTasks]);
 
   const selectTaskToDelete = useCallback((index) =>
   {
@@ -180,18 +180,18 @@ export function TasksPage({user, logout}) {
     setTaskToDelete(null);
   }, [])
 
-  const deleteTask_ = async function(id)
+  const deleteTask_ = useCallback(async (id) =>
   {
     await deleteTask(user, id);
     await loadTasks();
-  }
+  }, [user, loadTasks]);
 
-
-  const completeTask_ = async function(id)
+  const completeTask_ = useCallback(async (id) =>
   {
     await completeTask(user, id);
-    await loadTasks(keywords);
-  }
+    await loadTasks();
+  }, [user, loadTasks]);
+
 
   if(tasks == null || completedTasks == null)
   {
