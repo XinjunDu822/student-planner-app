@@ -102,9 +102,7 @@ From the backend folder:
 npm test
 ```
 
-## 📦 Backend Scripts
-
-### Available Scripts
+### 📦 Backend Scripts
 
 ```json
 "scripts": {
@@ -112,4 +110,11 @@ npm test
   "dev": "node --loader ts-node/esm src/server.ts",
   "test": "jest"
 }
+```
 
+### End to End Test Suite
+In the root folder:
+
+```sh
+npm run cypress
+```
