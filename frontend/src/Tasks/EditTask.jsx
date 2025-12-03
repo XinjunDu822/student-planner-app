@@ -37,11 +37,10 @@ export function EditTaskPopup({task, editTask, closeEditPopup})
     }
 
     var originalDate = task.date;
-
     var [d, t] = DateToParams(originalDate);
-
     var response;
-
+    
+    //Checks if new date/time are the same as original
     if(t == time && 
       originalDate.getFullYear() === date.getFullYear() &&
       originalDate.getMonth() === date.getMonth() &&

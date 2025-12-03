@@ -5,7 +5,7 @@ import "react-datepicker/dist/react-datepicker.css";
 
 
 const addLeadingZero = (number) => String(number).padStart(2, '0');
-
+//Separates date object into date portion and time portion and return both
 export function DateToParams(date)
 {
   var mm = addLeadingZero(date.getMonth() + 1);
@@ -33,7 +33,7 @@ export function FormatTime(time)
   return `${addLeadingZero(h)}:${m} ${p}`;
 }
 
-
+//Custom input component that accomodates time 
 export function InputField({
   placeholderText, 
   value, 
@@ -67,6 +67,7 @@ export function InputField({
   );
 };
 
+//Custom input component for picking dates
 export function DateInputField({
   placeholderText, 
   value, 

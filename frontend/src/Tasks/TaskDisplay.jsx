@@ -2,6 +2,7 @@ import { Task } from './Task';
 import { useState, useEffect } from 'react';
 import { useFilteredTasks } from './TaskFilter';
 
+//Display corresponding text when no tasks are due
 function DisplayEmptyText({text})
 {
   if(!text) 
