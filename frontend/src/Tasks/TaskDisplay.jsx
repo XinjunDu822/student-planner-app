@@ -26,7 +26,7 @@ function DisplayEmptyText({text})
   );
 }
 
-export function TaskDisplay({header, emptyText, emptySearchText, tasks, openEditPopup, openDeletePopup, completeTask, keywords, displayCompleted=false})
+export function TaskDisplay({header, emptyText, emptySearchText, tasks, openEditPopup, openDeletePopup, completeTask, keywords, filterStartDate, filterEndDate, displayCompleted=false})
 {
   const [keys, setKeys] = useState([]);
   const [keywordPattern, setKeywordPattern] = useState(null);
@@ -37,8 +37,10 @@ export function TaskDisplay({header, emptyText, emptySearchText, tasks, openEdit
     var keywords_ = escapeRegExp(keywords);
 
     var keys_ = keywords_.split(/[\s,]+/);
+    
 
     keys_ = keys_.filter(item => item);
+
 
     if(!!keywords_ && keys_.length > 0)
     {
@@ -53,7 +55,10 @@ export function TaskDisplay({header, emptyText, emptySearchText, tasks, openEdit
   }, [keywords])
 
   useEffect(() => {
-
+    var filterStartDateAndTime = new Date(filterStartDate);
+    var filterEndDateAndTime = new Date(filterEndDate);
+    filterStartDateAndTime.setHours(0, 0, 0, 0);
+    filterEndDateAndTime.setHours(24, 0, 0, 0);
     if(!keywordPattern || keys.length === 0)
     {
       setDisplayedTasks(tasks);
@@ -66,8 +71,10 @@ export function TaskDisplay({header, emptyText, emptySearchText, tasks, openEdit
 
       for(let i = 0; i < tasks.length; i++)
       {
-        let text = tasks[i].title + tasks[i].desc;
+        if (tasks[i].date < filterStartDateAndTime || tasks[i].date > filterEndDateAndTime)
+          continue;
 
+        let text = tasks[i].title + tasks[i].desc;
         for(let j = 0; j < numKeys; j++)
         {
           let regexPattern = new RegExp(keys[j], 'i');
@@ -85,7 +92,7 @@ export function TaskDisplay({header, emptyText, emptySearchText, tasks, openEdit
       setDisplayedTasks(displayedTasks_);
 
     }    
-  }, [keys, keywordPattern, tasks])
+  }, [keys, keywordPattern, tasks, filterStartDate, filterEndDate])
 
   if(tasks.length === 0)
   {
@@ -100,6 +107,7 @@ export function TaskDisplay({header, emptyText, emptySearchText, tasks, openEdit
   return (
       <>
         <h3>{header}</h3>
+        {/* <button className="button" onClick={console.log(filterStartDateAndTime)}><p>Mark Complete</p><p>✓</p></button> */}
         <div id="TasksList">
           {displayedTasks.slice().map
           ((item, index) => 

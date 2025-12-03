@@ -7,7 +7,7 @@ import { DeleteTaskPopup } from './DeleteTask';
 
 import { getAllTasks, createTask, editTask, deleteTask, completeTask, updateLastLate, updateBestStreak } from "./TaskService";
 import { getUser } from "../Login/AuthService";
-import { InputField} from '../Utils';
+import {InputField, DateInputField} from '../Utils';
 
 export function TasksPage({user, logout}) {
 
@@ -16,7 +16,8 @@ export function TasksPage({user, logout}) {
   const [currStreak, setCurrStreak] = useState(null);
   const [bestStreak, setBestStreak] = useState(null);
   const [keywords, setKeywords] = useState("");
-
+  const [filterStartDate, setFilterStartDate] = useState("");
+  const [filterEndDate, setFilterEndDate] = useState("");
   const [tasks, setTasks] = useState(null);
 
   const [taskToEdit, setTaskToEdit] = useState(null);
@@ -202,6 +203,8 @@ export function TasksPage({user, logout}) {
                             emptyText={["You have no completed tasks right now.", "What a bum..."]}
                             emptySearchText={["No new matching completed tasks."]}
                             keywords={keywords} 
+                            filterStartDate={filterStartDate} 
+                            filterEndDate={filterEndDate}
                             tasks={completedTasks} 
                             displayCompleted={true}/>
 
@@ -218,14 +221,20 @@ export function TasksPage({user, logout}) {
                     <div>
                         <InputField placeholderText = "Enter keyword(s)" value={keywords} setValue = {setKeywords}/>
                     </div>
+                  
                 
                 </div >
-
+                    <div >
+                        <DateInputField placeholderText = "Enter start date for range" value={filterStartDate} setValue = {setFilterStartDate}/> 
+                        <DateInputField placeholderText = "Enter end date for range" value={filterEndDate} setValue = {setFilterEndDate}/> 
+                    </div>
                 <AddTaskPopup addTask = {addTask}/>
 
 
                 <TaskDisplay header={"Late"} 
                             keywords={keywords} 
+                            filterStartDate={filterStartDate} 
+                            filterEndDate={filterEndDate}
                             emptyText={null}
                             emptySearchText={null}
                             tasks={tasks.slice(0, numLateTasks)} 
@@ -237,6 +246,8 @@ export function TasksPage({user, logout}) {
                             emptyText={["You have no new tasks right now.", "Get started by creating some!"]}
                             emptySearchText={["No new matching tasks."]}
                             keywords={keywords} 
+                            filterStartDate={filterStartDate} 
+                            filterEndDate={filterEndDate}
                             tasks={tasks.slice(numLateTasks)} 
                             openEditPopup={(index) => setTaskToEdit(getTask(index))} 
                             openDeletePopup={(index) => setTaskToDelete(getTask(index))} 
