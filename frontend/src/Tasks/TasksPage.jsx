@@ -211,9 +211,13 @@ export function TasksPage({user, logout}) {
                
                 <div className="dashboard-bar">
 
-                    <h2>My Dashboard</h2>
+                    <div>
+                        <h2>My Dashboard</h2>
+                    </div>
 
-                    <InputField placeholderText = "Enter keyword(s)" value={keywords} setValue = {setKeywords}/>
+                    <div>
+                        <InputField placeholderText = "Enter keyword(s)" value={keywords} setValue = {setKeywords}/>
+                    </div>
                 
                 </div >
 

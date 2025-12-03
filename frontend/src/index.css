@@ -391,6 +391,19 @@ input[type="time"]{
   }
 }
 
+@media screen and (max-width: 900px) {
+
+  .dashboard-bar {
+    display: block;
+  }
+
+  .dashboard-bar > :nth-child(2) {
+    position: static;
+    right: auto;
+  }
+}
+
+
 @media screen and (max-width: 760px) {
 
   .dashboard > div:nth-child(1) {
