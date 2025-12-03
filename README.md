@@ -19,7 +19,6 @@ Make sure you have the following installed:
 |----------|---------|
 | Node.js  | v20+ recommended |
 | npm      | v10+ recommended |
-| Git      | any |
 
 Check versions:
 
