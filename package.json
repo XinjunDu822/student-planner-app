@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "start": "concurrently \"npm start --prefix backend\" \"npm start --prefix frontend\"",
-    "cypress": "cypress open"
+    "cypress": "concurrently \"npm start\" \"cypress open\""
   },
   "author": "",
   "license": "MIT",
@@ -12,6 +12,7 @@
     "@prisma/client": "^6.19.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
+    "cypress": "^15.7.1",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "express-async-handler": "^1.2.0",
@@ -20,7 +21,6 @@
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",
-    "concurrently": "^9.2.1",
-    "cypress": "^15.7.0"
+    "concurrently": "^9.2.1"
   }
 }
