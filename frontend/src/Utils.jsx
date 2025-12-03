@@ -1,7 +1,6 @@
 import './App.css';
 // import Popup from 'reactjs-popup';
-import { useState } from 'react';
-import 'reactjs-popup/dist/index.css';
+import { useState, useEffect, useCallback } from 'react';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -63,7 +62,7 @@ export function InputField({placeholderText, value, setValue, inputType="text"})
   return <input className="task-popup-content" type={inputType} value={value} placeholder={placeholderText} onChange={handleInputChange}/>;
 };
 
-export function DateInputField({placeholderText, value, setValue, inputType="text"}) 
+export function DateInputField({placeholderText, value, setValue, emptyOnExit=false}) 
 {
   const [showPicker, setShowPicker] = useState(false);
   // const [selectedDate, setSelectedDate] = useState(null);
@@ -74,6 +73,24 @@ export function DateInputField({placeholderText, value, setValue, inputType="tex
     
   //   setSelectedDate();
   // }
+
+
+  const handleEscapeKey = useCallback((event) => {
+    if (event.key === 'Escape' && showPicker) {
+      setShowPicker(false);
+      if(emptyOnExit)
+      {
+        setValue("");
+      }
+    }
+  }, [showPicker]);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [handleEscapeKey]);
 
   const handleDateSelection = (date) => {
 
@@ -91,17 +108,18 @@ export function DateInputField({placeholderText, value, setValue, inputType="tex
 
     <div className="datepicker-holder">
 
-     <input className="task-popup-content" placeholder={placeholderText} value={value === "" ? "" : DateToParams(value)[0]} onClick={() => setShowPicker(true)} onChange = {(e) => setValue(e.target.value)} readOnly/>
+     <input className="task-popup-content" placeholder={placeholderText} value={value === "" ? "" : DateToParams(value)[0]} onClick={() => setShowPicker(true)} onChange={(e) => setValue(e.target.value)} readOnly/>
 
                 {showPicker && (
-                  <DatePicker selected = {value} 
-                  onChange = {handleDateSelection}
+                  <DatePicker selected={value} 
+                  onChange={handleDateSelection}
+                  onClickOutside={() => {if(emptyOnExit) setValue(""); setShowPicker(!showPicker)}}
                   // onKeyDown={exitPicker}
                   inline/>
                 )}
 
     </div>
-        );
+  );
 };
 
 export function HighlightMatches({string, keys, keywordPattern})

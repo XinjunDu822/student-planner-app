@@ -138,12 +138,48 @@ main {
   display: flex;
   justify-content: center;
   width: 100%;
+  position: relative;
 }
 
-.dashboard-bar > :nth-child(2) {
+.dashboard-bar input {
+  box-sizing: border-box;
+  width: 180px;
+}
+
+.dashboard-bar > :nth-child(n+2) {
   position: absolute;
   right: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
+
+.dashboard-bar > :nth-child(3) {
+  top: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.date-range{
+  widtH: fit-content;
+}
+
+.date-range .datepicker-holder{
+  display: inline-block;
+  width: auto;
+  position: static; 
+}
+
+.date-range input{
+  width: 90px;
+}
+
+.date-range .datepicker-holder .react-datepicker{
+  right: 0px;
+}
+
 
 .large-icon {
   max-width: 250px;
@@ -342,6 +378,7 @@ button > p:nth-child(2) {
   display:flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
 }
 
 .datepicker-holder input
@@ -351,10 +388,20 @@ button > p:nth-child(2) {
 
 .datepicker-holder .react-datepicker
 {
+  top: 100%;
+  position: absolute;
   /* width: 100%;
   max-width: 300px;
   padding:8px; */
 }
+
+.react-datepicker button
+{
+  margin: 0px;
+  border-radius: 4px;
+  box-shadow: none;
+}
+
 
 input[type="time"]{
   font-family: "Arial", sans-serif;
@@ -395,12 +442,26 @@ input[type="time"]{
 
   .dashboard-bar {
     display: block;
+    position: relative;
   }
 
-  .dashboard-bar > :nth-child(2) {
+  .dashboard-bar > :nth-child(n+2) {
     position: static;
     right: auto;
   }
+
+  .date-range{
+    position: relative; 
+  }
+
+
+  .date-range .datepicker-holder .react-datepicker{
+    /* right: -90%;  */
+    right: auto;
+    left: 50%;
+    transform: translate(-50%, 0);
+  }
+
 }
 
 

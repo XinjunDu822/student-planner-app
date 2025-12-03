@@ -7,7 +7,7 @@ import { DeleteTaskPopup } from './DeleteTask';
 
 import { getAllTasks, createTask, editTask, deleteTask, completeTask, updateLastLate, updateBestStreak } from "./TaskService";
 import { getUser } from "../Login/AuthService";
-import { InputField} from '../Utils';
+import {InputField, DateInputField} from '../Utils';
 
 export function TasksPage({user, logout}) {
 
@@ -16,7 +16,8 @@ export function TasksPage({user, logout}) {
   const [currStreak, setCurrStreak] = useState(null);
   const [bestStreak, setBestStreak] = useState(null);
   const [keywords, setKeywords] = useState("");
-
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [tasks, setTasks] = useState(null);
 
   const [taskToEdit, setTaskToEdit] = useState(null);
@@ -202,6 +203,8 @@ export function TasksPage({user, logout}) {
                             emptyText={["You have no completed tasks right now.", "What a bum..."]}
                             emptySearchText={["No new matching completed tasks."]}
                             keywords={keywords} 
+                            startDate={null} 
+                            endDate={null}
                             tasks={completedTasks} 
                             displayCompleted={true}/>
 
@@ -216,16 +219,30 @@ export function TasksPage({user, logout}) {
                     </div>
 
                     <div>
-                        <InputField placeholderText = "Enter keyword(s)" value={keywords} setValue = {setKeywords}/>
+                        <InputField placeholderText = "Enter keyword(s)" value={keywords} setValue={setKeywords}/>
+                    </div>
+
+                    <div>
+                        <div className="date-range">
+                            {/* <div> */}
+                                <DateInputField placeholderText = "Start date" value={startDate} setValue={setStartDate} emptyOnExit={true}/> 
+                            {/* </div> */}
+
+                            {/* <div> */}
+                                <DateInputField placeholderText = "End date" value={endDate} setValue={setEndDate} emptyOnExit={true}/>
+                            {/* </div> */}
+                        </div>
                     </div>
                 
                 </div >
 
-                <AddTaskPopup addTask = {addTask}/>
+                <AddTaskPopup addTask={addTask}/>
 
 
                 <TaskDisplay header={"Late"} 
                             keywords={keywords} 
+                            startDate={startDate} 
+                            endDate={endDate}
                             emptyText={null}
                             emptySearchText={null}
                             tasks={tasks.slice(0, numLateTasks)} 
@@ -237,6 +254,8 @@ export function TasksPage({user, logout}) {
                             emptyText={["You have no new tasks right now.", "Get started by creating some!"]}
                             emptySearchText={["No new matching tasks."]}
                             keywords={keywords} 
+                            startDate={startDate} 
+                            endDate={endDate}
                             tasks={tasks.slice(numLateTasks)} 
                             openEditPopup={(index) => setTaskToEdit(getTask(index))} 
                             openDeletePopup={(index) => setTaskToDelete(getTask(index))} 
