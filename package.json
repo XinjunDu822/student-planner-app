@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "start": "concurrently \"npm start --prefix backend\" \"npm start --prefix frontend\"",
-    "cypress": "concurrently \"npm start\" \"cypress open\""
+    "cypress": "concurrently \"npm start --prefix backend\" \"npm run startNoBrowser --prefix frontend\" \"cypress open\""
   },
   "author": "",
   "license": "MIT",
