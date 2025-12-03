@@ -117,7 +117,7 @@ export function TasksPage({user, logout}) {
     return () => clearInterval(refreshInterval);
   }, [user]);
 
-  const addTask = useCallback(async (title, desc, date, time) =>
+  const addTask = async (title, desc, date, time) =>
   {
     var response = await createTask(user, title, date, time, desc);
 
@@ -129,7 +129,7 @@ export function TasksPage({user, logout}) {
     }
 
     return true;
-  }, [loadTasks]);
+  };
 
   const selectTaskToEdit = useCallback((index) =>
   {
@@ -211,32 +211,23 @@ export function TasksPage({user, logout}) {
 
             <div className="completed">
 
-            <h3>Current streak</h3>
+                <h3>Current streak</h3>
 
-            <div className="streak">
-                {currStreak}
-            </div>
+                <div className="streak">
+                    {currStreak}
+                </div>
 
-            <h3>Best: {bestStreak}</h3><br/>
-            
-            <hr/><br/>
+                <h3>Best: {bestStreak}</h3><br/>
+                
+                <hr/><br/>
 
-            {
-                ((completedTasks.length) > 0) && (
-                    <>
-                        <h3>Complete</h3>
-                        <DisplayTasks keywords={keywords} tasks={completedTasks} selectTaskToDelete={selectTaskToDelete} displayCompleted={true}/>
-                    </>
-                )
-            }
-
-            {
-                ((completedTasks.length) === 0) && (
-                    <>
-                        <h3><br/>You have no completed tasks right now.<br/> What a bum...</h3>
-                    </>
-                )
-            }
+                <DisplayTasks header={"Complete"} 
+                            emptyText={["You have no completed tasks right now.", "What a bum..."]}
+                            emptySearchText={["No new matching completed tasks."]}
+                            keywords={keywords} 
+                            tasks={completedTasks} 
+                            selectTaskToDelete={selectTaskToDelete} 
+                            displayCompleted={true}/>
 
             </div>
 
@@ -252,34 +243,24 @@ export function TasksPage({user, logout}) {
 
                 <AddTaskPopup addTask = {addTask}/>
 
-                {
-                    (numLateTasks > 0) && (
-                        <>
-                            <h3>Late</h3>
-                            <DisplayTasks keywords={keywords} tasks={tasks.slice(0, numLateTasks)} openEditPopup={selectTaskToEdit} openDeletePopup={selectTaskToDelete} completeTask={completeTask_}/>
-                        </>
-                    )
-                }
 
-                {
-                    ((tasks.length - numLateTasks) > 0) && (
-                        <>
-                            <h3>To-do</h3>
-                            <DisplayTasks keywords={keywords} tasks={tasks.slice(numLateTasks)} openEditPopup={selectTaskToEdit} openDeletePopup={selectTaskToDelete} completeTask={completeTask_}/>
-                        </>
-                    )
-                }
+                <DisplayTasks header={"Late"} 
+                            keywords={keywords} 
+                            emptyText={null}
+                            emptySearchText={null}
+                            tasks={tasks.slice(0, numLateTasks)} 
+                            openEditPopup={selectTaskToEdit} 
+                            openDeletePopup={selectTaskToDelete} 
+                            completeTask={completeTask_}/>
 
-                {
-                    ((tasks.length - numLateTasks) === 0) && (
-                        <>
-                            <h3><br/>You have no new tasks right now.<br/> Get started by creating some!</h3>
-                        </>
-                    )
-
-                }
-
-
+                <DisplayTasks header={"To-do"} 
+                            emptyText={["You have no new tasks right now.", "Get started by creating some!"]}
+                            emptySearchText={["No new matching tasks."]}
+                            keywords={keywords} 
+                            tasks={tasks.slice(numLateTasks)} 
+                            openEditPopup={selectTaskToEdit} 
+                            openDeletePopup={selectTaskToDelete} 
+                            completeTask={completeTask_}/>
 
 
             <EditTaskPopup task={taskToEdit} editTask={editTask_} closeEditPopup={deselectTaskToEdit} />
