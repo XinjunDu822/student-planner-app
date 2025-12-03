@@ -213,13 +213,16 @@ export const deleteTask = async (
   next: NextFunction
 ) => {
   try {
+    //extract task and JWT Token
     const userId = req.user?.id;
     const { taskId } = req.params;
 
+    //no JWT Token
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    //no task entered
     if (!taskId) {
       return res.status(400).json({ message: "Task ID is required." });
     }
@@ -233,10 +236,12 @@ export const deleteTask = async (
       return res.status(404).json({ message: "Task not found." });
     }
 
+    //check task belongs to user
     if (existingTask.userID !== userId) {
       return res.status(403).json({ message: "Forbidden" });
     }
 
+    //delete task
     await prisma.task.delete({
       where: { id: taskId },
     });
