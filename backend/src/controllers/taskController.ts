@@ -3,11 +3,8 @@
 import { Request, Response, NextFunction } from "express";
 import prisma from "../prisma.ts";
 
-
-function TimeToDate(date: string, time: string)
-{
-  if(!time || time == undefined)
-  {
+function TimeToDate(date: string, time: string) {
+  if (!time || time == undefined) {
     return new Date(date);
   }
   const [h, m] = time.split(":", 2);
@@ -38,6 +35,7 @@ export const getAllTasks = async (
     //   }
     // :{};
 
+    //get all of user's nonComplete Tasks
     const allTasks = await prisma.task.findMany({
       where: {
         userID: userId,
@@ -48,6 +46,7 @@ export const getAllTasks = async (
       },
     });
 
+    //get all of user's Complete Tasks
     const allCompletedTasks = await prisma.task.findMany({
       where: {
         userID: userId,
@@ -65,8 +64,6 @@ export const getAllTasks = async (
     //         task.desc.toLowerCase().includes(String(keyword).toLowerCase())
     //     )
     //   : allTasks;
-
-
 
     // const completedTasks = keyword
     //   ? allCompletedTasks.filter(
@@ -90,13 +87,16 @@ export const createTask = async (
   next: NextFunction
 ) => {
   try {
+    //extract info in request
     const userId = req.user?.id;
     const { title, date, time, desc } = req.body;
 
+    //no JWT Token
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    //Check for no missing inputs
     if (!title) {
       return res.status(400).json({ message: "Please enter a task name." });
     }
@@ -109,17 +109,22 @@ export const createTask = async (
       return res.status(400).json({ message: "Please enter a task time." });
     }
 
+    //parse Date
     var date_ = TimeToDate(date, time);
 
+    //valid date
     if (!date_) {
       return res.status(400).json({ message: "Please enter a valid date." });
     }
 
-    if(date_ < new Date())
-    {
-      return res.status(400).json({ message: "Date and time have already passed." });
+    //date is not already passed
+    if (date_ < new Date()) {
+      return res
+        .status(400)
+        .json({ message: "Date and time have already passed." });
     }
 
+    //create the task in the database
     const task = await prisma.task.create({
       data: {
         userID: userId,
@@ -141,14 +146,16 @@ export const updateTask = async (
   next: NextFunction
 ) => {
   try {
+    //extract reuqest data
     const userId = req.user?.id;
     const { taskId } = req.params;
     const { title, date, time, desc, isComplete } = req.body;
 
+    //no JWT Token
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-
+    //no params
     if (!taskId) {
       return res.status(400).json({ message: "Task ID is required." });
     }
@@ -158,23 +165,26 @@ export const updateTask = async (
       where: { id: taskId },
     });
 
+    //task doesnt exist in DB
     if (!existingTask) {
       return res.status(404).json({ message: "Task not found." });
     }
 
+    //task in db doesn't belong to user
     if (existingTask.userID !== userId) {
       return res.status(403).json({ message: "Forbidden" });
     }
 
     var date_;
 
-    if(date != undefined)
-    {
+    //update date after parsing and valid future date
+    if (date != undefined) {
       date_ = TimeToDate(date, time);
 
-      if(time != undefined && date_ < new Date())
-      {
-        return res.status(400).json({ message: "Date and time have already passed." });  
+      if (time != undefined && date_ < new Date()) {
+        return res
+          .status(400)
+          .json({ message: "Date and time have already passed." });
       }
     }
 
@@ -186,6 +196,7 @@ export const updateTask = async (
     if (isComplete != undefined) updateData.isComplete = isComplete;
 
     const updatedTask = await prisma.task.update({
+      //update object
       where: { id: taskId },
       data: updateData,
     });
@@ -262,11 +273,9 @@ export const updateLastLate = async (
 
     var date_;
 
-    try
-    {
+    try {
       date_ = new Date(date);
-    }
-    catch (err) {
+    } catch (err) {
       return res.status(400).json({ message: "Invalid date" });
     }
 
@@ -275,7 +284,6 @@ export const updateLastLate = async (
       data: { lastLate: date_ },
     });
     return res.status(200).json({ date: date_ });
-
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }
@@ -305,7 +313,6 @@ export const updateBestStreak = async (
       data: { bestStreak: streak },
     });
     return res.status(200).json({ streak: streak });
-  
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }
