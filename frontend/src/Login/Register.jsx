@@ -30,7 +30,7 @@ export function RegisterPopup({login})
   return (
     <div >
       <Popup className="task-popup"
-        trigger= {<button className="button">Register</button>} 
+        trigger= {<button className="button">Create Account</button>} 
         onClose={reset}
         modal
       >
