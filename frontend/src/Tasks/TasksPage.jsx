@@ -87,6 +87,7 @@ export function TasksPage({user, logout}) {
 
             <div>
               <div className="date-range">
+                {/* Date filter input fields */}
                 <DateInputField 
                   placeholderText = "Start date" 
                   value={startDate} 
@@ -101,6 +102,12 @@ export function TasksPage({user, logout}) {
                   emptyOnExit
                 />
               </div>
+              {/* Button that resets all filters */}
+              <button 
+                className = "button"
+                onClick={() => {setKeywords(""); setStartDate(""); setEndDate("");}}>
+                Reset Filters
+              </button>
             </div>
         </div >
 

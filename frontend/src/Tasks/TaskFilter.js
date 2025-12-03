@@ -57,7 +57,7 @@ export function useFilteredTasks(tasks, keywords, startDate = null, endDate = nu
       );
     }
 
-    // Date filter
+    // Check if start and end filter for date exists
     const start = startDate ? new Date(startDate) : null;
     const end = endDate ? new Date(endDate) : null;
 
@@ -73,6 +73,7 @@ export function useFilteredTasks(tasks, keywords, startDate = null, endDate = nu
 
     filtered = filtered.filter(task => {
       const date = task.date;
+      //Return tasks that are within the filter date range 
       return (
         (!start || date >= start) &&
         (!end || date < end)
