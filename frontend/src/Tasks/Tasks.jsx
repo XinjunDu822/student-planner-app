@@ -17,23 +17,29 @@ function StringDisplay({string, keys, keywordPattern})
     );
   }  
 
-  // a, b, c => (a|(b|(c)))
+   // Replace matches with a React element array
+  const parts = [];
+  let lastIndex = 0;
 
-  var parts = string.split(keywordPattern);
+  string.replace(keywordPattern, (match, p1, offset) => {
+    // Push text before the match
+    if (lastIndex < offset) {
+      parts.push(string.slice(lastIndex, offset));
+    }
 
-  return (
-    <span>
-      {parts.map((part, index) =>
-        keywordPattern.test(part) ? (
-          <mark key={index} className="highlight">
-            {part}
-          </mark>
-        ) : (
-          <span key={index}>{part}</span>
-        )
-      )}
-    </span>
-  );
+    // Push the highlighted match
+    parts.push(<mark key={offset} className="highlight">{match}</mark>);
+
+    lastIndex = offset + match.length;
+    return match;
+  });
+
+  // Push remaining text after last match
+  if (lastIndex < string.length) {
+    parts.push(string.slice(lastIndex));
+  }
+
+  return <span>{parts}</span>;
 
 }
 
@@ -110,24 +116,7 @@ export function DisplayTasks({header, emptyText, emptySearchText, tasks, openEdi
 
     if(!!keywords_ && keys_.length > 0)
     {
-      var regexString = "(";
-      var regexStringEnd = ")";
-
-      for(let i = 0; i < keys_.length; i++)
-      {
-        if(i == keys_.length - 1)
-        {
-          regexString += keys_[i];
-        }
-        else
-        {
-          regexString += keys_[i] + "|(";
-          regexStringEnd += ")";
-        }
-
-      }
-
-      setKeywordPattern(new RegExp(`(?:${regexString + regexStringEnd})`, 'gi'));
+      setKeywordPattern(new RegExp(`(${keys_.join("|")})`, "gi"));
     }
     else
     {
@@ -155,7 +144,7 @@ export function DisplayTasks({header, emptyText, emptySearchText, tasks, openEdi
 
         for(let j = 0; j < numKeys; j++)
         {
-          let regexPattern = new RegExp(keys[j]);
+          let regexPattern = new RegExp(keys[j], 'i');
           if(!regexPattern.test(text))
           {
             break;
