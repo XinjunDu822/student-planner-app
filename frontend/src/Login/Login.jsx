@@ -1,5 +1,5 @@
 import Popup from 'reactjs-popup';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { InputField } from '../Utils';
 import { signIn } from "./AuthService";
 
@@ -7,72 +7,72 @@ export function LoginPopup({login})
 {
   const [user, setUser] = useState("");
   const [pwd, setPwd] = useState("");
-
   const [error, setError] = useState("");
 
-  const reset = () =>
-  {
+  const reset = useCallback(() => {
     setError("");
     setUser("");
     setPwd("");
-  }
+  }, []);
 
-  const loginWrapper = async (username, password) =>
-  {   
-    var response = await signIn(username, password);
+  const loginWrapper = useCallback(async () => {
+    const response = await signIn(user, pwd);
 
     if(!response.token)
     {
-        setError(response.message);
-        return;
+      setError(response.message);
+      return;
     }
 
     login(response.token);
-  }
+  }, [user, pwd, login]);
 
 
   return (
     <div >
-      {/* pop up window */}
       <Popup className="task-popup"
-          trigger= {<button className="button"> Login </button>} onClose={reset}
-          modal>
-          {
-              close => (
-                  <div className='modal'  style={{textAlign: 'center', margin: '20px'}}>
-                      <div className='content'>
-                          <h3>Welcome Back</h3>
-                      </div>
+        trigger= {<button className="button"> Login </button>} 
+        onClose={reset}
+        modal
+      >
+        {close => (
+          <div className='modal'>
+            <div className='content'>
+              <h3>Welcome Back</h3>
+            </div>
 
-                      <div className="task-popup-content">
-                          <InputField placeholderText = "Username" value={user} setValue = {setUser}/>
-                      </div >
+            <div className="task-popup-content">
+              <InputField 
+                placeholderText = "Username" 
+                value={user} 
+                setValue = {setUser}
+              />
+            </div >
 
-                      <div className="task-popup-content">
-                          <InputField placeholderText = "Password" value={pwd} setValue = {setPwd} inputType="password"/>
-                      </div >
+            <div className="task-popup-content">
+              <InputField 
+                placeholderText = "Password" 
+                value={pwd} 
+                setValue = {setPwd} 
+                inputType="password"
+              />
+            </div >
 
-                      <div className='error-text'>
-                          {error} 
-                      </div>
+            <div className='error-text'>
+              {error} 
+            </div>
 
-                      <div className="button-holder">
-                        <div>
-                            <button className="button" onClick=
-                                {() => loginWrapper(user, pwd)}>
-                                    Sign In
-                            </button>
-                        </div>
-                        <div>
-                            <button className="button" onClick=
-                                {close}>
-                                    Back
-                            </button>
-                        </div>
-                      </div>
-                  </div>
-              )
-          }
+            <div className="button-holder">
+              <button className="button" onClick={loginWrapper}>
+                  Sign In
+              </button>
+              
+              <button className="button" onClick={close}>
+                Back
+              </button>
+            </div>
+          </div>
+        )}
       </Popup>
     </div>
   );

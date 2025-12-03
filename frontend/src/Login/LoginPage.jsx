@@ -1,5 +1,4 @@
 import logo from '../new_logo_transparent.png';
-import { useState } from 'react';
 import { LoginPopup } from './Login';
 import { RegisterPopup } from './Register';
 
@@ -7,15 +6,13 @@ import { RegisterPopup } from './Register';
 export function LoginPage({login})
 {
     return (
-            <main>
+        <main>
+            <img className="large-icon" src={logo} alt="Logo"/>
 
-                <img className="large-icon" src={logo} alt="Logo"/>
-
-                <div className="wide-button-holder">
-                    <LoginPopup login={login}/>
-                    <RegisterPopup login={login}/>
-                </div>
-
-            </main>
+            <div className="wide-button-holder">
+                <LoginPopup login={login}/>
+                <RegisterPopup login={login}/>
+            </div>
+        </main>
     );
 };

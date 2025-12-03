@@ -1,83 +1,87 @@
 import Popup from 'reactjs-popup';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { InputField } from '../Utils';
 import { signUp } from "./AuthService";
 
-export function RegisterPopup({login, addUser})
+export function RegisterPopup({login})
 {
   const [user, setUser] = useState("");
   const [pwd, setPwd] = useState("");
-
   const [error, setError] = useState("");
 
-  const reset = () =>
-  {
+  const reset = useCallback(() => {
     setError("");
     setUser("");
     setPwd("");
-  }
+  }, []);
 
-  const register = async (username, password) =>
-  {
-    var response = await signUp(username, password);
+  const register = useCallback(async () => {
+    const response = await signUp(user, pwd);
 
     if(!response.token)
     {
-        setError(response.message);
-        return;
+      setError(response.message);
+      return;
     }
 
     login(response.token);
-  }
-
+  }, [user, pwd, login]);
 
   return (
     <div >
-      {/* pop up window */}
       <Popup className="task-popup"
-          trigger= {<button className="button"> Create Account </button>} onClose={reset}
-          modal>
-          {
-              close => (
-                  <div className='modal' style={{margin: '20px'}}>
-                      <div className='content'>
-                          <h3 style={{textAlign: 'center'}}>Setup your account</h3><br/>
+        trigger= {<button className="button">Register</button>} 
+        onClose={reset}
+        modal
+      >
+        {close => (
+          <div className='modal'>
+            <div className='content'>
+              <h3>Setup your account</h3>
+              <br/>
+              <p>Username must have at least three letters.</p>
+              <p>
+                Password must have at least six characters and include:
+                <br />• One uppercase letter
+                <br />• One lowercase letter
+                <br />• One number
+                <br />• One special character
+              </p>
+              <br/> 
+            </div>
 
-                          Username must have at least three letters.<br/>
+            <div className="task-popup-content">
+              <InputField 
+                placeholderText = "Username" 
+                value={user} 
+                setValue={setUser}
+              />
+            </div >
 
-                          Password must have at least six characters, including at least one uppercase letter, one lowercase letter, one number, and one special character.<br/><br/> 
-                      </div>
+            <div className="task-popup-content">
+              <InputField 
+                placeholderText = "Password" 
+                value={pwd} 
+                setValue={setPwd} 
+                inputType="password"
+              />
+            </div >
 
-                      <div className="task-popup-content">
-                          <InputField placeholderText = "Username" value={user} setValue = {setUser}/>
-                      </div >
+            <div className='error-text'>
+              {error} 
+            </div>
 
-                      <div className="task-popup-content">
-                          <InputField placeholderText = "Password" value={pwd} setValue = {setPwd} inputType="password"/>
-                      </div >
-
-                      <div className='error-text'>
-                          {error} 
-                      </div>
-
-
-                      <div className="button-holder">
-                        <div>
-                            <button className="button" onClick=
-                                {() => register(user, pwd)}>
-                                    Register
-                            </button>
-                        </div>
-                        <div>
-                            <button className="button" onClick=
-                                {close}>
-                                    Back
-                            </button>
-                        </div>
-                      </div>
-                  </div>
-              )
-          }
+            <div className="button-holder">
+              <button className="button" onClick={() => register(user, pwd)}>
+                  Register
+              </button>
+              
+              <button className="button" onClick={close}>
+                Back
+              </button>
+            </div>
+          </div>
+        )}
       </Popup>
     </div>
   );

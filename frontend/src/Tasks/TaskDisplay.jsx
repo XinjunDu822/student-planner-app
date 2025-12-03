@@ -12,101 +12,97 @@ function DisplayEmptyText({text})
     return null;
   }
   return (
-    <>
-        <h3>
-          {text.map
-          ((item, index) => 
-            <span key={index}>
-              <br/>{item}
-            </span>
-          )
-          }
-        </h3>
-    </>
+    <h3>
+      {text.map((item, index) => (
+        <span key={index}>
+          <br/>{item}
+        </span>
+      ))}
+    </h3>
   );
 }
 
-export function TaskDisplay({header, emptyText, emptySearchText, tasks, openEditPopup, openDeletePopup, completeTask, keywords, startDate, endDate, displayCompleted=false})
+export function TaskDisplay({
+  header, 
+  emptyText, 
+  emptySearchText, 
+  tasks, 
+  openEditPopup, 
+  openDeletePopup, 
+  completeTask, 
+  keywords, 
+  startDate=null, 
+  endDate=null, 
+  displayCompleted=false
+})
 {
-  const [keys, setKeys] = useState([]);
   const [keywordPattern, setKeywordPattern] = useState(null);
+  const [keys, setKeys] = useState([]);
   const [displayedTasks, setDisplayedTasks] = useState([]);
   
+  // Build keyword pattern
   useEffect(() => {
 
-    var keywords_ = escapeRegExp(keywords);
+    const escapedKeywords = escapeRegExp(keywords);
 
-    var keys_ = keywords_.split(/[\s,]+/);
-    
+    const keys_ = escapedKeywords.split(/[\s,]+/).filter(Boolean);
 
-    keys_ = keys_.filter(item => item);
+    setKeys(keys_);
 
-
-    if(!!keywords_ && keys_.length > 0)
+    if(keys_.length > 0)
     {
       setKeywordPattern(new RegExp(`(${keys_.join("|")})`, "gi"));
     }
     else
     {
       setKeywordPattern(null);
-    }
-    setKeys(keys_)
-
+    } 
   }, [keywords])
 
+  // Filter tasks
   useEffect(() => {
+    
+    if (!tasks) {
+      setDisplayedTasks([]);
+      return;
+    }
 
-    var displayedTasks_ = tasks;
+    // Keyword filter
+    let filtered = tasks;
   
-    if(!!keywordPattern && keys.length > 0)
+    if(keys.length > 0)
     {
-      var numKeys = keys.length;
-
-      var displayedTasks_ = [];
-
-      for(let i = 0; i < tasks.length; i++)
-      {
-        let text = tasks[i].title + tasks[i].desc;
-        for(let j = 0; j < numKeys; j++)
-        {
-          let regexPattern = new RegExp(keys[j], 'i');
-          if(!regexPattern.test(text))
-          {
-            break;
-          }
-          if(j === numKeys - 1)
-          {
-            displayedTasks_.push(tasks[i]);
-          }
-        }
-      }
+      filtered = filtered.filter(task =>
+        keys.every(key =>
+          new RegExp(key, "i").test(task.title + task.desc)
+        )
+      );
     }
 
-    var displayedTasks_final = [];
+    // Date filter
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
 
-    var startDate_ = !!startDate ? new Date(startDate) : null;
-    var endDate_ = !!endDate ? new Date(endDate) : null;
-
-    if(!!startDate_)
+    if(start)
     {
-      startDate_.setHours(0, 0, 0, 0);
+      start.setHours(0, 0, 0, 0);
     }
 
-    if(!!endDate_)
+    if(end)
     {
-      endDate_.setHours(0, 0, 0, 0);
-      endDate_.setDate(endDate_.getDate() + 1);
+      end.setHours(24, 0, 0, 0);
     }
 
-    for(let i = 0; i < displayedTasks_.length; i++)
-    {
-      if ((!startDate_ || startDate_ <= displayedTasks_[i].date) && (!endDate_ || displayedTasks_[i].date <= endDate_))
-        displayedTasks_final.push(displayedTasks_[i]);
-    }
+    filtered = filtered.filter(task => {
+      const date = task.date;
+      return (
+        (!start || date >= start) &&
+        (!end || date < end)
+      );
+    });
 
-    setDisplayedTasks(displayedTasks_final);
-
-  }, [keys, keywordPattern, tasks, startDate, endDate])
+    setDisplayedTasks(filtered);
+  }, [keys, tasks, startDate, endDate])
 
   if(tasks.length === 0)
   {
@@ -119,26 +115,23 @@ export function TaskDisplay({header, emptyText, emptySearchText, tasks, openEdit
   }
 
   return (
-      <>
-        <h3>{header}</h3>
-        {/* <button className="button" onClick={console.log(startDate_)}><p>Mark Complete</p><p>✓</p></button> */}
-        <div id="TasksList">
-          {displayedTasks.slice().map
-          ((item, index) => 
-                <Task index={item.id} 
-                      key={index}
-                      data={item} 
-                      openEditPopup={openEditPopup}
-                      openDeletePopup={openDeletePopup}
-                      completeTask={() => completeTask(item.id)}
-                      keys={keys}
-                      keywordPattern={keywordPattern}
-                      isComplete={displayCompleted}
-                      />
-          )
-          }
-        </div>
-      </>
-  
+    <>
+      <h3>{header}</h3>
+      <div id="TasksList">
+        {displayedTasks.slice().map(task => 
+          <Task
+            index={task.id}
+            key={task.id}
+            data={task} 
+            openEditPopup={openEditPopup}
+            openDeletePopup={openDeletePopup}
+            completeTask={completeTask}
+            keys={keys}
+            keywordPattern={keywordPattern}
+            isComplete={displayCompleted}
+          />
+        )}
+      </div>
+    </>
   );
 } 
