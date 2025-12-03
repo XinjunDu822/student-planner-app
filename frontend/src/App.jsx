@@ -2,8 +2,8 @@ import './App.css';
 import './index.css';
 import { useState } from 'react';
 import 'reactjs-popup/dist/index.css';
-import { LoginPage } from './Login/LoginManager';
-import { TasksPage } from './Tasks/TaskManager';
+import { LoginPage } from './Login/LoginPage';
+import { TasksPage } from './Tasks/TasksPage';
 import { Header } from './Header';
 import { logout } from "./Login/AuthService";
 

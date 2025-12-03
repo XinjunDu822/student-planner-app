@@ -1,9 +1,10 @@
 import Popup from 'reactjs-popup';
 import { useState } from 'react';
+import 'reactjs-popup/dist/index.css';
 import { InputField } from '../Utils';
-import { signIn } from "./AuthService";
+import { signUp } from "./AuthService";
 
-export function LoginPopup({login})
+export function RegisterPopup({login, addUser})
 {
   const [user, setUser] = useState("");
   const [pwd, setPwd] = useState("");
@@ -17,9 +18,9 @@ export function LoginPopup({login})
     setPwd("");
   }
 
-  const loginWrapper = async (username, password) =>
-  {   
-    var response = await signIn(username, password);
+  const register = async (username, password) =>
+  {
+    var response = await signUp(username, password);
 
     if(!response.token)
     {
@@ -35,13 +36,17 @@ export function LoginPopup({login})
     <div >
       {/* pop up window */}
       <Popup className="task-popup"
-          trigger= {<button className="button"> Login </button>} onClose={reset}
+          trigger= {<button className="button"> Create Account </button>} onClose={reset}
           modal>
           {
               close => (
-                  <div className='modal'  style={{textAlign: 'center', margin: '20px'}}>
+                  <div className='modal' style={{margin: '20px'}}>
                       <div className='content'>
-                          <h3>Welcome Back</h3>
+                          <h3 style={{textAlign: 'center'}}>Setup your account</h3><br/>
+
+                          Username must have at least three letters.<br/>
+
+                          Password must have at least six characters, including at least one uppercase letter, one lowercase letter, one number, and one special character.<br/><br/> 
                       </div>
 
                       <div className="task-popup-content">
@@ -56,11 +61,12 @@ export function LoginPopup({login})
                           {error} 
                       </div>
 
+
                       <div className="button-holder">
                         <div>
                             <button className="button" onClick=
-                                {() => loginWrapper(user, pwd)}>
-                                    Sign In
+                                {() => register(user, pwd)}>
+                                    Register
                             </button>
                         </div>
                         <div>

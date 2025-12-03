@@ -1,14 +1,11 @@
 import logo from '../new_logo_transparent.png';
 import { useState } from 'react';
-import 'reactjs-popup/dist/index.css';
-import { LoginPopup, RegisterPopup } from './Login';
-import { DummyUsers } from '../DummyData';
+import { LoginPopup } from './Login';
+import { RegisterPopup } from './Register';
 
 
 export function LoginPage({login})
 {
-    const [users, setUsers] = useState(DummyUsers);
-
     return (
             <main>
 

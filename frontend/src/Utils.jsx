@@ -104,6 +104,39 @@ export function DateInputField({placeholderText, value, setValue, inputType="tex
         );
 };
 
-export function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+export function HighlightMatches({string, keys, keywordPattern})
+{
+  if(!keywordPattern || keys.length === 0)
+  {
+    return (
+      <>
+        {string}
+      </>
+    );
+  }  
+
+   // Replace matches with a React element array
+  const parts = [];
+  let lastIndex = 0;
+
+  string.replace(keywordPattern, (match, p1, offset) => {
+    // Push text before the match
+    if (lastIndex < offset) {
+      parts.push(string.slice(lastIndex, offset));
+    }
+
+    // Push the highlighted match
+    parts.push(<mark key={offset} className="highlight">{match}</mark>);
+
+    lastIndex = offset + match.length;
+    return match;
+  });
+
+  // Push remaining text after last match
+  if (lastIndex < string.length) {
+    parts.push(string.slice(lastIndex));
+  }
+
+  return <span>{parts}</span>;
+
 }

@@ -1,7 +1,10 @@
-import { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
-import 'reactjs-popup/dist/index.css';
-// import { TaskDatabase, CompletedTaskDatabase } from '../DummyData';
-import { AddTaskPopup, DisplayTasks, EditTaskPopup, DeleteTaskPopup } from './Tasks';
+import { useState, useEffect, useCallback } from 'react';
+
+import { TaskDisplay } from './TaskDisplay';
+import { AddTaskPopup } from './AddTask';
+import { EditTaskPopup } from './EditTask';
+import { DeleteTaskPopup } from './DeleteTask';
+
 import { getAllTasks, createTask, editTask, deleteTask, completeTask, updateLastLate, updateBestStreak } from "./TaskService";
 import { getUser } from "../Login/AuthService";
 import { InputField} from '../Utils';
@@ -123,31 +126,25 @@ export function TasksPage({user, logout}) {
 
     await loadTasks();
 
-    if(response.message)
-    {
-        return response.message;
-    }
+    return response;
 
-    return true;
   }, [user, loadTasks]);
 
-  const selectTaskToEdit = useCallback((index) =>
+  const getTask = useCallback((index) =>
   {
-    for(let i = 0; i < tasks.length; i++)
+    if(!!index)
     {
-        if(tasks[i].id == index)
+        for(let i = 0; i < tasks.length; i++)
         {
-            setTaskToEdit(tasks[i]);
-            return;
+            if(tasks[i].id == index)
+            {
+                return tasks[i];
+            }
         }
     }
-    setTaskToEdit(null);
+    return null;
 
   }, [tasks]);
-
-  const deselectTaskToEdit = useCallback(() => {
-    setTaskToEdit(null);
-  }, [])
 
 
   const editTask_ = useCallback(async (id, title, desc, date, time) =>
@@ -155,30 +152,10 @@ export function TasksPage({user, logout}) {
     var response = await editTask(user, id, title, date, time, desc);
     await loadTasks();
 
-    if(response.message)
-    {
-        return response.message;
-    }
-    return true;
+    return response;
+
   }, [user, loadTasks]);
 
-  const selectTaskToDelete = useCallback((index) =>
-  {
-    for(let i = 0; i < tasks.length; i++)
-    {
-        if(tasks[i].id == index)
-        {
-            setTaskToDelete(tasks[i]);
-            return;
-        }
-    }
-    setTaskToDelete(null);
-
-  }, [tasks]);
-
-  const deselectTaskToDelete = useCallback(() => {
-    setTaskToDelete(null);
-  }, [])
 
   const deleteTask_ = useCallback(async (id) =>
   {
@@ -221,12 +198,11 @@ export function TasksPage({user, logout}) {
                 
                 <hr/><br/>
 
-                <DisplayTasks header={"Complete"} 
+                <TaskDisplay header={"Complete"} 
                             emptyText={["You have no completed tasks right now.", "What a bum..."]}
                             emptySearchText={["No new matching completed tasks."]}
                             keywords={keywords} 
                             tasks={completedTasks} 
-                            selectTaskToDelete={selectTaskToDelete} 
                             displayCompleted={true}/>
 
             </div>
@@ -244,28 +220,28 @@ export function TasksPage({user, logout}) {
                 <AddTaskPopup addTask = {addTask}/>
 
 
-                <DisplayTasks header={"Late"} 
+                <TaskDisplay header={"Late"} 
                             keywords={keywords} 
                             emptyText={null}
                             emptySearchText={null}
                             tasks={tasks.slice(0, numLateTasks)} 
-                            openEditPopup={selectTaskToEdit} 
-                            openDeletePopup={selectTaskToDelete} 
+                            openEditPopup={(index) => setTaskToEdit(getTask(index))} 
+                            openDeletePopup={(index) => setTaskToDelete(getTask(index))} 
                             completeTask={completeTask_}/>
 
-                <DisplayTasks header={"To-do"} 
+                <TaskDisplay header={"To-do"} 
                             emptyText={["You have no new tasks right now.", "Get started by creating some!"]}
                             emptySearchText={["No new matching tasks."]}
                             keywords={keywords} 
                             tasks={tasks.slice(numLateTasks)} 
-                            openEditPopup={selectTaskToEdit} 
-                            openDeletePopup={selectTaskToDelete} 
+                            openEditPopup={(index) => setTaskToEdit(getTask(index))} 
+                            openDeletePopup={(index) => setTaskToDelete(getTask(index))} 
                             completeTask={completeTask_}/>
 
 
-            <EditTaskPopup task={taskToEdit} editTask={editTask_} closeEditPopup={deselectTaskToEdit} />
+            <EditTaskPopup task={taskToEdit} editTask={editTask_} closeEditPopup={() => setTaskToEdit(null)} />
   
-            <DeleteTaskPopup task={taskToDelete} deleteTask={deleteTask_} closeDeletePopup={deselectTaskToDelete} />
+            <DeleteTaskPopup task={taskToDelete} deleteTask={deleteTask_} closeDeletePopup={() => setTaskToDelete(null)} />
 
 
             </div>

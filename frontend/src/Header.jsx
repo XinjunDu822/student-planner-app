@@ -1,6 +1,5 @@
 import logo from './new_logo_transparent.png';
 import './App.css';
-import 'reactjs-popup/dist/index.css';
 import { useState, useEffect } from 'react';
 import { getUser } from "./Login/AuthService";
 
