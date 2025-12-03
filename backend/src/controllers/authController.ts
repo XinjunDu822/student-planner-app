@@ -81,29 +81,34 @@ export const signIn = async (
   next: NextFunction
 ) => {
   try {
-    const { name, password } = req.body;
+    const { name, password } = req.body; //extra name and pwd into vars name,password
 
     if (!name || !password) {
+      //name and pwd left blank or not given
       return res
         .status(400)
         .json({ message: "Username and password are required." });
     }
 
     const user = await prisma.user.findUnique({
+      //search db if user exists
       where: { name },
     });
 
     if (!user) {
+      //user not found
       return res.status(400).json({ message: "Invalid username or password." });
     }
 
+    //password matches check
     const isValid = await comparePassword(password, user.password);
 
     if (!isValid) {
+      //password doesn't match
       return res.status(400).json({ message: "Invalid username or password." });
     }
 
-    const token = createToken({ id: user.id, name: user.name });
+    const token = createToken({ id: user.id, name: user.name }); //JWT Token Creation
     return res.status(200).json({ token });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
