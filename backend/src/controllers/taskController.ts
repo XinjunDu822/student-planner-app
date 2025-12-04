@@ -36,13 +36,13 @@ function ParseKeywords(keywords: unknown)
         {
           title: {
             contains: key,
-            mode: 'insensitive',
+            // mode: 'insensitive',
           },
         },
         {
           desc: {
             contains: key,
-            mode: 'insensitive',
+            // mode: 'insensitive',
           },
         }
       ]
