@@ -5,6 +5,7 @@ import "react-datepicker/dist/react-datepicker.css";
 
 
 const addLeadingZero = (number) => String(number).padStart(2, '0');
+
 //Separates date object into date portion and time portion and return both
 export function DateToParams(date)
 {
@@ -16,6 +17,19 @@ export function DateToParams(date)
   var m = addLeadingZero(date.getMinutes());
 
   return [`${mm}/${dd}/${yy}`, `${h}:${m}`];
+}
+
+//Returns whether or not a date and time are equal to a Date object
+export function CompareDates(date, time, originalDate)
+{
+  var [d, t] = DateToParams(originalDate);
+  
+  //Checks if new date/time are the same as original
+  return t == time && 
+    originalDate.getFullYear() === date.getFullYear() &&
+    originalDate.getMonth() === date.getMonth() &&
+    originalDate.getDate() === date.getDate();
+  
 }
 
 //Parses date military time into AM/PM format

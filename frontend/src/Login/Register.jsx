@@ -35,7 +35,7 @@ export function RegisterPopup({saveToken})
               <br/> 
             </div>
 
-            <div className="task-popup-content">
+            <div className="task-popup-content username-field">
               <InputField 
                 placeholderText="Username" 
                 value={username} 
@@ -43,7 +43,7 @@ export function RegisterPopup({saveToken})
               />
             </div >
 
-            <div className="task-popup-content">
+            <div className="task-popup-content password-field">
               <InputField 
                 placeholderText="Password" 
                 value={password} 

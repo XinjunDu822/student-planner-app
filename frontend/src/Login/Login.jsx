@@ -24,7 +24,7 @@ export function LoginPopup({saveToken})
               <h3>Welcome Back</h3>
             </div>
 
-            <div className="task-popup-content">
+            <div className="task-popup-content username-field">
               <InputField 
                 placeholderText="Username" 
                 value={username} 
@@ -32,7 +32,7 @@ export function LoginPopup({saveToken})
               />
             </div >
 
-            <div className="task-popup-content">
+            <div className="task-popup-content password-field">
               <InputField 
                 placeholderText="Password" 
                 value={password} 
@@ -50,7 +50,7 @@ export function LoginPopup({saveToken})
                 Sign In
               </button>
               
-              <button className="button" onClick={submit}>
+              <button className="button" onClick={close}>
                 Back
               </button>
             </div>

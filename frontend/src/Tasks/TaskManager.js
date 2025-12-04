@@ -110,14 +110,14 @@ export function useTaskManager(user, logout) {
     return () => clearInterval(refreshInterval);
   }, [loadTasks]);
 
-  const addTask = useCallback(async (title, desc, date, time) => {
+  const addTask = useCallback(async ({title, desc, date, time}) => {
     const response = await createTask(user, title, date, time, desc);
     await loadTasks();
     return response;
   }, [user, loadTasks]);
 
 
-  const editTask_ = useCallback(async (id, title, desc, date, time) => {
+  const editTask_ = useCallback(async ({id, title, desc, date, time}) => {
     const response = await editTask(user, id, title, date, time, desc);
     await loadTasks();
     return response;
