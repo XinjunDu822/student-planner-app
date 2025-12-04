@@ -35,47 +35,28 @@ export const getAllTasks = async (
     //   }
     // :{};
 
-    //get all of user's nonComplete Tasks
+    //get all of user's Tasks
     const allTasks = await prisma.task.findMany({
       where: {
         userID: userId,
-        isComplete: false,
       },
       orderBy: {
         date: "asc",
       },
     });
 
-    //get all of user's Complete Tasks
-    const allCompletedTasks = await prisma.task.findMany({
-      where: {
-        userID: userId,
-        isComplete: true,
-      },
-      orderBy: {
-        date: "desc",
-      },
-    });
+    //get all incomplete tasks
+    const tasks = allTasks.filter(task => !task.isComplete);
 
-    // const tasks = keyword
-    //   ? allTasks.filter(
-    //       (task) =>
-    //         task.title.toLowerCase().includes(String(keyword).toLowerCase()) ||
-    //         task.desc.toLowerCase().includes(String(keyword).toLowerCase())
-    //     )
-    //   : allTasks;
+    //get all complete tasks
+    const completedTasks = allTasks.filter(task => task.isComplete);
 
-    // const completedTasks = keyword
-    //   ? allCompletedTasks.filter(
-    //       (task) =>
-    //         task.title.toLowerCase().includes(String(keyword).toLowerCase()) ||
-    //         task.desc.toLowerCase().includes(String(keyword).toLowerCase())
-    //     )
-    //   : allCompletedTasks;
+    //sorts complete tasks by most recent
+    completedTasks.reverse();
 
     return res
       .status(200)
-      .json({ tasks: allTasks, completedTasks: allCompletedTasks });
+      .json({ tasks: tasks, completedTasks: completedTasks });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }

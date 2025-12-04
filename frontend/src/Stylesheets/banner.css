@@ -11,6 +11,16 @@
   z-index: 1;
 }
 
+main {
+  margin-top: 60px;
+  min-height: calc(100vh - 60px);
+  height: calc(100% - 60px);
+}
+
+.dashboard {
+  min-height: calc(100vh - 60px);
+}
+
 .profile-holder {
   display: flex;
   flex-direction: column;
@@ -42,24 +52,8 @@
   border-left: 1px solid gray;
 }
 
-.profile-holder button {
-  background-color: #f0f2f5;
-  border: 1px solid gray;
-  font-family: "Inter", sans-serif;
-  font-weight: normal;
-  padding: 12px;
-  width: 100%;
-  color: black;
-  font-size: 18px;
-  text-align: center;
-  cursor: pointer;
-  border-radius: 0;
-  box-shadow: 0;
-  margin: 0;
-}
-
-.profile-holder .button:hover {
-  background-color: #c0c2c5;
+.profile-holder .button.closed {
+  display: none;
 }
 
 @media screen and (max-width: 600px) {
@@ -67,5 +61,93 @@
     position: fixed;
     top: 0;   
     left: 5px;  
+  }
+}
+
+.profile-holder button {
+  /* padding: 12px; */
+  /* width: 100%; */
+  font-size: 18px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 0;
+  margin: 0;
+}
+
+@media screen and (min-width: 480px) {
+  .profile-holder button {
+    background-color: #f0f2f5;
+    border: 1px solid gray;
+    font-family: "Inter", sans-serif;
+    font-weight: normal;
+    padding: 12px;
+    width: 100%;
+    color: #23283f;
+    font-size: 18px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 0;
+    box-shadow: 0 0;
+    margin: 0;
+  }
+
+  .profile-holder .button:hover {
+    background-color: #c0c2c5;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .banner {
+    position: static;
+    height: auto;
+    display: block;
+    align-items: right;
+  }
+
+  main {
+    margin-top: 0px;
+    min-height: 100vh;
+    height: 100%;
+  }
+
+  .dashboard {
+    min-height: 100vh;
+  }
+
+  .profile-holder {
+    position: static;
+    flex-direction: row;
+    width: 100vw;
+    max-width: none;
+  }
+
+  .profile-holder :nth-child(2){
+    flex-grow: 1;
+    display: flex;
+    justify-content: right;
+    padding-right: 20px;
+    padding-top: 5px;
+    /* width: 100vw; */
+  }
+
+  .profile-holder .button {
+    padding: 10px 32px;
+  }
+
+  .profile-holder .button.closed {
+    display: inline-block;
+  }
+
+  .banner .title {
+    position: static;
+    width: 100%;
+  }
+
+  .profile:hover {
+    background-color: transparent;
+  }
+
+  .profile.clicked {
+    border-left: 1px solid gray;
   }
 }

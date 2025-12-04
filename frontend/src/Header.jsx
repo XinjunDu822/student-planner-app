@@ -35,9 +35,6 @@ export function Header({ user, logout }) {
   return (
     <header>
       <div className="banner">
-        <div className="title">
-          <h1>Student Planner App</h1>
-        </div>
 
         {user && (
           <div className="profile-holder">
@@ -49,19 +46,23 @@ export function Header({ user, logout }) {
               <div className="username">{name}</div>
             </div>
 
-            {isOpen && (
+            <div>
               <button
-                className="button"
+                className={`button ${isOpen ? "" : "closed"}`}
                 onClick={() => {
                   logout();
                   setIsOpen(false);
                 }}
               >
-                Logout
+              Logout
               </button>
-            )}
+            </div>
           </div>
         )}
+
+        <div className="title">
+          <h1>Student Planner App</h1>
+        </div>
       </div>
     </header>
   );
