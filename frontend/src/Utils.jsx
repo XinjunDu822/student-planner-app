@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -135,3 +135,31 @@ export function DateInputField({
     </div>
   );
 }; 
+
+
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Parses a space separated sequence of keywords into a regular expression
+export function keywordsToRegex(keywords)
+{
+  const regexPattern = useMemo(() => {
+    if (!keywords)
+    {
+      return null;
+    } 
+
+    // Escape regex special chars
+    const escapedKeywords = escapeRegExp(keywords);
+
+    // Split keywords into individual words and remove empty strings
+    const keysArr = escapedKeywords.split(/[\s,]+/).filter(Boolean);
+
+    const pattern = keysArr.length > 0 ? new RegExp(`(${keysArr.join('|')})`, 'gi') : null;
+
+    return pattern;
+  }, [keywords]);
+
+  return regexPattern;
+} 

@@ -2,26 +2,26 @@ import { useState, useCallback } from "react";
 
 export function usePopupManager(getTaskById) {
   const [taskToEdit, setTaskToEdit] = useState(null);
-  const [taskToDelete, setTaskToDelete] = useState(null);
+  const [idToDelete, setIdToDelete] = useState(null);
 
-  const openEditPopup = useCallback((index) => {
-    setTaskToEdit(getTaskById(index));
-  }, [getTaskById]);
+  const openEditPopup = useCallback((task) => {
+    setTaskToEdit(task);
+  }, []);
 
-  const closeEditPopup = useCallback((index) => {
+  const closeEditPopup = useCallback(() => {
     setTaskToEdit(null);
   }, []);
 
   const openDeletePopup = useCallback((index) => {
-    setTaskToDelete(getTaskById(index));
-  }, [getTaskById]);
+    setIdToDelete(index);
+  }, []);
 
-  const closeDeletePopup = useCallback((index) => {
-    setTaskToDelete(null);
+  const closeDeletePopup = useCallback(() => {
+    setIdToDelete(null);
   }, []);
 
   return {
-    selectors: { taskToEdit, taskToDelete },
+    selectors: { taskToEdit, idToDelete },
     actions: { openEditPopup, closeEditPopup, openDeletePopup, closeDeletePopup }
   };
 }

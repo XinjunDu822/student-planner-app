@@ -7,37 +7,52 @@ import { DeleteTaskPopup } from './Popups/DeleteTaskPopup';
 import {InputField, DateInputField} from '../Utils';
 
 import { useTaskManager } from './TaskManager';
-import { useFilterManager } from './Filters/FilterManager';
+import { useFilterManager } from './FilterManager';
 import { usePopupManager } from './Popups/PopupManager';
 
 export function TasksPage({user, logout}) {
   const {
-    data: {tasks, completedTasks, numLateTasks, currStreak, bestStreak, error},
-    actions: {addTask, editTask, deleteTask, completeTask,},
-    selectors: {getTaskById},
-    reload: {loadTasks}
-  } = useTaskManager(user, logout);
-
-  const {
     filters: { keywords, startDate, endDate },
-    actions: { setKeywords, setStartDate, setEndDate, resetFilters }
+    actions: { setKeywords, setStartDate, setEndDate, resetFilters },
+    filterExport
   } = useFilterManager();
 
   const {
-    selectors: { taskToEdit, taskToDelete },
+    data: {
+      newTasks, 
+      totalNewTasks, 
+      lateTasks,
+      totalLateTasks,
+      completedTasks, 
+      totalCompletedTasks, 
+      currStreak, 
+      bestStreak, 
+      error},
+    actions: {
+      loadTasks,
+      addTask, 
+      editTask, 
+      deleteTask, 
+      completeTask,},
+  } = useTaskManager(user, logout, filterExport);
+
+  const {
+    selectors: { taskToEdit, idToDelete },
     actions: { openEditPopup, closeEditPopup, openDeletePopup, closeDeletePopup }
-  } = usePopupManager(getTaskById);
+  } = usePopupManager();
 
 
   // Loading/Error UI
-  if(!tasks || !completedTasks)
+  if(!newTasks || !lateTasks || !completedTasks)
   {
     return (
     <main>
       <div>
         <h3>
           <br/>
-            {error ? `Error fetching tasks\n${error}` : "Loading tasks..."}
+          {error ? "Error fetching tasks" : "Loading tasks..."}
+          <br/>
+          {error}
         </h3>
       </div>
     </main>
@@ -63,6 +78,7 @@ export function TasksPage({user, logout}) {
           <TaskDisplay 
             header={"Complete"} 
             tasks={completedTasks}
+            totalTasks={totalCompletedTasks}
             keywords={keywords}
             displayCompleted
             emptyText={["You have no completed tasks right now.", "What a bum..."]}
@@ -120,7 +136,8 @@ export function TasksPage({user, logout}) {
           endDate={endDate}
           emptyText={null}
           emptySearchText={null}
-          tasks={tasks.slice(0, numLateTasks)} 
+          tasks={lateTasks}
+          totalTasks={totalLateTasks} 
           openEditPopup={openEditPopup} 
           openDeletePopup={openDeletePopup} 
           completeTask={completeTask}
@@ -134,7 +151,8 @@ export function TasksPage({user, logout}) {
           keywords={keywords} 
           startDate={startDate} 
           endDate={endDate}
-          tasks={tasks.slice(numLateTasks)} 
+          tasks={newTasks}
+          totalTasks={totalNewTasks} 
           openEditPopup={openEditPopup} 
           openDeletePopup={openDeletePopup} 
           completeTask={completeTask}
@@ -147,7 +165,7 @@ export function TasksPage({user, logout}) {
         />
 
         <DeleteTaskPopup 
-          task={taskToDelete} 
+          id={idToDelete} 
           deleteTask={deleteTask} 
           closeDeletePopup={closeDeletePopup}
         />

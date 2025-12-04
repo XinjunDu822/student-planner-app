@@ -1,6 +1,6 @@
 import { Task } from './Task';
 import { useState, useEffect } from 'react';
-import { useTaskFilter } from './Filters/TaskFilter';
+import { keywordsToRegex } from '../Utils'
 
 //Display corresponding text when no tasks are due
 function DisplayEmptyText({text})
@@ -23,6 +23,7 @@ function DisplayEmptyText({text})
 export function TaskDisplay({
   header, 
   tasks = [],
+  totalTasks,
   emptyText, 
   emptySearchText,  
   openEditPopup, 
@@ -34,23 +35,25 @@ export function TaskDisplay({
   displayCompleted=false
 })
 {
-  const { filteredTasks, regexPattern } = useTaskFilter(tasks, keywords, startDate, endDate);
+  const regexPattern = keywordsToRegex(keywords);
   
-  if(tasks.length === 0)
+  if(totalTasks === 0)
   {
     return <DisplayEmptyText text={emptyText}/>
   }
 
-  if(filteredTasks.length === 0)
+  if(tasks.length === 0)
   {
     return <DisplayEmptyText text={emptySearchText}/>
   }
+
+  console.log(typeof tasks)
 
   return (
     <>
       <h3>{header}</h3>
       <div id="TasksList">
-        {filteredTasks.slice().map(task => 
+        {tasks.map(task => 
           <Task
             index={task.id}
             key={task.id}

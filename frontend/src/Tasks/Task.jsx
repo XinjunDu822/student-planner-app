@@ -32,27 +32,6 @@ function HighlightMatches({string, regexPattern})
   return <span>{parts}</span>;
 }
 
-function TaskActions({ index, onComplete, onEdit, onDelete })
-{
-  return (
-    <div>
-      <button className="button" onClick={() => onComplete(index)}>
-        <p>Mark Complete</p>
-        <p>✓</p>
-      </button>
-
-      <button className="button" onClick={() => onEdit(index)}>
-        <p>Edit</p>
-        <p>✎</p>
-      </button>
-
-      <button className="button" onClick={() => onDelete(index)}>
-        <p>Delete</p>
-        <p>🗑</p>
-      </button>
-    </div> 
-  );
-}
 
 export function Task({
   index, 
@@ -84,12 +63,22 @@ export function Task({
             <HighlightMatches string={data.desc} regexPattern={regexPattern}/>
           </div>
 
-          <TaskActions
-            index={index}
-            onComplete={completeTask}
-            onEdit={openEditPopup}
-            onDelete={openDeletePopup}
-          /> 
+          <div>
+            <button className="button" onClick={() => completeTask(index)}>
+              <p>Mark Complete</p>
+              <p>✓</p>
+            </button>
+
+            <button className="button" onClick={() => openEditPopup(data)}>
+              <p>Edit</p>
+              <p>✎</p>
+            </button>
+
+            <button className="button" onClick={() => openDeletePopup(index)}>
+              <p>Delete</p>
+              <p>🗑</p>
+            </button>
+          </div> 
         </>
       )}
       

@@ -16,7 +16,7 @@ export function usePopupForm(serverRequest) {
     setTitle(task ? task.title : "");
     setDesc(task ? task.desc : "");
     setDate(task ? task.date : "");
-    setTime(task ? DateToParams(task.date)[1] : "");
+    setTime((task && task.date) ? DateToParams(task.date)[1] : "");
   }, []);
 
 //   const editTask_ = useCallback(async (id, title, desc, date, time)
@@ -24,8 +24,6 @@ export function usePopupForm(serverRequest) {
   const submit = useCallback(async (args = {title, desc, date, time}) => {
 
     var response;
-
-    console.log(args)
 
     response = await serverRequest(args);
 

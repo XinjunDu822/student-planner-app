@@ -1,12 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { 
-  getAllTasks, 
+  getTaskData, 
   createTask, 
   editTask, 
   deleteTask, 
   completeTask, 
-  updateLastLate, 
-  updateBestStreak 
 } from './TaskService';
 import { getUser } from '../Auth/AuthService';
 
@@ -36,72 +34,48 @@ const calculateStreak = (completed, lastLate) => {
 };
 
 
-export function useTaskManager(user, logout) {
-  const [tasks, setTasks] = useState(null);
+export function useTaskManager(user, logout, filters) {
+  const [newTasks, setNewTasks] = useState(null);
+  const [totalNewTasks, setTotalNewTasks] = useState(null);
+  const [lateTasks, setLateTasks] = useState(null);
+  const [totalLateTasks, setTotalLateTasks] = useState(null);
   const [completedTasks, setCompletedTasks] = useState(null);
+  const [totalCompletedTasks, setTotalCompletedTasks] = useState(null);
 
-  const [numLateTasks, setNumLateTasks] = useState(null);
   const [currStreak, setCurrStreak] = useState(null);
   const [bestStreak, setBestStreak] = useState(null);
 
   const [error, setError] = useState(null);
 
+
   const loadTasks = useCallback(async () => {
-    const response = await getAllTasks(user);
+    const response = await getTaskData(user, filters);
     
-    if(!response.tasks)
+    if(response.message)
     {        
       if(response.message === "Unauthorized")
       {
         logout();   
         return;         
       }
-      setTasks(null);
+      setNewTasks(null);
       setCompletedTasks(null);
       setError(response.message);
       return;
     }
 
-    const tasksArr = response.tasks.map(normalizeTask);
-    const completedArr = response.completedTasks.map(normalizeTask);
+    setNewTasks(response.newTasks.map(normalizeTask));
+    setTotalNewTasks(response.totalNewTasks);
 
-    setTasks(tasksArr);
-    setCompletedTasks(completedArr);
+    setLateTasks(response.lateTasks.map(normalizeTask));
+    setTotalLateTasks(response.totalLateTasks);
 
-    // Calculate late tasks
-    const lateCount = countLateTasks(tasksArr);
-    setNumLateTasks(lateCount);
-    let lastLate = lateCount > 0 ? tasksArr[lateCount - 1].date : null;
+    setCompletedTasks(response.completedTasks.map(normalizeTask));
+    setTotalCompletedTasks(response.totalCompletedTasks);
 
-    // Fetch user record
-    var userInfo = await getUser(user);
-
-    if(userInfo.lastLate)
-    {
-      const serverLastLate = new Date(userInfo.lastLate);
-      if(lastLate && lastLate > serverLastLate)
-      {
-        await updateLastLate(user, lastLate);
-      }
-      else
-      {
-        lastLate = serverLastLate;
-      }
-    }
-
-    // Calculate streak
-    const streak = calculateStreak(completedArr, lastLate);    
-    setCurrStreak(streak);
-
-    // Update best streak
-    let best = userInfo.bestStreak;
-    if(streak > best)
-    {
-      best = streak;
-      await updateBestStreak(user, best);
-    }
-    setBestStreak(best);
-  }, [user, logout]);
+    setCurrStreak(response.currStreak);
+    setBestStreak(response.bestStreak);
+  }, [user, logout, filters]);
 
   // Load tasks & refresh every minute
   useEffect(() => {
@@ -115,7 +89,6 @@ export function useTaskManager(user, logout) {
     await loadTasks();
     return response;
   }, [user, loadTasks]);
-
 
   const editTask_ = useCallback(async ({id, title, desc, date, time}) => {
     const response = await editTask(user, id, title, date, time, desc);
@@ -134,18 +107,22 @@ export function useTaskManager(user, logout) {
     await loadTasks();
   }, [user, loadTasks]);
 
-  const getTaskById = useCallback((id) => {
-    if(!id || !tasks)
-    {
-        return null;
-    }
-    return tasks.find(task => task.id === id) || null;
-  }, [tasks]);
-
   return {
-    data: {tasks, completedTasks, numLateTasks, currStreak, bestStreak, error},
-    actions: {addTask, editTask: editTask_, deleteTask: deleteTask_, completeTask: completeTask_,},
-    selectors: {getTaskById},
-    reload: {loadTasks}
+    data: {
+      newTasks, 
+      totalNewTasks, 
+      lateTasks,
+      totalLateTasks,
+      completedTasks, 
+      totalCompletedTasks, 
+      currStreak, 
+      bestStreak, 
+      error},
+    actions: {
+      loadTasks,
+      addTask, 
+      editTask: editTask_, 
+      deleteTask: deleteTask_, 
+      completeTask: completeTask_,},
   };
 }

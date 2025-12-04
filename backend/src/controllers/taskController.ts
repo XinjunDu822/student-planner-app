@@ -2,6 +2,11 @@
 
 import { Request, Response, NextFunction } from "express";
 import prisma from "../prisma.ts";
+import { start } from "repl";
+
+// Prisma supports dates between year 1 and 9999
+const MIN_DATE = new Date("0001-01-01T00:00:00.000Z");
+const MAX_DATE = new Date("9999-12-31T23:59:59.999Z");
 
 function TimeToDate(date: string, time: string) {
   if (!time || time == undefined) {
@@ -13,52 +18,214 @@ function TimeToDate(date: string, time: string) {
   return date_;
 }
 
-export const getAllTasks = async (
+function ParseKeywords(keywords: unknown)
+{
+  if(!keywords)
+  {
+    keywords = [];
+  }
+  else if(!Array.isArray(keywords))
+  {
+    keywords = [keywords];
+  }
+
+  return (keywords as unknown[]).map(keyword => {
+    const key = String(keyword);
+    return {
+      OR: [
+        {
+          title: {
+            contains: key,
+            mode: 'insensitive',
+          },
+        },
+        {
+          desc: {
+            contains: key,
+            mode: 'insensitive',
+          },
+        }
+      ]
+    };
+  });
+}
+
+function ParseDateRange(start: unknown, end: unknown)
+{
+  var startDate = start ? new Date(String(start)) : MIN_DATE;
+  
+  var endDate = end ? new Date(String(end)) : null;
+  
+  endDate?.setDate(endDate.getDate() + 1);
+
+  endDate = endDate ?? MAX_DATE;
+
+  return {startDate, endDate};
+}
+
+export const getTaskData = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const userId = req.user?.id; // Assuming you have auth middleware that adds user to req
-    // const { keyword } = req.query;
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // const keywordFilter = keyword
-    // ? {
-    //     title: {
-    //         contains: keyword,
-    //         // mode: "insensitive", // case-insensitive search
-    //       },
-    //   }
-    // :{};
+    const user = await prisma.user.findUnique({ where: { id: userId } });
 
-    //get all of user's Tasks
-    const allTasks = await prisma.task.findMany({
+    if (!user) {
+      return res.status(400).json({ message: "Invalid user" });
+    }
+
+
+    //Parsing queries 
+    const keyMatches = ParseKeywords(req.query.keywords);
+
+    const {startDate, endDate} = ParseDateRange(req.query.after, req.query.before)
+ 
+    var now = new Date();
+
+    //get all of user's incomplete, non-late tasks that satisfy the filters
+    const newTasks = await prisma.task.findMany({
       where: {
         userID: userId,
+        isComplete: false,
+        AND: keyMatches,
+        date: {
+          gte: startDate && now < startDate ? startDate : now,
+          lt: endDate,
+        }
       },
       orderBy: {
         date: "asc",
       },
     });
 
-    //get all incomplete tasks
-    const tasks = allTasks.filter(task => !task.isComplete);
+    // Get total number of new tasks
+    const totalNewTasks = await prisma.task.count({
+      where: {
+        userID: userId,
+        isComplete: false,
+        date: {
+          gte: now,
+        }
+      }
+    });
 
-    //get all complete tasks
-    const completedTasks = allTasks.filter(task => task.isComplete);
+    //get late tasks
+    const lateTasks = await prisma.task.findMany({
+      where: {
+        userID: userId,
+        isComplete: false,
+        AND: keyMatches,
+        date: {
+          gte: startDate,
+          lt: endDate && endDate < now ? endDate : now,
+        }
+      },
+      orderBy: {
+        date: "asc",
+      },
+    });
 
-    //sorts complete tasks by most recent
-    completedTasks.reverse();
+    const totalLateTasks = await prisma.task.count({
+      where: {
+        userID: userId,
+        isComplete: false,
+        date: {
+          lt: now,
+        }
+      }
+    });
+
+    //get complete tasks
+    const completedTasks = await prisma.task.findMany({
+      where: {
+        userID: userId,
+        isComplete: true,
+        AND: keyMatches,
+      },
+      orderBy: {
+        date: "desc",
+      },
+    });
+
+    const totalCompletedTasks = await prisma.task.count({
+      where: {
+        userID: userId,
+        isComplete: true,
+      }
+    });
+
+    var lastLate = user.createdAt;
+
+    var lastLateTask = await prisma.task.findFirst({
+      where: {
+        userID: userId,
+        isComplete: false,
+        date: {
+          lt: now,
+        }
+      },
+      orderBy: {
+        date: "desc",
+      },
+    });
+
+    if(lastLateTask)
+    {
+      lastLate = lastLateTask.date;
+    }
+
+    if(lastLate > user.lastLate)
+    {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { lastLate: lastLate },
+      });
+    }
+    else
+    {
+      lastLate = user.lastLate;
+    }
+
+    const currStreak = await prisma.task.count({
+      where: {
+        userID: userId,
+        isComplete: true,
+        date: {
+          gt: lastLate,
+        }
+      }
+    });
+
+    var bestStreak = user.bestStreak;
+
+    if(currStreak > bestStreak)
+    {
+      bestStreak = currStreak;
+      await prisma.user.update({
+        where: { id: userId },
+        data: { bestStreak: bestStreak },
+      });
+    }
 
     return res
       .status(200)
-      .json({ tasks: tasks, completedTasks: completedTasks });
-  } catch (err) {
-    return res.status(500).json({ message: "Server Error" });
+      .json({ newTasks, 
+              totalNewTasks,
+              lateTasks,
+              totalLateTasks,
+              completedTasks,
+              totalCompletedTasks,
+              currStreak,
+              bestStreak });
+  } catch (err: unknown) {
+    return res.status(500).json({ message: String(err) });
   }
 };
 
@@ -228,77 +395,6 @@ export const deleteTask = async (
     });
 
     return res.status(200).json({ message: "Task deleted successfully." });
-  } catch (err) {
-    return res.status(500).json({ message: "Server Error" });
-  }
-};
-
-export const updateLastLate = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    const { date } = req.body;
-
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-
-    if (!user) {
-      return res.status(400).json({ message: "Invalid user" });
-    }
-
-    if (!date) {
-      return res.status(400).json({ message: "Invalid date" });
-    }
-
-    var date_;
-
-    try {
-      date_ = new Date(date);
-    } catch (err) {
-      return res.status(400).json({ message: "Invalid date" });
-    }
-
-    await prisma.user.update({
-      where: { id: userId },
-      data: { lastLate: date_ },
-    });
-    return res.status(200).json({ date: date_ });
-  } catch (err) {
-    return res.status(500).json({ message: "Server Error" });
-  }
-};
-
-export const updateBestStreak = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const userId = req.user?.id;
-    const { streak } = req.body;
-
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-
-    if (!user) {
-      return res.status(400).json({ message: "Invalid user" });
-    }
-
-    await prisma.user.update({
-      where: { id: userId },
-      data: { bestStreak: streak },
-    });
-    return res.status(200).json({ streak: streak });
   } catch (err) {
     return res.status(500).json({ message: "Server Error" });
   }

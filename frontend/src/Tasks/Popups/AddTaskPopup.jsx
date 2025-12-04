@@ -17,23 +17,24 @@ export function AddTaskPopup({addTask})
           trigger= {<button className="button">Add Task</button>} onClose={setForm}
           modal>
           {
-              close => (
-                  <div className='modal'>
-                      <PopupDisplay 
-                        popupTitle="Add Task" 
-                        title={title} 
-                        setTitle={setTitle} 
-                        desc={desc}
-                        setDesc={setDesc}
-                        date={date}
-                        setDate={setDate}
-                        time={time}
-                        setTime={setTime}
-                        error={error}
-                        submit={submit}
-                        close={close}/>
-                  </div>
-              )
+            close => (
+              <div className='modal'>
+                <PopupDisplay 
+                  popupTitle="Add Task" 
+                  title={title} 
+                  setTitle={setTitle} 
+                  desc={desc}
+                  setDesc={setDesc}
+                  date={date}
+                  setDate={setDate}
+                  time={time}
+                  setTime={setTime}
+                  error={error}
+                  submit={submit}
+                  close={close}
+                />
+              </div>
+            )
           }
       </Popup>
     </div>

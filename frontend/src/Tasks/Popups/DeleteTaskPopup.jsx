@@ -1,12 +1,12 @@
 import Popup from 'reactjs-popup';
 
-export function DeleteTaskPopup({task, deleteTask, closeDeletePopup})
+export function DeleteTaskPopup({id, deleteTask, closeDeletePopup})
 {
   return (
     <div >
       {/* pop up window */}
       <Popup className="task-popup"
-        open={!!task} onClose={closeDeletePopup}
+        open={!!id} onClose={closeDeletePopup}
         modal>
         {
           close => (
@@ -18,7 +18,7 @@ export function DeleteTaskPopup({task, deleteTask, closeDeletePopup})
               <div className="button-holder">
                 <div>
                     <button className="button" onClick=
-                      {() => {deleteTask(task.id); close();}}>
+                      {() => {deleteTask(id); close();}}>
                           Yes
                     </button>
                 </div>
