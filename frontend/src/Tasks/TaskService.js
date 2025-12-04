@@ -5,18 +5,10 @@ const API_URL = "http://localhost:5000/api"; // adjust to your backend
 //Requests backend database to send back all task entries
 export const getTaskData = async (authorization, filters) => {
 
-  console.log("Service Filters: ");
-
-  console.log(filters);
-
   const query = queryString.stringify(filters);
 
-  const url = `${API_URL}/dashboard${query ? `?${query}` : ''}`;
-
-  console.log(url);
-
   const res = await fetch(
-    url,
+    `${API_URL}/dashboard${query ? `?${query}` : ''}`,
     {
       method: "GET",
       headers: {

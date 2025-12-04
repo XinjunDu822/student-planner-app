@@ -47,8 +47,6 @@ export function TaskDisplay({
     return <DisplayEmptyText text={emptySearchText}/>
   }
 
-  console.log(typeof tasks)
-
   return (
     <>
       <h3>{header}</h3>
