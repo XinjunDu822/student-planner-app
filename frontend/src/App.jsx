@@ -5,29 +5,19 @@ import 'reactjs-popup/dist/index.css';
 import { LoginPage } from './Login/LoginPage';
 import { TasksPage } from './Tasks/TasksPage';
 import { Header } from './Header';
-import { logout as authLogout } from "./Login/AuthService";
-
+import { useAuth } from './Auth/Auth';
 
 export default function App() {
-  const [user, setUser] = useState(null);
-
-  const login = useCallback((user) => {
-    setUser(user);
-  }, []);
-
-  const logout = useCallback(async () => {
-    setUser(null);
-    await authLogout(user);
-  }, [user]);
+  const { user, saveToken, resetToken, isAuthenticated } = useAuth();
 
   return (
     <>
-      <Header user={user} logout={logout}/>
+      <Header user={user} logout={resetToken}/>
 
-      {user ? (
-        <TasksPage user={user} logout={logout}/>
+      {isAuthenticated ? (
+        <TasksPage user={user} logout={resetToken}/>
       ) : (
-        <LoginPage login={login}/>
+        <LoginPage saveToken={saveToken}/>
       )}
     </>
   );

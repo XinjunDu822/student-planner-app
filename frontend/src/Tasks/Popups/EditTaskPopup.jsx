@@ -1,6 +1,6 @@
 import Popup from 'reactjs-popup';
 import { useState, useEffect } from 'react';
-import { InputField, DateInputField, DateToParams } from '../Utils';
+import { InputField, DateInputField, DateToParams } from '../../Utils';
 
 
 export function EditTaskPopup({task, editTask, closeEditPopup})

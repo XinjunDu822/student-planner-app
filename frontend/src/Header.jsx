@@ -1,6 +1,6 @@
 import logo from './new_logo_transparent.png';
 import { useState, useEffect, useRef } from 'react';
-import { getUser } from "./Login/AuthService";
+import { getUser } from "./Auth/AuthService";
 
 export function Header({ user, logout }) {
   const [isOpen, setIsOpen] = useState(false);

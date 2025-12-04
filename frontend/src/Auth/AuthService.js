@@ -1,5 +1,6 @@
 const API_URL = "http://localhost:5000/api/auth"; // adjust to your backend
 
+
 export const signUp = async (name, password) => {
   const res = await fetch(`${API_URL}/sign-up`, {
     method: "POST",

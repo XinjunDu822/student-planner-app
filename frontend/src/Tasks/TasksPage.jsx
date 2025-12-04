@@ -1,33 +1,32 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import { TaskDisplay } from './TaskDisplay';
-import { AddTaskPopup } from './AddTask';
-import { EditTaskPopup } from './EditTask';
-import { DeleteTaskPopup } from './DeleteTask';
+import { AddTaskPopup } from './Popups/AddTaskPopup';
+import { EditTaskPopup } from './Popups/EditTaskPopup';
+import { DeleteTaskPopup } from './Popups/DeleteTaskPopup';
 import {InputField, DateInputField} from '../Utils';
-import {useTasks} from './TaskManager';
+
+import { useTaskManager } from './TaskManager';
+import { useFilterManager } from './Filters/FilterManager';
+import { usePopupManager } from './Popups/PopupManager';
 
 export function TasksPage({user, logout}) {
-  const [keywords, setKeywords] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-
-  const [taskToEdit, setTaskToEdit] = useState(null);
-  const [taskToDelete, setTaskToDelete] = useState(null);
+  const {
+    data: {tasks, completedTasks, numLateTasks, currStreak, bestStreak, error},
+    actions: {addTask, editTask, deleteTask, completeTask,},
+    selectors: {getTaskById},
+    reload: {loadTasks}
+  } = useTaskManager(user, logout);
 
   const {
-    tasks,
-    completedTasks,
-    numLateTasks,
-    currStreak,
-    bestStreak,
-    error,
-    addTask,
-    editTask_,
-    deleteTask_,
-    completeTask_,
-    getTaskById
-  } = useTasks(user, logout);
+    filters: { keywords, startDate, endDate },
+    actions: { setKeywords, setStartDate, setEndDate, resetFilters }
+  } = useFilterManager();
+
+  const {
+    selectors: { taskToEdit, taskToDelete },
+    actions: { openEditPopup, closeEditPopup, openDeletePopup, closeDeletePopup }
+  } = usePopupManager(getTaskById);
 
 
   // Loading/Error UI
@@ -122,9 +121,9 @@ export function TasksPage({user, logout}) {
           emptyText={null}
           emptySearchText={null}
           tasks={tasks.slice(0, numLateTasks)} 
-          openEditPopup={(index) => setTaskToEdit(getTaskById(index))} 
-          openDeletePopup={(index) => setTaskToDelete(getTaskById(index))} 
-          completeTask={completeTask_}
+          openEditPopup={openEditPopup} 
+          openDeletePopup={openDeletePopup} 
+          completeTask={completeTask}
         />
 
         {/* New tasks */}
@@ -136,21 +135,21 @@ export function TasksPage({user, logout}) {
           startDate={startDate} 
           endDate={endDate}
           tasks={tasks.slice(numLateTasks)} 
-          openEditPopup={(index) => setTaskToEdit(getTaskById(index))} 
-          openDeletePopup={(index) => setTaskToDelete(getTaskById(index))} 
-          completeTask={completeTask_}
+          openEditPopup={openEditPopup} 
+          openDeletePopup={openDeletePopup} 
+          completeTask={completeTask}
         />
 
         <EditTaskPopup 
           task={taskToEdit} 
-          editTask={editTask_} 
-          closeEditPopup={() => setTaskToEdit(null)}
+          editTask={editTask} 
+          closeEditPopup={closeEditPopup}
         />
 
         <DeleteTaskPopup 
           task={taskToDelete} 
-          deleteTask={deleteTask_} 
-          closeDeletePopup={() => setTaskToDelete(null)}
+          deleteTask={deleteTask} 
+          closeDeletePopup={closeDeletePopup}
         />
 
         </div>

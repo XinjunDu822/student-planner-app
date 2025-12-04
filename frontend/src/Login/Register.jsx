@@ -1,31 +1,16 @@
 import Popup from 'reactjs-popup';
 import { useState, useCallback } from 'react';
 import { InputField } from '../Utils';
-import { signUp } from "./AuthService";
+import { signUp as serverSignUp } from "../Auth/AuthService";
+import { useLoginForm } from "./LoginForm";
 
-export function RegisterPopup({login})
+
+export function RegisterPopup({saveToken})
 {
-  const [user, setUser] = useState("");
-  const [pwd, setPwd] = useState("");
-  const [error, setError] = useState("");
-
-  const reset = useCallback(() => {
-    setError("");
-    setUser("");
-    setPwd("");
-  }, []);
-
-  const register = useCallback(async () => {
-    const response = await signUp(user, pwd);
-
-    if(!response.token)
-    {
-      setError(response.message);
-      return;
-    }
-
-    login(response.token);
-  }, [user, pwd, login]);
+  const {
+    fields: { username, password, error },
+    actions: { setUsername, setPassword, submit, reset },
+  } = useLoginForm(serverSignUp, saveToken);
 
   return (
     <div >
@@ -52,17 +37,17 @@ export function RegisterPopup({login})
 
             <div className="task-popup-content">
               <InputField 
-                placeholderText = "Username" 
-                value={user} 
-                setValue={setUser}
+                placeholderText="Username" 
+                value={username} 
+                setValue={setUsername}
               />
             </div >
 
             <div className="task-popup-content">
               <InputField 
-                placeholderText = "Password" 
-                value={pwd} 
-                setValue={setPwd} 
+                placeholderText="Password" 
+                value={password} 
+                setValue={setPassword} 
                 inputType="password"
               />
             </div >
@@ -72,8 +57,8 @@ export function RegisterPopup({login})
             </div>
 
             <div className="button-holder">
-              <button className="button" onClick={() => register(user, pwd)}>
-                  Register
+              <button className="button" onClick={submit}>
+                Register
               </button>
               
               <button className="button" onClick={close}>

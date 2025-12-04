@@ -1,32 +1,15 @@
 import Popup from 'reactjs-popup';
 import { useState, useCallback } from 'react';
 import { InputField } from '../Utils';
-import { signIn } from "./AuthService";
+import { signIn as serverSignIn } from "../Auth/AuthService";
+import { useLoginForm } from "./LoginForm";
 
-export function LoginPopup({login})
+export function LoginPopup({saveToken})
 {
-  const [user, setUser] = useState("");
-  const [pwd, setPwd] = useState("");
-  const [error, setError] = useState("");
-
-  const reset = useCallback(() => {
-    setError("");
-    setUser("");
-    setPwd("");
-  }, []);
-
-  const loginWrapper = useCallback(async () => {
-    const response = await signIn(user, pwd);
-
-    if(!response.token)
-    {
-      setError(response.message);
-      return;
-    }
-
-    login(response.token);
-  }, [user, pwd, login]);
-
+  const {
+    fields: { username, password, error },
+    actions: { setUsername, setPassword, submit, reset },
+  } = useLoginForm(serverSignIn, saveToken);
 
   return (
     <div >
@@ -43,17 +26,17 @@ export function LoginPopup({login})
 
             <div className="task-popup-content">
               <InputField 
-                placeholderText = "Username" 
-                value={user} 
-                setValue = {setUser}
+                placeholderText="Username" 
+                value={username} 
+                setValue={setUsername}
               />
             </div >
 
             <div className="task-popup-content">
               <InputField 
-                placeholderText = "Password" 
-                value={pwd} 
-                setValue = {setPwd} 
+                placeholderText="Password" 
+                value={password} 
+                setValue={setPassword} 
                 inputType="password"
               />
             </div >
@@ -63,11 +46,11 @@ export function LoginPopup({login})
             </div>
 
             <div className="button-holder">
-              <button className="button" onClick={loginWrapper}>
-                  Sign In
+              <button className="button" onClick={submit}>
+                Sign In
               </button>
               
-              <button className="button" onClick={close}>
+              <button className="button" onClick={submit}>
                 Back
               </button>
             </div>

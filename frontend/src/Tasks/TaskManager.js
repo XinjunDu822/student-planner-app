@@ -8,9 +8,35 @@ import {
   updateLastLate, 
   updateBestStreak 
 } from './TaskService';
-import { getUser } from '../Login/AuthService';
+import { getUser } from '../Auth/AuthService';
 
-export function useTasks(user, logout) {
+
+const normalizeTask = (task) => ({
+  ...task,
+  date: new Date(task.date)
+});
+
+const countLateTasks = (tasks) => {
+  const now = new Date();
+  let count = 0;
+  while (count < tasks.length && now >= tasks[count].date) {
+    count++;
+  }
+  return count;
+};
+
+const calculateStreak = (completed, lastLate) => {
+  if (!lastLate) return completed.length;
+
+  let streak = 0;
+  while (streak < completed.length && completed[streak].date > lastLate) {
+    streak++;
+  }
+  return streak;
+};
+
+
+export function useTaskManager(user, logout) {
   const [tasks, setTasks] = useState(null);
   const [completedTasks, setCompletedTasks] = useState(null);
 
@@ -36,22 +62,15 @@ export function useTasks(user, logout) {
       return;
     }
 
-    const tasksArr = response.tasks.map(task => ({ ...task, date: new Date(task.date) }));
-    const completedArr = response.completedTasks.map(task => ({ ...task, date: new Date(task.date) }));
+    const tasksArr = response.tasks.map(normalizeTask);
+    const completedArr = response.completedTasks.map(normalizeTask);
 
     setTasks(tasksArr);
     setCompletedTasks(completedArr);
 
     // Calculate late tasks
-    const now = new Date();
-    var lateCount = 0;
-    while(lateCount < tasksArr.length && now >= tasksArr[lateCount].date)
-    {
-      lateCount++;
-    }
-
+    const lateCount = countLateTasks(tasksArr);
     setNumLateTasks(lateCount);
-
     let lastLate = lateCount > 0 ? tasksArr[lateCount - 1].date : null;
 
     // Fetch user record
@@ -60,7 +79,6 @@ export function useTasks(user, logout) {
     if(userInfo.lastLate)
     {
       const serverLastLate = new Date(userInfo.lastLate);
-
       if(lastLate && lastLate > serverLastLate)
       {
         await updateLastLate(user, lastLate);
@@ -72,20 +90,7 @@ export function useTasks(user, logout) {
     }
 
     // Calculate streak
-    let streak = 0;
-    
-    if(!lastLate)
-    {
-      streak = completedArr.length;
-    }
-    else
-    {
-      while(streak < completedArr.length && completedArr[streak].date > lastLate)
-      {
-        streak++;
-      }
-    }
-
+    const streak = calculateStreak(completedArr, lastLate);    
     setCurrStreak(streak);
 
     // Update best streak
@@ -138,17 +143,9 @@ export function useTasks(user, logout) {
   }, [tasks]);
 
   return {
-    tasks,
-    completedTasks,
-    numLateTasks,
-    currStreak,
-    bestStreak,
-    error,
-    addTask,
-    editTask_,
-    deleteTask_,
-    completeTask_,
-    getTaskById,
-    loadTasks
+    data: {tasks, completedTasks, numLateTasks, currStreak, bestStreak, error},
+    actions: {addTask, editTask: editTask_, deleteTask: deleteTask_, completeTask: completeTask_,},
+    selectors: {getTaskById},
+    reload: {loadTasks}
   };
 }

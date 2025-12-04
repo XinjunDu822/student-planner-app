@@ -3,15 +3,15 @@ import { LoginPopup } from './Login';
 import { RegisterPopup } from './Register';
 
 
-export function LoginPage({login})
+export function LoginPage({saveToken})
 {
     return (
         <main>
             <img className="large-icon" src={logo} alt="Logo"/>
 
             <div className="wide-button-holder">
-                <LoginPopup login={login}/>
-                <RegisterPopup login={login}/>
+                <LoginPopup saveToken={saveToken}/>
+                <RegisterPopup saveToken={saveToken}/>
             </div>
         </main>
     );
