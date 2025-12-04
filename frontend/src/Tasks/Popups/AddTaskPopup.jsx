@@ -1,13 +1,14 @@
 import Popup from 'reactjs-popup';
 import { usePopupForm } from "./PopupForm";
 import { PopupDisplay } from "./PopupDisplay";
+import { createTask } from '../TaskService';
 
-export function AddTaskPopup({addTask})
+export function AddTaskPopup({user, reload})
 {
   const {
     fields: { title, desc, date, time, error },
     actions: { setTitle, setDesc, setDate, setTime, submit, setForm },
-  } = usePopupForm(addTask);
+  } = usePopupForm(createTask, reload);
 
   return (
     <div >
@@ -30,7 +31,7 @@ export function AddTaskPopup({addTask})
                   time={time}
                   setTime={setTime}
                   error={error}
-                  submit={submit}
+                  submit={() => submit({user, title, date, time, desc})}
                   close={close}
                 />
               </div>

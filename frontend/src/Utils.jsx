@@ -52,10 +52,29 @@ export function InputField({
   placeholderText, 
   value, 
   setValue, 
-  inputType="text"})
+  inputType="text",
+  isDebouncing=false
+})
 {
-  const handleInputChange = (event) => setValue(event.target.value);
+  const [inputValue, setInputValue] = useState("");
 
+  const handleInputChange = useCallback((event) => {
+    isDebouncing ? setInputValue(event.target.value) : setValue(event.target.value)
+  }, []);
+
+  if(isDebouncing)
+  {
+    useEffect(() => {
+      const handler = setTimeout(() => {
+        setValue(inputValue);
+      }, 500);
+
+      return () => {
+        clearTimeout(handler);
+      };
+    }, [inputValue]); 
+  }
+  
   if(inputType === "time" && !value)
   {
     return (
@@ -74,7 +93,7 @@ export function InputField({
     <input 
       className="task-popup-content" 
       type={inputType} 
-      value={value} 
+      value={isDebouncing ? inputValue : value} 
       placeholder={placeholderText} 
       onChange={handleInputChange}
     />

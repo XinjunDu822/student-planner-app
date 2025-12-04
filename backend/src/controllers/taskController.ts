@@ -7,6 +7,7 @@ import { start } from "repl";
 // Prisma supports dates between year 1 and 9999
 const MIN_DATE = new Date("0001-01-01T00:00:00.000Z");
 const MAX_DATE = new Date("9999-12-31T23:59:59.999Z");
+const MAX_RENDERED_TASKS = 100;
 
 function TimeToDate(date: string, time: string) {
   if (!time || time == undefined) {
@@ -89,6 +90,8 @@ export const getTaskData = async (
  
     var now = new Date();
 
+    var numTasksToDo = 0;
+
     //get all of user's incomplete, non-late tasks that satisfy the filters
     const newTasks = await prisma.task.findMany({
       where: {
@@ -103,7 +106,10 @@ export const getTaskData = async (
       orderBy: {
         date: "asc",
       },
+      take: MAX_RENDERED_TASKS,
     });
+
+    numTasksToDo += newTasks.length;
 
     // Get total number of new tasks
     const totalNewTasks = await prisma.task.count({
@@ -130,7 +136,10 @@ export const getTaskData = async (
       orderBy: {
         date: "asc",
       },
+      take: MAX_RENDERED_TASKS - numTasksToDo,
     });
+
+    numTasksToDo += lateTasks.length;
 
     const totalLateTasks = await prisma.task.count({
       where: {
@@ -152,6 +161,7 @@ export const getTaskData = async (
       orderBy: {
         date: "desc",
       },
+      take: Math.max(10, numTasksToDo),
     });
 
     const totalCompletedTasks = await prisma.task.count({

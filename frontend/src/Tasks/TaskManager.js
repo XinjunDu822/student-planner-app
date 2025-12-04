@@ -1,10 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { 
   getTaskData, 
-  createTask, 
-  editTask, 
-  deleteTask, 
-  completeTask, 
+  completeTask 
 } from './TaskService';
 import { getUser } from '../Auth/AuthService';
 
@@ -84,25 +81,8 @@ export function useTaskManager(user, logout, filters) {
     return () => clearInterval(refreshInterval);
   }, [loadTasks]);
 
-  const addTask = useCallback(async ({title, desc, date, time}) => {
-    const response = await createTask(user, title, date, time, desc);
-    await loadTasks();
-    return response;
-  }, [user, loadTasks]);
-
-  const editTask_ = useCallback(async ({id, title, desc, date, time}) => {
-    const response = await editTask(user, id, title, date, time, desc);
-    await loadTasks();
-    return response;
-  }, [user, loadTasks]);
-
-
-  const deleteTask_ = useCallback(async (id) => {
-    await deleteTask(user, id);
-    await loadTasks();
-  }, [user, loadTasks]);
-
   const completeTask_ = useCallback(async (id) => {
+    console.log({user, id})
     await completeTask(user, id);
     await loadTasks();
   }, [user, loadTasks]);
@@ -118,11 +98,6 @@ export function useTaskManager(user, logout, filters) {
       currStreak, 
       bestStreak, 
       error},
-    actions: {
-      loadTasks,
-      addTask, 
-      editTask: editTask_, 
-      deleteTask: deleteTask_, 
-      completeTask: completeTask_,},
+    actions: {loadTasks, completeTask: completeTask_},
   };
 }

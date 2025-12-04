@@ -1,7 +1,13 @@
 import Popup from 'reactjs-popup';
-
-export function DeleteTaskPopup({id, deleteTask, closeDeletePopup})
+import { useCallback } from 'react';
+import { deleteTask } from '../TaskService';
+export function DeleteTaskPopup({id, user, reload, closeDeletePopup})
 {
+  const deleteTask_ = useCallback(async () => {
+    await deleteTask(user, id);
+    await reload();
+  }, [user, id, reload]);
+
   return (
     <div >
       {/* pop up window */}
@@ -18,7 +24,7 @@ export function DeleteTaskPopup({id, deleteTask, closeDeletePopup})
               <div className="button-holder">
                 <div>
                     <button className="button" onClick=
-                      {() => {deleteTask(id); close();}}>
+                      {() => {deleteTask_(); close();}}>
                           Yes
                     </button>
                 </div>

@@ -28,12 +28,7 @@ export function TasksPage({user, logout}) {
       currStreak, 
       bestStreak, 
       error},
-    actions: {
-      loadTasks,
-      addTask, 
-      editTask, 
-      deleteTask, 
-      completeTask,},
+    actions: {loadTasks, completeTask},
   } = useTaskManager(user, logout, filterExport);
 
   const {
@@ -97,6 +92,7 @@ export function TasksPage({user, logout}) {
                 placeholderText = "Enter keyword(s)" 
                 value={keywords} 
                 setValue={setKeywords}
+                isDebouncing
               />
             </div>
 
@@ -126,7 +122,7 @@ export function TasksPage({user, logout}) {
             </div>
         </div >
 
-        <AddTaskPopup addTask={addTask}/>
+        <AddTaskPopup user={user} reload={loadTasks}/>
 
         {/* Late tasks */}
         <TaskDisplay 
@@ -160,13 +156,15 @@ export function TasksPage({user, logout}) {
 
         <EditTaskPopup 
           task={taskToEdit} 
-          editTask={editTask} 
+          user={user}
+          reload={loadTasks}
           closeEditPopup={closeEditPopup}
         />
 
         <DeleteTaskPopup 
           id={idToDelete} 
-          deleteTask={deleteTask} 
+          user={user}
+          reload={loadTasks}
           closeDeletePopup={closeDeletePopup}
         />
 

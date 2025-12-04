@@ -2,17 +2,19 @@ import Popup from 'reactjs-popup';
 import { useState, useEffect, useCallback } from 'react';
 import { CompareDates } from '../../Utils';
 
+import { editTask } from '../TaskService';
+
 import { usePopupForm } from "./PopupForm";
 import { PopupDisplay } from "./PopupDisplay";
 
-export function EditTaskPopup({task, editTask, closeEditPopup})
+export function EditTaskPopup({task, user, reload, closeEditPopup})
 {
   const [displayName, setDisplayName] = useState(null);
 
   const {
     fields: { title, desc, date, time, error },
     actions: { setTitle, setDesc, setDate, setTime, submit, setForm },
-  } = usePopupForm(editTask);
+  } = usePopupForm(editTask, reload);
 
   useEffect(() => {
     if(!task)
@@ -30,7 +32,7 @@ export function EditTaskPopup({task, editTask, closeEditPopup})
       return false;
     }
 
-    var args = {id: task.id, title, desc, date, time};
+    var args = {authorization: user, id: task.id, title, date, time, desc};
 
     //Checks if new date/time are the same as original
     if(CompareDates(date, time, task.date))
@@ -42,7 +44,7 @@ export function EditTaskPopup({task, editTask, closeEditPopup})
     var result = await submit(args);
 
     return result;
-  }, [title, desc, date, time, submit])
+  }, [user, title, desc, date, time, submit])
 
   
   return (
