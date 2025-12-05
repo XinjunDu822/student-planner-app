@@ -5,7 +5,9 @@ A full-stack student planning application built with:
 - **Backend:** Node.js, Prisma, TypeScript  
 - **Frontend:** React + TypeScript  
 - **Auth:** JWT-based authentication  
-- **Testing:** Jest + Supertest  
+- **Testing:** Jest + Supertest
+
+Features: Study Streaks, Task Dashboard, Add/Edit/Delete Tasks, Calendar Gadget
 
 ---
 
@@ -118,3 +120,7 @@ In the root folder:
 ```sh
 npm run cypress
 ```
+
+### Diagrams:
+
+  <img width="466" height="263" alt="Design Decision Diagram drawio (4) drawio" src="https://github.com/user-attachments/assets/698287c4-65d9-4b12-9990-ff1b3e9b8fcb" />
