@@ -47,42 +47,40 @@ export function Task({
   var time = FormatTime(timeParams);
 
   return (
-    <div className = "task">
+    <div className="task">
 
-      <div>
+      <div className="title">
         <HighlightMatches string={data.title} regexPattern={regexPattern}/>
       </div>
 
-      <div>{dateString}</div>
+      <div className="date">{dateString}</div>
 
       {!isComplete && (
         <>
-          <div>{time}</div>
+          <div className="time">{time}</div>
 
-          <div>
+          <div className="desc">
             <HighlightMatches string={data.desc} regexPattern={regexPattern}/>
           </div>
 
-          <div>
-            <button className="button" onClick={() => completeTask(index)}>
+          <div className="task-options">
+            <button className="complete button" onClick={() => completeTask(index)}>
               <p>Mark Complete</p>
               <p>✓</p>
             </button>
 
-            <button className="button" onClick={() => openEditPopup(data)}>
+            <button className="edit button" onClick={() => openEditPopup(data)}>
               <p>Edit</p>
               <p>✎</p>
             </button>
 
-            <button className="button" onClick={() => openDeletePopup(index)}>
+            <button className="delete button" onClick={() => openDeletePopup(index)}>
               <p>Delete</p>
               <p>🗑</p>
             </button>
           </div> 
         </>
       )}
-      
-
     </div>
   );
 }

@@ -20,23 +20,23 @@
 }
 
 
-.task > div:nth-child(1) {
+.task > .title {
   flex: 2;
   max-width: 200px;
 }
 
-.task > div:nth-child(2),
-.task > div:nth-child(3) {
+.task > .date,
+.task > .time {
   flex: 1;
   max-width: 100px;
 }
 
-.task > div:nth-child(4) {
+.task > .desc {
   flex: 3;
   max-height: 80px; 
 }
 
-.task > div:last-child {
+.task > .task-options {
   display: flex;
   gap: 20px;
   margin-left: auto;
@@ -55,7 +55,7 @@
 }
 
 @media screen and (max-width: 1380px) {
-  .task > div:nth-child(3) {
+  .task > .time {
     display: none;
   }
 }
@@ -75,10 +75,10 @@
 }
 
 @media screen and (max-width: 1040px) {
-  .task > div:nth-child(1) {
+  .task > .title {
     flex: 1;
   }
-  .task > div:nth-child(4) {
+  .task > .desc {
     display: none;
   }
 }
