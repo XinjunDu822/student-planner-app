@@ -191,14 +191,7 @@ export const getTaskData = async (
       lastLate = lastLateTask.date;
     }
 
-    if(lastLate > user.lastLate)
-    {
-      await prisma.user.update({
-        where: { id: userId },
-        data: { lastLate: lastLate },
-      });
-    }
-    else
+    if(lastLate < user.lastLate)
     {
       lastLate = user.lastLate;
     }
@@ -218,11 +211,12 @@ export const getTaskData = async (
     if(currStreak > bestStreak)
     {
       bestStreak = currStreak;
-      await prisma.user.update({
-        where: { id: userId },
-        data: { bestStreak: bestStreak },
-      });
     }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { lastLate: lastLate, bestStreak: bestStreak },
+    });
 
     return res
       .status(200)

@@ -82,7 +82,6 @@ export function useTaskManager(user, logout, filters) {
   }, [loadTasks]);
 
   const completeTask_ = useCallback(async (id) => {
-    console.log({user, id})
     await completeTask(user, id);
     await loadTasks();
   }, [user, loadTasks]);
