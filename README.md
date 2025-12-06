@@ -124,3 +124,7 @@ npm run cypress
 ### Diagrams:
 
   <img width="466" height="263" alt="Design Decision Diagram drawio (4) drawio" src="https://github.com/user-attachments/assets/698287c4-65d9-4b12-9990-ff1b3e9b8fcb" />
+  <img width="696" height="538" alt="Final_Project_Filter_Sequence_Diagram" src="https://github.com/user-attachments/assets/56566c6e-cf07-450f-97dc-91f5ee4d8ea9" />
+  <img width="696" height="538" alt="Final_Project_Sequence_Diagram" src="https://github.com/user-attachments/assets/60df1df6-dc44-4c36-bbd1-8868092cffde" />
+
+
